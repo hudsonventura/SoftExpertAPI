@@ -1,0 +1,9 @@
+﻿################################################################################
+# Este arquivo .gitignore foi criado automaticamente pelo Microsoft(R) Visual Studio.
+################################################################################
+
+/src/.vs/PostgresSingleton
+src/.vs/SoftExpertAPI/v17/.suo
+src/SoftExpertAPI/obj/*
+src/SoftExpertAPI/bin/*
+src/.vs/*

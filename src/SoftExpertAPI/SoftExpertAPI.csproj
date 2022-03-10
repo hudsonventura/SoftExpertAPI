@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>SoftExpertAPI é uma biblioteca que possui um conjunto de classes para abstrair a comunicação SOAP com a API do SoftExpert SESuite.</Description>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
+    <PackageProjectUrl>https://github.com/hudsonventura/SoftExpertAPI</PackageProjectUrl>
+    <PackageLicense>https://github.com/hudsonventura/SinglePostgres/blob/main/LICENSE</PackageLicense>
+    <Authors>Hudson Ventura</Authors>
+    <Company>Hudson Ventura</Company>
+    <PackageId>SoftExpertAPI</PackageId>
+    <Product>SoftExpertAPI</Product>
+    <Version>1.0.0</Version>
+    <AssemblyName>SoftExpertAPI</AssemblyName>
+    <Language>dotnet</Language>
+    <Copyright>Direitos reservados a https://www.softexpert.com/</Copyright>
+    <PackageIcon>120.png</PackageIcon>
+    <PackageReadmeFile></PackageReadmeFile>
+    <RepositoryUrl>https://github.com/hudsonventura/SoftExpertAPI</RepositoryUrl>
+    <PackageLicenseFile></PackageLicenseFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="120.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
