@@ -50,6 +50,7 @@ namespace SoftExpert.Workflow
             }
             catch (SoftExpertException error)
             {
+                error.setXMLSoapSent(body);
                 throw error;
             }
             catch (Exception error)
@@ -151,6 +152,7 @@ namespace SoftExpert.Workflow
             }
             catch (SoftExpertException error)
             {
+                error.setXMLSoapSent(body);
                 throw error;
             }
             catch (Exception error)
@@ -206,6 +208,7 @@ namespace SoftExpert.Workflow
             }
             catch (SoftExpertException error)
             {
+                error.setXMLSoapSent(body);
                 throw error;
             }
             catch (Exception error)
