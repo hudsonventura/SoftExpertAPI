@@ -13,6 +13,13 @@ namespace SoftExpert
         public int Code { get; protected set; }
         public string Detail { get; protected set; }
 
+        public new string XMLSoapSent { get; protected set; }
+
+        public void setXMLSoapSent(string xml)
+        {
+            XMLSoapSent = xml;
+        }
+
 
         protected JToken PreParse(string xmljson)
         {

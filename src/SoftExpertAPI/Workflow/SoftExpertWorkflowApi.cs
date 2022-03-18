@@ -54,7 +54,9 @@ namespace SoftExpert.Workflow
             }
             catch (Exception error)
             {
-                return newWorkflowResponse.Parse(error.Message);
+                var erro = newWorkflowResponse.Parse(error.Message);
+                erro.setXMLSoapSent(body);
+                return erro;
             }
 
         }
@@ -153,7 +155,9 @@ namespace SoftExpert.Workflow
             }
             catch (Exception error)
             {
-                return editEntityRecordResponse.Parse(error.Message);
+                var erro = editEntityRecordResponse.Parse(error.Message);
+                erro.setXMLSoapSent(body);
+                return erro;
             }
         }
 
@@ -206,7 +210,9 @@ namespace SoftExpert.Workflow
             }
             catch (Exception error)
             {
-                return executeActivityResponse.Parse(error.Message);
+                var erro = executeActivityResponse.Parse(error.Message);
+                erro.setXMLSoapSent(body);
+                return erro;
             }
         }
 
