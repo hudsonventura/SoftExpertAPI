@@ -11,9 +11,17 @@ namespace SoftExpert.Workflow
         public static newWorkflowResponse Parse(string xmljson)
         {
             newWorkflowResponse parsed = new newWorkflowResponse();
-            JToken response = parsed.PreParse(xmljson);
-            parsed.RecordKey = response.SelectToken("RecordKey").ToString();
-            parsed.RecordID = response.SelectToken("RecordID").ToString();
+            try
+            {
+                JToken response = parsed.PreParse(xmljson);
+                parsed.RecordKey = response.SelectToken("RecordKey").ToString();
+                parsed.RecordID = response.SelectToken("RecordID").ToString();
+            }
+            catch (System.Exception error)
+            {
+                parsed.Detail = xmljson;
+            }
+            
             return parsed;
         }
 

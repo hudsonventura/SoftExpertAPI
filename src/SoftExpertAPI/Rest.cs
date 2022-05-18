@@ -50,7 +50,7 @@ class Rest
             }
             catch (Exception)
             {
-                request.ContentType = "application/xml";
+                request.ContentType = "text/xml; charset=utf-8";
             }
             
             request.ContentLength = body.Length;

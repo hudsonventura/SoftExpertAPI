@@ -8,14 +8,32 @@ namespace SoftExpert.Workflow
     public class SoftExpertWorkflowApi
     {
         private readonly string _url;
-        private readonly string _uriModule;
+        private readonly string _uriModule = "/apigateway/se/ws/wf_ws.php";
         private readonly Dictionary<string, string> _headers;
 
-        public SoftExpertWorkflowApi(string url, string uriModule, Dictionary<string, string> headers)
+        /// <summary>
+        /// Construtor. Necessário passar a URL do ambiente do SE e os headers. Header Authorization é necessário
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="headers"></param>
+        public SoftExpertWorkflowApi(string url, Dictionary<string, string> headers)
         {
             _url = url;
-            _uriModule = uriModule;
             _headers = headers;
+            
+        }
+
+        /// <summary>
+        /// Construtor. Necessário passar a URL do ambiente do SE e a string to Authorization incluindo o 'Basic ....'
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="authorization"></param>
+        public SoftExpertWorkflowApi(string url, string authorization)
+        {
+            _url = url;
+            _headers = new Dictionary<string, string>();
+            _headers.Add("Authorization", authorization);
+            
         }
 
         /// <summary>
@@ -26,7 +44,7 @@ namespace SoftExpert.Workflow
         /// <param name="UserID">Matrícula do usuário iniciador da instância</param>
         /// <returns>newWorkflowResponse, objeto com os campos Status, Code, Detail, RecordKey e RecordID. Se Code = 1 entao RecordID conterá o ID da intância gerada. Se Code != 1, uma SoftExpertException é gerada</returns>
         /// <exception cref="SoftExpertException"></exception>
-        public newWorkflowResponse newWorkflow(string ProcessID, string WorkflowTitle, string? UserID)
+        public newWorkflowResponse newWorkflow(string ProcessID, string WorkflowTitle, string? UserID = null)
         {
 
             string body = $@"
@@ -34,10 +52,8 @@ namespace SoftExpert.Workflow
                    <soapenv:Header/>
                    <soapenv:Body>
                       <urn:newWorkflow>
-                         <!--You may enter the following 3 items in any order-->
                          <urn:ProcessID>{ProcessID}</urn:ProcessID>
                          <urn:WorkflowTitle>{WorkflowTitle}</urn:WorkflowTitle>
-                         <!--Optional:-->
                          <urn:UserID>{UserID}</urn:UserID>
                       </urn:newWorkflow>
                    </soapenv:Body>
@@ -45,6 +61,7 @@ namespace SoftExpert.Workflow
             ;
             try
             {
+                _headers.Add("SOAPAction", "urn:workflow#newWorkflow");
                 var retorno = Rest.request("POST", _url, _uriModule, _headers, body);
                 return newWorkflowResponse.Parse(retorno.ToString());
             }
@@ -53,11 +70,11 @@ namespace SoftExpert.Workflow
                 error.setXMLSoapSent(body);
                 throw error;
             }
-            catch (Exception error)
+            catch (Exception error2)
             {
-                var erro = newWorkflowResponse.Parse(error.Message);
+                var erro = new SoftExpertException(error2.Message);
                 erro.setXMLSoapSent(body);
-                return erro;
+                throw erro;
             }
 
         }
@@ -147,6 +164,7 @@ namespace SoftExpert.Workflow
 
             try
             {
+                _headers.Add("SOAPAction", "urn:workflow#editEntityRecord");
                 var retorno = Rest.request("POST", _url, _uriModule, _headers, body);
                 return editEntityRecordResponse.Parse(retorno.ToString());
             }
@@ -203,6 +221,7 @@ namespace SoftExpert.Workflow
             ;
             try
             {
+                _headers.Add("SOAPAction", "urn:workflow#executeActivity");
                 var retorno = Rest.request("POST", _url, _uriModule, _headers, body);
                 return executeActivityResponse.Parse(retorno.ToString());
             }
