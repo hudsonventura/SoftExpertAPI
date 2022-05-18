@@ -7,3 +7,6 @@ src/.vs/SoftExpertAPI/v17/.suo
 src/SoftExpertAPI/obj/*
 src/SoftExpertAPI/bin/*
 src/.vs/*
+/src/Tests/bin/Release/net6.0
+/src/Tests/obj
+/src/Testes
