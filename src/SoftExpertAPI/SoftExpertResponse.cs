@@ -9,11 +9,16 @@ namespace SoftExpert
     public abstract class SoftExpertResponse
     {
 
-        public string Status { get; protected set; }
+        public STATUS Status { get; protected set; }
         public int Code { get; protected set; }
         public string Detail { get; protected set; }
 
         public new string XMLSoapSent { get; protected set; }
+
+        public enum STATUS { 
+            SUCCESS,
+            FAILURE
+        }
 
         public void setXMLSoapSent(string xml)
         {
@@ -48,13 +53,13 @@ namespace SoftExpert
                 response = response[0];
             }
 
-            Status = response.SelectToken("Status").ToString();
+            Status = (STATUS) Enum.Parse(typeof(STATUS), response.SelectToken("Status").ToString());
             Code = Int32.Parse(response.SelectToken("Code").ToString());
             Detail = response.SelectToken("Detail").ToString();
 
-            if (Code is not 1)
+            if (Status is not STATUS.SUCCESS)
             {
-                throw new SoftExpertException($"{type} - {Detail}", this);
+                throw new SoftExpertException(Detail, this);
             }
 
             return response;

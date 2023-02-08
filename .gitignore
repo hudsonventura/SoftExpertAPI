@@ -12,3 +12,6 @@ src/.vs/*
 /src/Testes
 *appsettings.json
 src/Tests/bin/*
+README.md
+src/Examples/bin/*
+src/Examples/obj/*

@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftExpertAPI", "SoftExpert
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{99541CD4-6CF0-4A97-ADA9-EE83752308FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Examples", "Examples\Examples.csproj", "{73022FDF-0439-43D2-8BA6-35F126DEC752}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{99541CD4-6CF0-4A97-ADA9-EE83752308FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99541CD4-6CF0-4A97-ADA9-EE83752308FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99541CD4-6CF0-4A97-ADA9-EE83752308FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73022FDF-0439-43D2-8BA6-35F126DEC752}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73022FDF-0439-43D2-8BA6-35F126DEC752}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73022FDF-0439-43D2-8BA6-35F126DEC752}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73022FDF-0439-43D2-8BA6-35F126DEC752}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

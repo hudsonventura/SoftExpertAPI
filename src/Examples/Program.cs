@@ -1,40 +1,16 @@
-# SoftExpertAPI
-SoftExpertAPI é uma biblioteca que possui um conjunto de classes para abstrair a comunicação SOAP com a API do SoftExpert SESuite.<br>
-Esta biblioteca não está completa e será desenvolvida conforme necessidades e pedidos.
-<br>
-Direitos reservados a https://www.softexpert.com/<br>
-<br>
-Documentação original: https://documentation.softexpert.com/en/integration/index.html
-<br>
-<br>
-Se você quer falar comigo, por qualquer proposito, me mande um email. hudsonventura@outlook.com
-
-<br>
-<br>
-
-Há um exemplo funcional no diretório `Examples`
-
-### Importação do namespace ...
-```C#
-using SoftExpert;
+﻿using Services;
 using SoftExpert.Workflow;
-```
-<br>
-<br>
 
-### Criar uma instancia da API de workflow para uso
-```C#
-string authorization = "Basic base64encode(DOMINIO\USUARIO:SENHA)"; //deve ser codificado em base64
-string url = "https://se.dominio.com.br";
+var appsettings = Appsettings.GetSettings();
+
+string url = appsettings["url"].ToString();
+string authorization = appsettings["authorization"].ToString();
+
+
 SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(url, authorization);
-```
 
-<br>
-<br>
 
-### Usando a API - Criando uma instancia de workflow
-
-```C#
+//CRIAR INSTANCIA DE PROCESSO
 string ProcessID = "CCF";                       //identificador do processo
 string WorkflowTitle = "Teste de integração"; ; //titulo da instancia a ser criado
 string UserID = "00000000000";                  //matricula do usuario
@@ -53,15 +29,14 @@ string WorkflowID = responseNewWF.RecordID;
 int codigoNewWorkFlow = responseNewWF.Code;
 SoftExpert.SoftExpertResponse.STATUS sucessoNewWorkFlow = responseNewWF.Status;
 string detalhesNewWorkflow = responseNewWF.Detail;
-```
-
-<br>
-<br>
 
 
-### Usando a API - Editando dados do formulário
 
-```C#
+
+
+
+
+//EDITAR FORMULÁRIO
 Dictionary<string, string> formulario = new Dictionary<string, string>();
 formulario.Add("possuiendereco", "1"); //id do campo do formulário e valor (em string)
 formulario.Add("ramal", "N/A");
@@ -88,15 +63,12 @@ catch (Exception erro)
 }
 int sucessoEntity = entityResponse.Code;
 string detalhesEntity = entityResponse.Detail;
-```
-
-<br>
-<br>
 
 
-### Usando a API - Execução de atividade
 
-```C#
+
+
+//EXECUÇÃO DE ATIVIDADE
 string ActivityID = "ATIV-SOLCCF";      //ID da atividade do fluxograma
 int ActionSequence = 3;                 //Sequence da ação da atividade. Veja na lista de ações da atividade
 
@@ -112,7 +84,3 @@ catch (Exception erro)
 }
 var houveSucesso = executeResponse.Code;
 var detalhes = executeResponse.Detail;
-```
-
-<br>
-<br>

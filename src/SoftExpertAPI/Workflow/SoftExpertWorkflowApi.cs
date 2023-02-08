@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Reflection.PortableExecutable;
+using RestSharp;
 
 
 namespace SoftExpert.Workflow
 {
     public class SoftExpertWorkflowApi
     {
-        private readonly string _url;
         private readonly string _uriModule = "/apigateway/se/ws/wf_ws.php";
-        private readonly Dictionary<string, string> _headers;
+        private readonly RestClient restClient;
 
         /// <summary>
         /// Construtor. Necessário passar a URL do ambiente do SE e os headers. Header Authorization é necessário
@@ -18,9 +18,9 @@ namespace SoftExpert.Workflow
         /// <param name="headers"></param>
         public SoftExpertWorkflowApi(string url, Dictionary<string, string> headers)
         {
-            _url = url;
-            _headers = headers;
-            
+            restClient = new RestClient(url);
+            restClient.AddDefaultHeaders(headers);
+            restClient.AddDefaultHeader("Host", url.Split("://")[1].Split(":")[0]);
         }
 
         /// <summary>
@@ -30,10 +30,9 @@ namespace SoftExpert.Workflow
         /// <param name="authorization"></param>
         public SoftExpertWorkflowApi(string url, string authorization)
         {
-            _url = url;
-            _headers = new Dictionary<string, string>();
-            _headers.Add("Authorization", authorization);
-            
+            restClient = new RestClient(url);
+            restClient.AddDefaultHeader("Authorization", authorization);
+            restClient.AddDefaultHeader("Host", url.Split("://")[1].Split(":")[0]);
         }
 
         /// <summary>
@@ -47,23 +46,26 @@ namespace SoftExpert.Workflow
         public newWorkflowResponse newWorkflow(string ProcessID, string WorkflowTitle, string? UserID = null)
         {
 
-            string body = $@"
-                <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
-                   <soapenv:Header/>
-                   <soapenv:Body>
-                      <urn:newWorkflow>
-                         <urn:ProcessID>{ProcessID}</urn:ProcessID>
-                         <urn:WorkflowTitle>{WorkflowTitle}</urn:WorkflowTitle>
-                         <urn:UserID>{UserID}</urn:UserID>
-                      </urn:newWorkflow>
-                   </soapenv:Body>
-                </soapenv:Envelope>"
+            string body = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
+                               <soapenv:Header/>
+                               <soapenv:Body>
+                                  <urn:newWorkflow>
+                                     <urn:ProcessID>{ProcessID}</urn:ProcessID>
+                                     <urn:WorkflowTitle>{WorkflowTitle}</urn:WorkflowTitle>
+                                     <urn:UserID>{UserID}</urn:UserID>
+                                  </urn:newWorkflow>
+                               </soapenv:Body>
+                            </soapenv:Envelope>"
             ;
+
             try
             {
-                _headers.Add("SOAPAction", "urn:workflow#newWorkflow");
-                var retorno = Rest.request("POST", _url, _uriModule, _headers, body.Trim());
-                return newWorkflowResponse.Parse(retorno.ToString());
+                RestRequest request = new RestRequest(_uriModule, Method.Post);
+                request.AddHeader("SOAPAction", "urn:workflow#newWorkflow");
+                request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
+
+                var response = restClient.Execute(request);
+                return newWorkflowResponse.Parse(response.Content);
             }
             catch (SoftExpertException error)
             {
@@ -164,9 +166,12 @@ namespace SoftExpert.Workflow
 
             try
             {
-                _headers.Add("SOAPAction", "urn:workflow#editEntityRecord");
-                var retorno = Rest.request("POST", _url, _uriModule, _headers, body.Trim());
-                return editEntityRecordResponse.Parse(retorno.ToString());
+                RestRequest request = new RestRequest(_uriModule, Method.Post);
+                request.AddHeader("SOAPAction", "urn:workflow#newWorkflow");
+                request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
+
+                var response = restClient.Execute(request);
+                return editEntityRecordResponse.Parse(response.Content);
             }
             catch (SoftExpertException error)
             {
@@ -221,9 +226,12 @@ namespace SoftExpert.Workflow
             ;
             try
             {
-                _headers.Add("SOAPAction", "urn:workflow#executeActivity");
-                var retorno = Rest.request("POST", _url, _uriModule, _headers, body.Trim());
-                return executeActivityResponse.Parse(retorno.ToString());
+                RestRequest request = new RestRequest(_uriModule, Method.Post);
+                request.AddHeader("SOAPAction", "urn:workflow#newWorkflow");
+                request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
+
+                var response = restClient.Execute(request);
+                return executeActivityResponse.Parse(response.Content);
             }
             catch (SoftExpertException error)
             {
