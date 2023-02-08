@@ -20,12 +20,9 @@ using SoftExpert.Workflow;
 
 ### Criar uma instancia da API de workflow para uso
 ```C#
-Dictionary<string, string> headers = new Dictionary<string, string>();
-headers.Add("Authorization", $"Basic base64encode(DOMINIO\USUARIO:SENHA)"); //deve ser codificado em base64
-
+string Authorization = "Basic base64encode(DOMINIO\USUARIO:SENHA)"; //deve ser codificado em base64
 string seURL = "https://se.dominio.com.br";
-string servico = "/apigateway/se/ws/wf_ws.php"; //deve ser obtido a partir da documentação original
-SoftExpertWorkflowApi wf = new SoftExpertWorkflowApi(seURL, servico, headers);
+SoftExpertWorkflowApi wf = new SoftExpertWorkflowApi(seURL, Authorization);
 ```
 
 <br>

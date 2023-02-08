@@ -10,3 +10,5 @@ src/.vs/*
 /src/Tests/bin/Release/net6.0
 /src/Tests/obj
 /src/Testes
+*appsettings.json
+src/Tests/bin/*

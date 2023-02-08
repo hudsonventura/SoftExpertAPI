@@ -62,7 +62,7 @@ namespace SoftExpert.Workflow
             try
             {
                 _headers.Add("SOAPAction", "urn:workflow#newWorkflow");
-                var retorno = Rest.request("POST", _url, _uriModule, _headers, body);
+                var retorno = Rest.request("POST", _url, _uriModule, _headers, body.Trim());
                 return newWorkflowResponse.Parse(retorno.ToString());
             }
             catch (SoftExpertException error)
@@ -165,7 +165,7 @@ namespace SoftExpert.Workflow
             try
             {
                 _headers.Add("SOAPAction", "urn:workflow#editEntityRecord");
-                var retorno = Rest.request("POST", _url, _uriModule, _headers, body);
+                var retorno = Rest.request("POST", _url, _uriModule, _headers, body.Trim());
                 return editEntityRecordResponse.Parse(retorno.ToString());
             }
             catch (SoftExpertException error)
@@ -222,7 +222,7 @@ namespace SoftExpert.Workflow
             try
             {
                 _headers.Add("SOAPAction", "urn:workflow#executeActivity");
-                var retorno = Rest.request("POST", _url, _uriModule, _headers, body);
+                var retorno = Rest.request("POST", _url, _uriModule, _headers, body.Trim());
                 return executeActivityResponse.Parse(retorno.ToString());
             }
             catch (SoftExpertException error)

@@ -26,15 +26,13 @@ namespace Tests
         public void Setup()
         {
             string url = _configs["url"];
-            Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add("Authorization", _configs["Authorization"]);
             _softExpertApi = new SoftExpert.Workflow.SoftExpertWorkflowApi(url, _configs["Authorization"]);
         }
 
         [Test]
         public void newWorkflow()
         {
-            var a = _softExpertApi.newWorkflow("SM", "Teste de unidade automatizado da biblioteca SoftExpertAPI");
+            var a = _softExpertApi.newWorkflow("LA", "Teste de unidade automatizado da biblioteca SoftExpertAPI");
             
             if (a == null) {
                 Assert.Fail("O retorno foi nulo");
@@ -50,20 +48,22 @@ namespace Tests
         [Test]
         public void editEntityRecord()
         {
-            string WorkflowID = "FI2022005656";
+            string WorkflowID = "LA202303163";
 
-            string EntityID = "SOLINDFISCAL";
+            string EntityID = "LA";
 
-            Dictionary<string, string> EntityAttributeList = new Dictionary<string, string>();
-            EntityAttributeList.Add("supervisornome", "teste 4");
-            EntityAttributeList.Add("solempresa", "0004 - teste nome empresa");
+            Dictionary<string, string> EntityAttributeList = new Dictionary<string, string>() {
+                { "jaexecutado", "0"},
+                //{ "solempresa", "0004 - teste nome empresa"}
+            };
+
 
             Dictionary<string, Dictionary<string, string>> RelationshipList = new Dictionary<string, Dictionary<string, string>>();
-            RelationshipList.Add("soltipo", 
-                new Dictionary<string, string>() {
-                { "tipo", "Processamento de Romaneio" },
-                }
-            );
+           // RelationshipList.Add("soltipo", 
+            //    new Dictionary<string, string>() {
+           //     { "tipo", "Processamento de Romaneio" },
+            //    }
+            //);
 
             editEntityRecordResponse b = _softExpertApi.editEntityRecord(WorkflowID, EntityID, EntityAttributeList, RelationshipList);
 
