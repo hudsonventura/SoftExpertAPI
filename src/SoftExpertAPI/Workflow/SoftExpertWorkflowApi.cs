@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection.PortableExecutable;
 using RestSharp;
@@ -144,8 +144,21 @@ namespace SoftExpert.Workflow
                     ;
                 }
             }
-            }
 
+            string anexos = "";
+            if (EntityAttributeFileList is not null) {
+                foreach (var arquivo in EntityAttributeFileList)
+                {
+                    string base64 = Convert.ToBase64String(arquivo.Value.Content);
+                    anexos += $@"
+                        <EntityAttributeFile>
+                            <EntityAttributeID>{arquivo.Key}</EntityAttributeID>
+                            <FileName>{arquivo.Value.FileName}</FileName>
+                            <FileContent>{base64}</FileContent>
+                        </EntityAttributeFile>
+                    ";
+                }
+            }
 
 
 
@@ -158,12 +171,17 @@ namespace SoftExpert.Workflow
                          <urn:EntityID>{EntityID}</urn:EntityID>
 
                          <urn:EntityAttributeList>
-                               {camposForm}
+                            {camposForm}
                          </urn:EntityAttributeList>
 
                          <urn:RelationshipList>
-                               {camposRelacionamento}
+                            {camposRelacionamento}
                          </urn:RelationshipList>
+
+                         <EntityAttributeFileList>
+                            {anexos}
+                        </EntityAttributeFileList> 
+
                       </urn:editEntityRecord>
                    </soapenv:Body>
                 </soapenv:Envelope>"
@@ -257,14 +275,54 @@ namespace SoftExpert.Workflow
         /// <param name="WorkflowID">ID da instancia</param>
         /// <param name="ActivityID">ID da atividade a ser executada</param>
         /// <param name="FileName">Nome do arquivo com a extensão. Ex.: importante.docx</param>
-        /// <param name="FileContent">byte[] FileConten array de bytes. Abra com: byte[] FileContent = File.ReadAllBytes(filePath); </param>
+        /// <param name="FileContent">byte[] FileContent array de bytes. Abra com: byte[] FileContent = File.ReadAllBytes(filePath); </param>
         /// <returns></returns>
-        public newAttachmentResponse newAttachment(string WorkflowID, string ActivityID, string FileName, byte[] FileContent)
+        public newAttachmentResponse newAttachment(string WorkflowID, string ActivityID, Anexo File, string UserID = null)
         {
-            
+            string base64 = Convert.ToBase64String(File.Content);
+            string body = $@"
+                <soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:urn=""urn:workflow"">
+                   <soapenv:Header/>
+                   <soapenv:Body>
+                      <urn:newAttachment>
+                         <urn:WorkflowID>{WorkflowID}</urn:WorkflowID>
+                         <urn:ActivityID>{ActivityID}</urn:ActivityID>
+                         <urn:FileName>{File.FileName}</urn:FileName>
+                         <urn:FileContent>{base64}</urn:FileContent>
+                         <!--Optional:-->
+                         <urn:UserID>{UserID}</urn:UserID>
+                      </urn:newAttachment>
+                   </soapenv:Body>
+                </soapenv:Envelope>
+                "
+            ;
+            try
+            {
+                RestRequest request = new RestRequest(_uriModule, Method.Post);
+                request.AddHeader("SOAPAction", "urn:workflow#newAttachment");
+                request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
 
-            return new newAttachmentResponse();
+                var response = restClient.Execute(request);
+                return newAttachmentResponse.Parse(response.Content);
+            }
+            catch (SoftExpertException error)
+            {
+                error.setXMLSoapSent(body);
+                throw error;
+            }
+            catch (Exception error)
+            {
+                var erro = newAttachmentResponse.Parse(error.Message);
+                erro.setXMLSoapSent(body);
+                return erro;
+            }
         }
+    }
+
+
+    public class Anexo{
+        public string FileName { get; set; }
+        public byte[] Content { get; set; }
     }
 
 }
