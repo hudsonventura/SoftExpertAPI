@@ -22,7 +22,7 @@ internal class newWorkflowExample
     {
         string ProcessID = "CCF";       //identificador do processo
         string WorkflowTitle = "Teste"; //titulo da instancia a ser criado
-        string UserID = "03556799146";  //matricula do usuario
+        string UserID = "00000000000";  //matricula do usuario
 
         newWorkflowResponse responseNewWF;
         try

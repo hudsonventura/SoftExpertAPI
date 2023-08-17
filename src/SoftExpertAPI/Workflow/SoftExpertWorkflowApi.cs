@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection.PortableExecutable;
 using RestSharp;
@@ -90,15 +90,16 @@ namespace SoftExpert.Workflow
 
 
         /// <summary>
-        /// Este método edita os valores do formulário de uma instância de Workflow
+        /// Este método edita os valores do formulário de uma instância de Workflow. Anexos podem ser adicionados nos campos do formulário
         /// </summary>
         /// <param name="WorkflowID">ID da instância</param>
         /// <param name="EntityID">ID da tabela do formulário</param>
-        /// <param name="EntityAttributeList">Dicionário (tipo Dictionary do dotnet) contendo os campos do formulário no formato chave - valor (pode ser nulo)</param>
-        /// /// <param name="RelationshipList">Dicionário (tipo Dictionary do dotnet) contendo os campos do formulário no formato chave - valor dentro de um dicionário com o ID do relacionamento na chave do dicionário superior. (pode ser nulo) </param>
+        /// <param name="EntityAttributeList">Dicionário contendo os campos do formulário no formato chave - valor (pode ser nulo)</param>
+        /// <param name="RelationshipList">Dicionário contendo os campos do formulário no formato chave - valor dentro de um dicionário com o ID do relacionamento na chave do dicionário superior. (pode ser nulo) </param>
+        /// <param name="EntityAttributeFileList">Dicionário contendo os arquivos no formato chave - valor (byte[])</param>
         /// <returns>editEntityRecordResponse, objeto com os campos Status, Code, Detail. Se Code = 1 entao houve sucesso. Se Code != 1, uma SoftExpertException é gerada</returns>
         /// <exception cref="SoftExpertException"></exception>
-        public editEntityRecordResponse editEntityRecord(string WorkflowID, string EntityID, Dictionary<string, string> EntityAttributeList = null, Dictionary<string, Dictionary<string, string>> RelationshipList = null)
+        public editEntityRecordResponse editEntityRecord(string WorkflowID, string EntityID, Dictionary<string, string> EntityAttributeList = null, Dictionary<string, Dictionary<string, string>> RelationshipList = null, Dictionary<string, Anexo> EntityAttributeFileList = null)
         {
 
             string camposForm = "";
@@ -118,7 +119,7 @@ namespace SoftExpert.Workflow
             string camposRelacionamento = "";
             if (RelationshipList is not null)
             {
-                camposRelacionamento += $@"<urn:RelationshipList>";
+                camposRelacionamento += $@"";
                 foreach (KeyValuePair<string, Dictionary<string, string>> RelationshipAttribute in RelationshipList)
                 {
                     camposRelacionamento += $@"
@@ -142,7 +143,7 @@ namespace SoftExpert.Workflow
                             "
                     ;
                 }
-                camposRelacionamento += $@"</urn:RelationshipList>";
+            }
             }
 
 
@@ -155,10 +156,14 @@ namespace SoftExpert.Workflow
                       <urn:editEntityRecord>
                          <urn:WorkflowID>{WorkflowID}</urn:WorkflowID>
                          <urn:EntityID>{EntityID}</urn:EntityID>
+
                          <urn:EntityAttributeList>
                                {camposForm}
                          </urn:EntityAttributeList>
+
+                         <urn:RelationshipList>
                                {camposRelacionamento}
+                         </urn:RelationshipList>
                       </urn:editEntityRecord>
                    </soapenv:Body>
                 </soapenv:Envelope>"

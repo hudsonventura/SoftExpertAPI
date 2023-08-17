@@ -22,7 +22,7 @@ internal class executeActivityExample
         string ActivityID = "ATIV-SOLCCF";      //ID da atividade do fluxograma
         int ActionSequence = 3;                 //Sequence da ação da atividade. Veja na lista de ações da atividade
         string WorkflowID = "CCF202323106";     //ID da instancia
-        string UserID = "";
+        string UserID = "00000000000";          //matricula do usuario
 
         executeActivityResponse executeResponse;
         try
