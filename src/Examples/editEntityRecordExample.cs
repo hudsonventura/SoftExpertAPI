@@ -45,7 +45,7 @@ internal class editEntityRecordExample
         string FileName = "logo.png";                       //Nome do arquivo com a extensão
         byte[] FileContent = File.ReadAllBytes(filePath);   //Binário do arquivo
         Dictionary<string, Anexo> arquivos = new Dictionary<string, Anexo>();
-        arquivos.Add("al5termoassinad", new Anexo() { FileName = "teste.png", Content = FileContent });
+        arquivos.Add("al5termoassinad", new Anexo() { FileName = FileName, Content = FileContent });
 
 
 

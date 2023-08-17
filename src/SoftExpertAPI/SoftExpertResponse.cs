@@ -9,9 +9,9 @@ namespace SoftExpert
     public abstract class SoftExpertResponse
     {
 
-        public STATUS Status { get; protected set; }
-        public int Code { get; protected set; }
-        public string Detail { get; protected set; }
+        public STATUS Status { get; internal set; }
+        public int Code { get; internal set; }
+        public string Detail { get; internal set; }
 
         public new string XMLSoapSent { get; protected set; }
 

@@ -25,7 +25,8 @@ newWorkflowExample.Main();
 
 //Anexar um arquivo no menu de anexo
 newAttachmentExample newAttachmentExample = new newAttachmentExample(wfAPI);
-newAttachmentExample.Main();
+newAttachmentExample.Exemplo1_ArquivoUnico();
+newAttachmentExample.Exemplo2_VariosArquivos();
 
 
 //Editar um formulário

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection.PortableExecutable;
 using RestSharp;
+using static SoftExpert.SoftExpertResponse;
 
 
 namespace SoftExpert.Workflow
@@ -274,8 +275,7 @@ namespace SoftExpert.Workflow
         /// </summary>
         /// <param name="WorkflowID">ID da instancia</param>
         /// <param name="ActivityID">ID da atividade a ser executada</param>
-        /// <param name="FileName">Nome do arquivo com a extensão. Ex.: importante.docx</param>
-        /// <param name="FileContent">byte[] FileContent array de bytes. Abra com: byte[] FileContent = File.ReadAllBytes(filePath); </param>
+        /// <param name="File">Arquivo a ser anexado</param>
         /// <returns></returns>
         public newAttachmentResponse newAttachment(string WorkflowID, string ActivityID, Anexo File, string UserID = null)
         {
@@ -316,6 +316,50 @@ namespace SoftExpert.Workflow
                 erro.setXMLSoapSent(body);
                 return erro;
             }
+        }
+
+
+        /// <summary>
+        /// Este método anexa umalista de arquivos no menu de anexo do lado esquerdo de uma instancia
+        /// </summary>
+        /// <param name="WorkflowID">ID da instancia</param>
+        /// <param name="ActivityID">ID da atividade a ser executada</param>
+        /// <param name="Files">Lista de arquivos no formato List<Anexo></param>
+        /// <returns></returns>
+        public newAttachmentResponse newAttachment(string WorkflowID, string ActivityID, List<Anexo> Files, string UserID = null)
+        {
+            foreach (Anexo File in Files) {
+                if (File is null)
+                {
+                    throw new SoftExpertException("Um dos itens da lista é nulo. Então a comunicação com o SE não foi inciada. Verifique sua lista de arquivos e tente novamente.");
+                }
+                if (File.Content is null || File.Content.Length == 0)
+                {
+                    throw new SoftExpertException("Um dos itens da lista possui o conteúdo nulo ou vazio. Então a comunicação com o SE não foi inciada. Verifique sua lista de arquivos e tente novamente.");
+                }
+                if (File.FileName is null || File.FileName.Length == 0)
+                {
+                    throw new SoftExpertException("Um dos itens da lista não possui o nome do arquivo (FileName), ou este é vazio. Então a comunicação com o SE não foi inciada. Verifique sua lista de arquivos e tente novamente.");
+                }
+            }
+            newAttachmentResponse retorno = new newAttachmentResponse();
+            foreach (Anexo File in Files) {
+                try
+                {
+                    retorno = newAttachment(WorkflowID, ActivityID, File, UserID);
+                }
+                catch (Exception error)
+                {
+                    string detail = $"A iteração parou no arquivo {File.FileName} por conta do erro: {error.Message}";
+                    throw new SoftExpertException(detail, retorno);
+                }
+                
+            }
+            return new newAttachmentResponse() { 
+                Code = 1,
+                Detail = "Todos os arquivos foram anexados com sucesso",
+                Status = SoftExpertResponse.STATUS.SUCCESS
+            };
         }
     }
 

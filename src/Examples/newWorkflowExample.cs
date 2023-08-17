@@ -13,10 +13,9 @@ internal class newWorkflowExample
 
     public newWorkflowExample(SoftExpertWorkflowApi wfAPI)
     {
-        WfAPI = wfAPI;
+        this.wfAPI = wfAPI;
     }
 
-    public SoftExpertWorkflowApi WfAPI { get; }
 
     internal void Main()
     {

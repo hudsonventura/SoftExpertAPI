@@ -1,5 +1,5 @@
 # SoftExpertAPI
-SoftExpertAPI é uma biblioteca que possui um conjunto de classes para abstrair a comunicação SOAP com a API do SoftExpert SESuite.<br>
+SoftExpertAPI é uma biblioteca que possui um conjunto de classes para abstrair a comunicação SOAP ou REST com a API do SoftExpert SESuite.<br>
 Esta biblioteca não está completa e será desenvolvida conforme necessidades e pedidos.
 <br>
 Direitos reservados a https://www.softexpert.com/<br>
@@ -7,12 +7,12 @@ Direitos reservados a https://www.softexpert.com/<br>
 Documentação original: https://documentation.softexpert.com/en/integration/index.html
 <br>
 <br>
-Se você quer falar comigo, por qualquer proposito, me mande um email. hudsonventura@outlook.com
+Se você quer falar comigo, por qualquer proposito, me mande um email. hudsonventura@outlook.comf
 
 <br>
 <br>
 
-Há um exemplo funcional no diretório `Examples`
+Há exemplos funcionais no diretório `Examples`
 
 ### Importação do namespace ...
 ```C#
@@ -76,10 +76,20 @@ relacionamentos.Add("tipocliente", //idrelacionamento
 
 string EntityID = "SOLCLIENTEFORNE";
 
+//em caso de adicionar arquivos no formulário
+string filePath = "120.png";
+string FileName = "logo.png";                       //Nome do arquivo com a extensão
+byte[] FileContent = File.ReadAllBytes(filePath);   //Binário do arquivo
+Dictionary<string, Anexo> arquivos = new Dictionary<string, Anexo>();
+arquivos.Add("al5termoassinad", new Anexo() { FileName = FileName, Content = FileContent });
+
+
 editEntityRecordResponse entityResponse;
 try
 {
-    entityResponse = wfAPI.editEntityRecord(WorkflowID, EntityID, formulario, relacionamentos);
+    entityResponse = wfAPI.editEntityRecord(
+        WorkflowID, EntityID, formulario, //campos obrigatórios
+        relacionamentos, arquivos); //campos opcionais
 }
 catch (Exception erro)
 {
@@ -112,6 +122,33 @@ catch (Exception erro)
 }
 var houveSucesso = executeResponse.Code;
 var detalhes = executeResponse.Detail;
+```
+
+<br>
+<br>
+
+### Usando a API - Anexar arquivo (menu do lado esquerdo de uma instancia)
+
+```C#
+string filePath = "120.png";                                           
+byte[] FileContent = File.ReadAllBytes(filePath);   //Binário do arquivo
+string ActivityID = "ATIV-SOLCCF";                  //ID da atividade em que o arquivo será anexado
+string WorkflowID = "CCF202323106";                 //ID da instancia
+Anexo Arquivo = new Anexo() {                       //pode-se passar também uma List<Anexo>
+    FileName = "logo.png",                          //Nome do arquivo com a extensão
+    Content = FileContent                           //Binário do arquivo
+};
+
+newAttachmentResponse newAttachment;
+try
+{
+    newAttachment = wfAPI.newAttachment(WorkflowID, ActivityID, Arquivo);
+}
+catch (Exception erro)
+{
+    Console.WriteLine($"Não foi possivel anexar o arquivo a instancia de Workflow. Erro: {erro.Message}");
+    return;
+}
 ```
 
 <br>
