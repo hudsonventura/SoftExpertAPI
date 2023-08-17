@@ -102,67 +102,9 @@ namespace SoftExpert.Workflow
         /// <exception cref="SoftExpertException"></exception>
         public editEntityRecordResponse editEntityRecord(string WorkflowID, string EntityID, Dictionary<string, string> EntityAttributeList = null, Dictionary<string, Dictionary<string, string>> RelationshipList = null, Dictionary<string, Anexo> EntityAttributeFileList = null)
         {
-
-            string camposForm = "";
-            if (EntityAttributeList is not null)
-            {
-                foreach (KeyValuePair<string, string> keyValues in EntityAttributeList)
-                {
-                    camposForm += $@"
-                            <urn:EntityAttribute>
-                                <EntityAttributeID>{keyValues.Key}</EntityAttributeID>            
-                                <EntityAttributeValue>{keyValues.Value}</EntityAttributeValue>
-                            </urn:EntityAttribute>"
-                    ;
-                }
-            }
-
-            string camposRelacionamento = "";
-            if (RelationshipList is not null)
-            {
-                camposRelacionamento += $@"";
-                foreach (KeyValuePair<string, Dictionary<string, string>> RelationshipAttribute in RelationshipList)
-                {
-                    camposRelacionamento += $@"
-                             <Relationship>
-                                     <RelationshipID>{RelationshipAttribute.Key}</RelationshipID>
-                            "
-                    ;
-
-                    foreach (KeyValuePair<string, string> Attribute in RelationshipAttribute.Value)
-                    {
-                        camposRelacionamento += $@"
-                                     <RelationshipAttribute>
-                                             <RelationshipAttributeID>{Attribute.Key}</RelationshipAttributeID>
-                                             <RelationshipAttributeValue>{Attribute.Value}</RelationshipAttributeValue>
-                                     </RelationshipAttribute>
-                            "
-                        ;
-                    }
-                    camposRelacionamento += $@"
-                             </Relationship>
-                            "
-                    ;
-                }
-            }
-
-            string anexos = "";
-            if (EntityAttributeFileList is not null) {
-                foreach (var arquivo in EntityAttributeFileList)
-                {
-                    string base64 = Convert.ToBase64String(arquivo.Value.Content);
-                    anexos += $@"
-                        <EntityAttributeFile>
-                            <EntityAttributeID>{arquivo.Key}</EntityAttributeID>
-                            <FileName>{arquivo.Value.FileName}</FileName>
-                            <FileContent>{base64}</FileContent>
-                        </EntityAttributeFile>
-                    ";
-                }
-            }
-
-
-
+            string camposForm = Gerar_EntityAttributeList(EntityAttributeList);
+            string camposRelacionamento = Gerar_RelationshipList(RelationshipList);
+            string anexos = Gerar_EntityAttributeFileList(EntityAttributeFileList);
             string body = $@"
                 <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
                    <soapenv:Header/>
@@ -210,7 +152,75 @@ namespace SoftExpert.Workflow
             }
         }
 
+        private string Gerar_EntityAttributeFileList(Dictionary<string, Anexo> EntityAttributeFileList)
+        {
+            string anexos = String.Empty;
+            if (EntityAttributeFileList is not null)
+            {
+                foreach (var arquivo in EntityAttributeFileList)
+                {
+                    string base64 = Convert.ToBase64String(arquivo.Value.Content);
+                    anexos += $@"
+                        <EntityAttributeFile>
+                            <EntityAttributeID>{arquivo.Key}</EntityAttributeID>
+                            <FileName>{arquivo.Value.FileName}</FileName>
+                            <FileContent>{base64}</FileContent>
+                        </EntityAttributeFile>
+                    ";
+                }
+            }
+            return anexos;
+        }
 
+        private string Gerar_RelationshipList(Dictionary<string, Dictionary<string, string>> RelationshipList)
+        {
+            string camposRelacionamento = String.Empty;
+            if (RelationshipList is not null)
+            {
+                camposRelacionamento += $@"";
+                foreach (KeyValuePair<string, Dictionary<string, string>> RelationshipAttribute in RelationshipList)
+                {
+                    camposRelacionamento += $@"
+                             <Relationship>
+                                     <RelationshipID>{RelationshipAttribute.Key}</RelationshipID>
+                            "
+                    ;
+
+                    foreach (KeyValuePair<string, string> Attribute in RelationshipAttribute.Value)
+                    {
+                        camposRelacionamento += $@"
+                                     <RelationshipAttribute>
+                                             <RelationshipAttributeID>{Attribute.Key}</RelationshipAttributeID>
+                                             <RelationshipAttributeValue>{Attribute.Value}</RelationshipAttributeValue>
+                                     </RelationshipAttribute>
+                            "
+                        ;
+                    }
+                    camposRelacionamento += $@"
+                             </Relationship>
+                            "
+                    ;
+                }
+            }
+            return camposRelacionamento;
+        }
+
+        private string Gerar_EntityAttributeList(Dictionary<string, string> EntityAttributeList) {
+            string camposForm = String.Empty;
+            if (EntityAttributeList is not null)
+            {
+                foreach (KeyValuePair<string, string> keyValues in EntityAttributeList)
+                {
+                    camposForm += $@"
+                            <urn:EntityAttribute>
+                                <EntityAttributeID>{keyValues.Key}</EntityAttributeID>            
+                                <EntityAttributeValue>{keyValues.Value}</EntityAttributeValue>
+                            </urn:EntityAttribute>"
+                    ;
+                }
+            }
+            return camposForm;
+        }
 
 
 
@@ -360,6 +370,74 @@ namespace SoftExpert.Workflow
                 Detail = "Todos os arquivos foram anexados com sucesso",
                 Status = SoftExpertResponse.STATUS.SUCCESS
             };
+        }
+
+
+
+
+
+
+
+        /// <summary>
+        /// Este método permite você criar itens de uma grid de um formulário principal
+        /// </summary>
+        /// <param name="ProcessID">ID do processo</param>
+        /// <param name="WorkflowTitle">Titulo da instância</param>
+        /// <param name="UserID">Matrícula do usuário iniciador da instância</param>
+        /// <returns>newWorkflowResponse, objeto com os campos Status, Code, Detail, RecordKey e RecordID. Se Code = 1 entao RecordID conterá o ID da intância gerada. Se Code != 1, uma SoftExpertException é gerada</returns>
+        /// <exception cref="SoftExpertException"></exception>
+        public newChildEntityRecordResponse newChildEntityRecord(string WorkflowID, string MainEntityID, string ChildRelationshipID, Dictionary<string, string> EntityAttributeList = null, Dictionary<string, Dictionary<string, string>> RelationshipList = null, Dictionary<string, Anexo> EntityAttributeFileList = null)
+        {
+            string camposForm = Gerar_EntityAttributeList(EntityAttributeList);
+            string camposRelacionamento = Gerar_RelationshipList(RelationshipList);
+            string anexos = Gerar_EntityAttributeFileList(EntityAttributeFileList);
+            string body = $@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:urn=""urn:workflow"">
+                                <soapenv:Header/>
+                                <soapenv:Body>
+                                    <urn:newChildEntityRecord>
+                                        <!--You may enter the following 6 items in any order-->
+                                        <urn:WorkflowID>{WorkflowID}</urn:WorkflowID>
+                                        <urn:MainEntityID>{MainEntityID}</urn:MainEntityID>
+                                        <urn:ChildRelationshipID>{ChildRelationshipID}</urn:ChildRelationshipID>
+                                        
+                                        <urn:EntityAttributeList>
+                                            {camposForm}
+                                        </urn:EntityAttributeList>
+
+                                        <urn:RelationshipList>
+                                            {camposRelacionamento}
+                                        </urn:RelationshipList>
+
+                                        <EntityAttributeFileList>
+                                            {anexos}
+                                        </EntityAttributeFileList>
+                                        
+                                    </urn:newChildEntityRecord>
+                                </soapenv:Body>
+                            </soapenv:Envelope>"
+            ;
+
+            try
+            {
+                RestRequest request = new RestRequest(_uriModule, Method.Post);
+                request.AddHeader("SOAPAction", "urn:workflow#newChildEntityRecord");
+                request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
+
+                var response = restClient.Execute(request);
+                return newChildEntityRecordResponse.Parse(response.Content);
+            }
+            catch (SoftExpertException error)
+            {
+                error.setXMLSoapSent(body);
+                throw error;
+            }
+            catch (Exception error2)
+            {
+                var erro = new SoftExpertException(error2.Message);
+                erro.setXMLSoapSent(body);
+                throw erro;
+            }
+
         }
     }
 

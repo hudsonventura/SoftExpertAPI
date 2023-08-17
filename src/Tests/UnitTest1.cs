@@ -18,6 +18,7 @@ namespace Tests
         string ActivityID;
         int ActionSequence;
         string UserID;
+        string ChildRelationshipID;
 
         public Tests()
         {
@@ -40,6 +41,7 @@ namespace Tests
             ActivityID = "ATIV-SOLCCF";
             ActionSequence = 2;
             UserID = "00000000000";
+            ChildRelationshipID = "invoices";
         }
 
         /// <summary>
@@ -262,8 +264,38 @@ namespace Tests
             Assert.Fail(b.Detail);
         }
 
+
+
         [Test]
-        public void Ordem08_executeActivity()
+        public void Ordem08_newChildEntityRecord()
+        {
+            Dictionary<string, string> EntityAttributeList = new Dictionary<string, string>() {
+                { "iban", "teste Ordem05_editEntityRecord_ComRelacionamentoComAnexo_LA"},
+            };
+
+
+
+
+            newChildEntityRecordResponse b = _softExpertApi.newChildEntityRecord(WorkflowID, EntityID, ChildRelationshipID, EntityAttributeList);
+
+            if (b == null)
+            {
+                Assert.Fail("O retorno foi nulo");
+            }
+
+            Console.WriteLine(b.Detail);
+            Console.WriteLine(b.Code);
+
+            if (b.Code == 1)
+            {
+                Assert.Pass(b.Detail);
+            }
+
+            Assert.Fail(b.Detail);
+        }
+
+        [Test]
+        public void Ordem09_executeActivity()
         {
             executeActivityResponse a = null;
             try

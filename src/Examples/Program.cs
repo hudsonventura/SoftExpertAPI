@@ -1,15 +1,26 @@
 ﻿using Examples;
-using Services;
+using Newtonsoft.Json.Linq;
 using SoftExpert.Workflow;
 
 //TODO: dependendo dos caracteres do WorkflowTitle, a instancia não pode ser criada.
 //TODO: anexar arquivo no anexo do lado esquerdo: CCF202323106
 //TODO: anexar arquivo no form
 
+
 //Carregar as consigurações
-var appsettings = Appsettings.GetSettings();
-string url = appsettings["url"].ToString();
-string authorization = appsettings["authorization"].ToString();
+string appsettings = $"{System.AppDomain.CurrentDomain.BaseDirectory.ToString()}/appsettings.json";
+bool exists = File.Exists(appsettings);
+if (!exists)
+{
+    Console.WriteLine("arquivo appsettings.json nao encontrado.");
+    return;
+}
+string json = System.IO.File.ReadAllText(appsettings);
+var settings = JArray.Parse($"[{json}]").FirstOrDefault();
+
+string url = settings["url"].ToString();
+string authorization = settings["authorization"].ToString();
+
 
 
 //Criar instancia da API para utilizar na injeção de dependecias. Necessário informar a URL completa do SE e o header Authorization ou todos os headers.
@@ -32,6 +43,10 @@ newAttachmentExample.Exemplo2_VariosArquivos();
 //Editar um formulário
 editEntityRecordExample editEntityRecordExample = new editEntityRecordExample(wfAPI);
 editEntityRecordExample.Main();
+
+//Adiciona um item em uma grid de um formulário
+newChildEntityRecordExample newChildEntityRecordExample = new newChildEntityRecordExample(wfAPI);
+newChildEntityRecordExample.Main();
 
 
 //Executar uma atividade

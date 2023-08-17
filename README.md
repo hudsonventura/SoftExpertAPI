@@ -103,6 +103,31 @@ string detalhesEntity = entityResponse.Detail;
 <br>
 <br>
 
+### Usando a API - Editando dados da grid do formulário
+
+```C#
+//Os campos são os mesmo da função editEntityRecord, adicionando o `ChildRelationshipID` que é o ID do relacionamento
+
+
+newChildEntityRecordResponse entityResponse;
+try
+{
+    entityResponse = wfAPI.newChildEntityRecord(WorkflowID, EntityID, ChildRelationshipID,  formulario, //campos obrigatórios
+                                                                            relacionamentos, arquivos); //campos opcionais
+}
+catch (Exception erro)
+{
+    Console.WriteLine($"Não foi possivel editar o formulário. Erro: {erro.Message}");
+    return;
+}
+int sucessoEntity = entityResponse.Code;
+string detalhesEntity = entityResponse.Detail;
+```
+
+<br>
+<br>
+
+
 
 ### Usando a API - Execução de atividade
 
