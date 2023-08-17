@@ -12,10 +12,10 @@ namespace SoftExpert.Workflow
         private readonly RestClient restClient;
 
         /// <summary>
-        /// Construtor. Necessário passar a URL do ambiente do SE e os headers. Header Authorization é necessário
+        /// Construtor. Necessário passar a URL completa do ambiente do SE e os headers. Header Authorization é necessário
         /// </summary>
-        /// <param name="url"></param>
-        /// <param name="headers"></param>
+        /// <param name="url">URL completa do ambiente. Ex.: https://se.example.com.br</param>
+        /// <param name="headers">Passar os headers a serem enviados na requisição. Não esqueça do header Authorization</param>
         public SoftExpertWorkflowApi(string url, Dictionary<string, string> headers)
         {
             restClient = new RestClient(url);
@@ -24,10 +24,10 @@ namespace SoftExpert.Workflow
         }
 
         /// <summary>
-        /// Construtor. Necessário passar a URL do ambiente do SE e a string to Authorization incluindo o 'Basic ....'
+        /// Construtor. Necessário passar a URL completa do ambiente do SE e a string to Authorization incluindo o 'Basic ....'
         /// </summary>
-        /// <param name="url"></param>
-        /// <param name="authorization"></param>
+        /// <param name="url">URL completa do ambiente. Ex.: https://se.example.com.br</param>
+        /// <param name="authorization">Basic no formato base64("dominio\usuario:senha") Ex.: Basic dmMgPyB1bSBjdXJpb3Nv</param>
         public SoftExpertWorkflowApi(string url, string authorization)
         {
             restClient = new RestClient(url);
@@ -246,7 +246,20 @@ namespace SoftExpert.Workflow
             }
         }
 
+        /// <summary>
+        /// Este método anexa um arquivo no menu de anexo do lado esquerdo de uma instancia
+        /// </summary>
+        /// <param name="WorkflowID">ID da instancia</param>
+        /// <param name="ActivityID">ID da atividade a ser executada</param>
+        /// <param name="FileName">Nome do arquivo com a extensão. Ex.: importante.docx</param>
+        /// <param name="FileContent">byte[] FileConten array de bytes. Abra com: byte[] FileContent = File.ReadAllBytes(filePath); </param>
+        /// <returns></returns>
+        public newAttachmentResponse newAttachment(string WorkflowID, string ActivityID, string FileName, byte[] FileContent)
+        {
+            
 
+            return new newAttachmentResponse();
+        }
     }
 
 }
