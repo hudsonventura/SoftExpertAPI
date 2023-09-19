@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SoftExpert.Workflow;
+using SoftExpertAPI.Domain;
 using System;
 using System.Collections.Generic;
 using System.IO;

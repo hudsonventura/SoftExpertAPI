@@ -7,26 +7,41 @@ Direitos reservados a https://www.softexpert.com/<br>
 Documentação original: https://documentation.softexpert.com/en/integration/index.html
 <br>
 <br>
-Se você quer falar comigo, por qualquer proposito, me mande um email. hudsonventura@outlook.comf
+Se você quer falar comigo, por qualquer proposito, me mande um email. hudsonventura@outlook.com
 
 <br>
 <br>
 
+#### Testado no SoftExpert 2.1.7.252 e Oracle
+<br>
 Há exemplos funcionais no diretório `Examples`
 
 ### Importação do namespace ...
 ```C#
-using SoftExpert;
 using SoftExpert.Workflow;
 ```
 <br>
 <br>
 
-### Criar uma instancia da API de workflow para uso
+### Criar uma instancia da API de workflow para uso SEM banco de dados
 ```C#
 string authorization = "Basic base64encode(DOMINIO\USUARIO:SENHA)"; //deve ser codificado em base64
 string url = "https://se.dominio.com.br";
 SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(url, authorization);
+```
+
+<br>
+<br>
+
+### Criar uma instancia da API de workflow para uso COM banco de dados
+Necessário para as funções: listAttachmentFromInstance<br>
+Necessário a implementação de um banco de dados (IDatabase). Ver exemplo de implementação no arquivo `Examples/ExampleOracleImplement.cs`. Podem ser implementados outros bancos de dados, desde que estes implementem a interface `IDatabase`.
+```C#
+string authorization = "Basic base64encode(DOMINIO\USUARIO:SENHA)"; //deve ser codificado em base64
+string url = "https://se.dominio.com.br";
+
+ExampleOracleImplement oracle = new ExampleOracleImplement(appsettings);
+SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(url, authorization, db: oracle);
 ```
 
 <br>
@@ -178,3 +193,26 @@ catch (Exception erro)
 
 <br>
 <br>
+
+
+### Usando a API - Listar arquivos (menu do lado esquerdo de uma instancia)
+Necessário a implementação de um banco de dados.
+
+```C#
+string WorkflowID = "TESTE2023000001";                                           
+List<Anexo> anexos;
+try
+        {
+            anexos =  wfAPI.listAttachmentFromInstance(WorkflowID);
+        }
+        catch (Exception erro)
+        {
+            Console.WriteLine($"Não foi possivel criar o workflow. Erro: {erro.Message}");
+            return;
+        }
+
+        foreach (var anexo in anexos)
+        {
+            File.WriteAllBytes($"{Environment.CurrentDirectory}{anexo.FileName}", anexo.Content);
+        }
+```

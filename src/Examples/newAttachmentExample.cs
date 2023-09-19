@@ -1,4 +1,5 @@
 ﻿using SoftExpert.Workflow;
+using SoftExpertAPI.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;

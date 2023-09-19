@@ -1,31 +1,43 @@
 ﻿using Examples;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using SoftExpert.Workflow;
 
 //TODO: dependendo dos caracteres do WorkflowTitle, a instancia não pode ser criada.
-//TODO: anexar arquivo no anexo do lado esquerdo: CCF202323106
 //TODO: anexar arquivo no form
+//BUG: ao passa uma atividade para a função listAttachmentFromInstance, o SQL não traz resultados. Usar sem informar a atividade.
 
 
 //Carregar as consigurações
-string appsettings = $"{System.AppDomain.CurrentDomain.BaseDirectory.ToString()}/appsettings.json";
-bool exists = File.Exists(appsettings);
+string configs = $"{System.AppDomain.CurrentDomain.BaseDirectory.ToString()}/appsettings.json";
+bool exists = File.Exists(configs);
 if (!exists)
 {
     Console.WriteLine("arquivo appsettings.json nao encontrado.");
     return;
 }
-string json = System.IO.File.ReadAllText(appsettings);
-var settings = JArray.Parse($"[{json}]").FirstOrDefault();
+var builder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory()) // Certifique-se de que o diretório atual seja o diretório do seu aplicativo
+            .AddJsonFile("appsettings.json"); // Nome do arquivo de configuração
 
-string url = settings["url"].ToString();
-string authorization = settings["authorization"].ToString();
+var appsettings = builder.Build();
 
+string url = appsettings["url"].ToString();
+string authorization = appsettings["authorization"].ToString();
+
+
+//Implementação OPCIONAL de uma classe para acessar banco de dados. É necessário respeitar a interface SoftExpertAPI.Interfaces.IDataBase
+//Necessário para algumas implementações fora do escopo da API padrão do SoftExpert.
+ExampleOracleImplement oracle = new ExampleOracleImplement(appsettings);
 
 
 //Criar instancia da API para utilizar na injeção de dependecias. Necessário informar a URL completa do SE e o header Authorization ou todos os headers.
-SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(url, authorization);
-
+//Se o parâmetro 'db' não for passado, alguns
+SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(
+    url, 
+    authorization, 
+    db: oracle //opcional. Necessário para: listAttachmentFromInstance
+);
 
 
 
@@ -55,3 +67,6 @@ executeActivityExample.Main();
 
 
 
+//Lista os anexos de uma instancia
+listAttachmentFromInstanceExample listAttachmentFromInstanceExample = new listAttachmentFromInstanceExample(wfAPI);
+listAttachmentFromInstanceExample.Main();
