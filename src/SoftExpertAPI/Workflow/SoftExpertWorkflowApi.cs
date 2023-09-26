@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
@@ -451,6 +451,11 @@ public class SoftExpertWorkflowApi
         }
 
     }
+
+
+
+
+
 
     /// <summary>
     /// Traz os arquivos anexados do lado esquerdo de uma instancia. Pode especificar a atividade em que o arquivo fora anexado. Obrigatório implementar o parametro db.

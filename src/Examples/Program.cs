@@ -68,6 +68,15 @@ executeActivityExample.Main();
 
 
 //Lista os anexos de uma instancia
+listAttachmentFromInstanceExample listAttachmentFromInstanceExample = new listAttachmentFromInstanceExample(wfAPI);
+listAttachmentFromInstanceExample.Main();
+
+
+//lista os itens de uma grid de uma dada instancia
+setAttachmentSynced setAttachmentSynced = new setAttachmentSynced(wfAPI);
+setAttachmentSynced.Main();
+
+
 //lista os itens de uma grid de uma dada instancia
 listGridItems listGridItems = new listGridItems(wfAPI);
 listGridItems.Main();
