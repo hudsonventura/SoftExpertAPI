@@ -9,18 +9,52 @@ using System.Threading.Tasks;
 
 namespace Examples;
 
-internal class ExampleOracleImplement : SoftExpertAPI.Interfaces.IDataBase
+internal class ExampleOracleImplementation : SoftExpertAPI.Interfaces.IDataBase
 {
     private readonly IConfiguration appsettings;
 
-    public ExampleOracleImplement(IConfiguration appsettings)
+    public ExampleOracleImplementation(IConfiguration appsettings)
     {
         this.appsettings = appsettings;
     }
 
-    public void Execute(string sql, Dictionary<string, dynamic> parametros = null)
+    public int Execute(string sql, Dictionary<string, dynamic> parametros = null)
     {
-        throw new NotImplementedException();
+        string dbConnection = $"Data Source = (DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL=TCP)(HOST={appsettings["Oracle:host"]})(PORT={appsettings["Oracle:port"]})))(CONNECT_DATA = (SERVICE_NAME={appsettings["Oracle:dbname"]})));User Id={appsettings["Oracle:user"]};Password={appsettings["Oracle:pass"]};";
+
+        using (OracleConnection con = new OracleConnection(dbConnection))
+        {
+            try
+            {
+                con.Open();
+
+                using (OracleCommand cmd = con.CreateCommand())
+                {
+                    cmd.CommandText = sql; 
+
+                    if (parametros != null && parametros.Count() > 0)
+                    {
+                        foreach (var item in parametros)
+                        {
+                            cmd.Parameters.Add(new OracleParameter(item.Key, item.Value));
+                        }
+                    }
+
+                    int rowsUpdated = cmd.ExecuteNonQuery(); // Execute o comando UPDATE.
+
+                    // rowsUpdated conterá o número de linhas afetadas pelo comando UPDATE.
+                    return rowsUpdated;
+                }
+            }
+            catch (Exception erro)
+            {
+                throw erro;
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
     }
 
     public DataTable Query(string sql, Dictionary<string, dynamic> parametros = null)

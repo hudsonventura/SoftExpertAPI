@@ -10,5 +10,5 @@ namespace SoftExpertAPI.Interfaces;
 public interface IDataBase
 {
     DataTable Query(string sql, Dictionary<string, dynamic> parametros = null);
-    void Execute(string sql, Dictionary<string, dynamic> parametros = null);
+    int Execute(string sql, Dictionary<string, dynamic> parametros = null);
 }
