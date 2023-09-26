@@ -1,4 +1,4 @@
-﻿using Examples;
+using Examples;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using SoftExpert.Workflow;
@@ -28,7 +28,7 @@ string authorization = appsettings["authorization"].ToString();
 
 //Implementação OPCIONAL de uma classe para acessar banco de dados. É necessário respeitar a interface SoftExpertAPI.Interfaces.IDataBase
 //Necessário para algumas implementações fora do escopo da API padrão do SoftExpert.
-ExampleOracleImplement oracle = new ExampleOracleImplement(appsettings);
+ExampleOracleImplementation oracle = new ExampleOracleImplementation(appsettings);
 
 
 //Criar instancia da API para utilizar na injeção de dependecias. Necessário informar a URL completa do SE e o header Authorization ou todos os headers.
@@ -68,5 +68,10 @@ executeActivityExample.Main();
 
 
 //Lista os anexos de uma instancia
-listAttachmentFromInstanceExample listAttachmentFromInstanceExample = new listAttachmentFromInstanceExample(wfAPI);
-listAttachmentFromInstanceExample.Main();
+//lista os itens de uma grid de uma dada instancia
+listGridItems listGridItems = new listGridItems(wfAPI);
+listGridItems.Main();
+
+
+
+

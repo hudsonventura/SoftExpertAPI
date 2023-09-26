@@ -526,6 +526,63 @@ public class SoftExpertWorkflowApi
 
 
 
+    /// <summary>
+    /// Traz todos os itens de uma grid de uma dada instancia
+    /// </summary>
+    /// <param name="WorkflowID">ID da instancia</param>
+    /// <param name="MainEntityID">ID da entidade/tabela principal do formulário do processo</param>
+    /// <param name="ChildEntityID">ID da entidade/tabela da grid</param>
+    /// <param name="ChildOID">OID da grid. Pode ser obtida ao inspecionar uma grid dentro do formulário principal. Formato: OIDFBCX6LIPRTHT4H2</param>
+    /// <returns></returns>
+    public List<dynamic> listGridItems(string WorkflowID, string MainEntityID, string ChildEntityID, string ChildOID) {
+        string sql = $@"SELECT grid.*
+                        FROM wfprocess p
+                        --
+                        JOIN GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
+                        JOIN DYN{MainEntityID} formulario on formulario.oid = GNF.OIDENTITYREG
+                        JOIN DYN{ChildEntityID} grid ON grid.{ChildOID} = formulario.oid
+                        --
+                        WHERE p.idprocess = :WorkflowID";
+
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":WorkflowID", WorkflowID);
+
+        DataTable list = null;
+        try
+        {
+            list = db.Query(sql, parametros);
+
+            return list.AsEnumerable()
+            .Select(row =>
+            {
+                dynamic obj = new ExpandoObject();
+                var objDictionary = (IDictionary<string, object>)obj;
+                foreach (var column in list.Columns.Cast<DataColumn>())
+                {
+                    objDictionary[column.ColumnName.ToLower()] = row[column];
+                }
+                return obj;
+            })
+            .ToList();
+
+            
+        }
+        catch (Exception erro)
+        {
+            throw new Exception($"Falha ao buscar os arquivo no bando de dados. Erro: {erro.Message}");
+        }
+
+    }
+
+    public int setAttachmentSynced(Anexo anexo)
+    {
+        string sql = $@"UPDATE ADATTACHMENT SET NMUSERUPD  = NMUSERUPD||'-synced' WHERE CDATTACHMENT = :cdAttachment";
+
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":cdAttachment", anexo.cdattachment);
+
+        return db.Execute(sql, parametros);
+    }
 }
 
 
