@@ -34,7 +34,7 @@ SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(url, authorization);
 <br>
 
 ### Criar uma instancia da API de workflow para uso COM banco de dados
-Necessário para as funções: listAttachmentFromInstance<br>
+Necessário para as funções: `listAttachmentFromInstance`<br>
 Necessário a implementação de um banco de dados (IDatabase). Ver exemplo de implementação no arquivo `Examples/ExampleOracleImplement.cs`. Podem ser implementados outros bancos de dados, desde que estes implementem a interface `IDatabase`.
 ```C#
 string authorization = "Basic base64encode(DOMINIO\USUARIO:SENHA)"; //deve ser codificado em base64
@@ -202,17 +202,41 @@ Necessário a implementação de um banco de dados.
 string WorkflowID = "TESTE2023000001";                                           
 List<Anexo> anexos;
 try
-        {
-            anexos =  wfAPI.listAttachmentFromInstance(WorkflowID);
-        }
-        catch (Exception erro)
-        {
-            Console.WriteLine($"Não foi possivel criar o workflow. Erro: {erro.Message}");
-            return;
-        }
+{
+    anexos =  wfAPI.listAttachmentFromInstance(WorkflowID);
+}
+catch (Exception erro)
+{
+    Console.WriteLine($"Não foi possivel criar o workflow. Erro: {erro.Message}");
+    return;
+}
 
-        foreach (var anexo in anexos)
-        {
-            File.WriteAllBytes($"{Environment.CurrentDirectory}{anexo.FileName}", anexo.Content);
-        }
+foreach (var anexo in anexos)
+{
+    File.WriteAllBytes($"{Environment.CurrentDirectory}{anexo.FileName}", anexo.Content);
+}
+```
+
+<br>
+<br>
+
+
+### Usando a API - Listar itens de uma grid de uma instancia de WF
+``` C#
+string WorkflowID = "IR090867";
+string MainEntityID = "IR";
+string ChildEntityID = "IRCOMENTARIO";
+string ChildOID = "OIDABCX0LIPROHT4H2";
+
+
+List<dynamic> itens_grid;
+try
+{
+    itens_grid =  wfAPI.listGridItems(WorkflowID, MainEntityID, ChildEntityID, ChildOID);
+}
+catch (Exception erro)
+{
+    Console.WriteLine($"Não foi possivel criar o workflow. Erro: {erro.Message}");
+    return;
+}
 ```
