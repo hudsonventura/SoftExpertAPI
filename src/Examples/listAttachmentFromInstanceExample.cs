@@ -1,4 +1,4 @@
-﻿using SoftExpert.Workflow;
+using SoftExpert.Workflow;
 using SoftExpertAPI.Domain;
 using System;
 using System.Collections.Generic;
@@ -35,7 +35,7 @@ internal class listAttachmentFromInstanceExample
 
         foreach (var anexo in anexos)
         {
-            File.WriteAllBytes($"{Environment.CurrentDirectory}{anexo.FileName}", anexo.Content);
+            File.WriteAllBytes($"{Environment.CurrentDirectory}/{anexo.FileName}", anexo.Content);
         }
     }
 }

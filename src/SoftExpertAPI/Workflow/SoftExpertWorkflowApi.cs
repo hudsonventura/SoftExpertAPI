@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using System.IO;
+using System.Linq;
 using System.Reflection.PortableExecutable;
 using RestSharp;
 using SoftExpertAPI.Domain;
@@ -472,7 +474,7 @@ public class SoftExpertWorkflowApi
         string sql = @$"SELECT g.NMFILE, g.CDFILE, ANEXO.CDATTACHMENT, anexo.NMUSERUPD,
 				        substr(g.NMFILE, 0, INSTR(g.NMFILE, '.', -1)-1) AS NOME,
 				        substr(g.NMFILE, INSTR(g.NMFILE, '.', -1)+1) AS EXT,
-				        g.NRSIZE
+				        g.NRSIZE, g.FLFILE
                         --
                         from wfprocess p
                         JOIN WFSTRUCT A ON A.IDPROCESS = P.IDOBJECT
@@ -500,30 +502,15 @@ public class SoftExpertWorkflowApi
 
         List<Anexo> retorno = new List<Anexo>();
         foreach (DataRow arquivo in list.Rows) {
-            sql = @"SELECT NMFILE, FLFILE  -- <-- o blob possui o zip do arquivo
-                    from gnfile
-                    --
-                    where cdfile = :cdfile";
-
-            DataTable arquivo_stream_db = null;
-            try
-            {
-                arquivo_stream_db = db.Query(sql, new Dictionary<string, dynamic>() { { ":cdfile", arquivo["CDFILE"] } });
-            }
-            catch (Exception erro)
-            {
-                throw new Exception($"Falha ao buscar o arquivo '{arquivo["NMFILE"]}' no bando de dados. Erro: {erro.Message}");
-            }
-
-
             try
             {
                 Anexo anexo = new Anexo();
-                var stream = arquivo_stream_db.Rows[0];
+                var stream = arquivo["FLFILE"];
                 
                 anexo.FileName = arquivo["NMFILE"].ToString();
                 anexo.cdfile = Int64.Parse(arquivo["CDFILE"].ToString());
-                var contentZip = (byte[])stream["FLFILE"];
+                anexo.cdattachment = Int64.Parse(arquivo["CDATTACHMENT"].ToString());
+                var contentZip = (byte[])stream;
                 var content = Zip.UnzipFile(contentZip);
                 anexo.Content = content;
                 retorno.Add(anexo);
