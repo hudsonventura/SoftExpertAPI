@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection.PortableExecutable;
+using System.Threading.Tasks;
 using RestSharp;
 using SoftExpertAPI.Domain;
 using SoftExpertAPI.Interfaces;
@@ -738,6 +740,30 @@ public class SoftExpertWorkflowApi
             throw new Exception($"Falha ao buscar os arquivo no bando de dados. Erro: {erro.Message}");
         }
 
+    }
+
+
+
+
+
+    public int markActivityAsExecuted(string WorkflowID, string ActivityID)
+    {
+        string sql = $@"UPDATE WFSTRUCT SET FGSTATUS = 3 WHERE IDOBJECT = 
+                        (SELECT A.IDOBJECT FROM wfprocess p JOIN wfstruct a on a.idprocess = p.idobject WHERE p.idprocess = :WorkflowID AND IDSTRUCT = :ActivityID)";
+
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":WorkflowID", WorkflowID);
+        parametros.Add(":ActivityID", ActivityID);
+
+        int result = db.Execute(sql, parametros);
+        if (result == 0) {
+            return 0;
+        }
+
+        sql = $@"DELETE FROM wftask WHERE IDACTIVITY = 
+                    (SELECT A.IDOBJECT FROM wfprocess p JOIN wfstruct a on a.idprocess = p.idobject WHERE p.idprocess = :WorkflowID AND IDSTRUCT = :ActivityID)";
+
+        return db.Execute(sql, parametros);
     }
 }
 
