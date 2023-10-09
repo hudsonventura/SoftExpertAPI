@@ -40,7 +40,7 @@ SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(
 );
 
 
-
+/*
 //Criar instancia de processo - Veja o exemplo complexto no arquivo newWorkflowExample.cs
 newWorkflowExample newWorkflowExample = new newWorkflowExample(wfAPI);
 newWorkflowExample.Main();
@@ -67,6 +67,7 @@ executeActivityExample.Main();
 
 
 
+
 //Lista os anexos de uma instancia
 listAttachmentFromInstanceExample listAttachmentFromInstanceExample = new listAttachmentFromInstanceExample(wfAPI);
 listAttachmentFromInstanceExample.Main();
@@ -81,7 +82,6 @@ setAttachmentSynced.Main();
 listGridItems listGridItems = new listGridItems(wfAPI);
 listGridItems.Main();
 
-
 //lista os parametros de uma instancia deworkflow
 getWorkFlowData getWorkFlowData = new getWorkFlowData(wfAPI);
 getWorkFlowData.Main();
@@ -93,4 +93,12 @@ getFormData.Main();
 
 //obtem os campos de um select box
 getFormSelectBox getFormSelectBox = new getFormSelectBox(wfAPI);
-getFormSelectBox.Main();
+getFormSelectBox.Main(); 
+
+//marca uma atividade como executada com sucesso
+markActivityAsExecuted markActivityAsExecuted = new markActivityAsExecuted(wfAPI);
+markActivityAsExecuted.Main();*/
+
+
+editChildEntityRecordExample editChildEntityRecordExample = new editChildEntityRecordExample(wfAPI);
+editChildEntityRecordExample.Main();

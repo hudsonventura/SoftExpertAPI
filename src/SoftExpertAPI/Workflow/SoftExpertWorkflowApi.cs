@@ -701,6 +701,9 @@ public class SoftExpertWorkflowApi
     }
 
 
+
+
+
     /// <summary>
     /// Busca os itens de um selectbox de um formulario. Necessário passar a tabela do selectbox e o OID do registro dessa tabela
     /// </summary>
@@ -745,7 +748,12 @@ public class SoftExpertWorkflowApi
 
 
 
-
+    /// <summary>
+    /// Marca uma atividade como executada, mas não a executa de fato. Serve para desativar uma atividade.
+    /// </summary>
+    /// <param name="WorkflowID"></param>
+    /// <param name="ActivityID"></param>
+    /// <returns></returns>
     public int markActivityAsExecuted(string WorkflowID, string ActivityID)
     {
         string sql = $@"UPDATE WFSTRUCT SET FGSTATUS = 3 WHERE IDOBJECT = 
@@ -764,6 +772,68 @@ public class SoftExpertWorkflowApi
                     (SELECT A.IDOBJECT FROM wfprocess p JOIN wfstruct a on a.idprocess = p.idobject WHERE p.idprocess = :WorkflowID AND IDSTRUCT = :ActivityID)";
 
         return db.Execute(sql, parametros);
+    }
+
+
+
+
+    /// <summary>
+    /// Este método permite você EDITAR itens de uma grid de um formulário principal
+    /// </summary>
+    /// <param name="workflowID"></param>
+    /// <param name="mainEntityID"></param>
+    /// <param name="childRelationshipID"></param>
+    /// <param name="childRecordOID"></param>
+    /// <param name="formulario"></param>
+    /// <returns></returns>
+    public editChildEntityRecordResponse editChildEntityRecord(string WorkflowID, string MainEntityID, string ChildRelationshipID, string childRecordOID, Dictionary<string, string> EntityAttributeList, Dictionary<string, Anexo>  EntityAttributeFileList = null)
+    {
+        string camposForm = Gerar_EntityAttributeList(EntityAttributeList);
+        string anexos = Gerar_EntityAttributeFileList(EntityAttributeFileList);
+        string body = $@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:urn=""urn:workflow"">
+                                <soapenv:Header/>
+                                <soapenv:Body>
+                                    <urn:editChildEntityRecord>
+                                        <!--You may enter the following 6 items in any order-->
+                                        <urn:WorkflowID>{WorkflowID}</urn:WorkflowID>
+                                        <urn:MainEntityID>{MainEntityID}</urn:MainEntityID>
+                                        <urn:ChildRelationshipID>{ChildRelationshipID}</urn:ChildRelationshipID>
+                                        <urn:ChildRecordOID>{childRecordOID}</urn:ChildRecordOID>
+
+                                        <urn:EntityAttributeList>
+                                            {camposForm}
+                                        </urn:EntityAttributeList>
+
+
+                                        <EntityAttributeFileList>
+                                            {anexos}
+                                        </EntityAttributeFileList>
+                                        
+                                    </urn:editChildEntityRecord>
+                                </soapenv:Body>
+                            </soapenv:Envelope>"
+        ;
+
+        try
+        {
+            RestRequest request = new RestRequest(_uriModule, Method.Post);
+            request.AddHeader("SOAPAction", "urn:workflow#editChildEntityRecord");
+            request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
+
+            var response = restClient.Execute(request);
+            return editChildEntityRecordResponse.Parse(response.Content);
+        }
+        catch (SoftExpertException error)
+        {
+            error.setXMLSoapSent(body);
+            throw error;
+        }
+        catch (Exception error2)
+        {
+            var erro = new SoftExpertException(error2.Message);
+            erro.setXMLSoapSent(body);
+            throw erro;
+        }
     }
 }
 
