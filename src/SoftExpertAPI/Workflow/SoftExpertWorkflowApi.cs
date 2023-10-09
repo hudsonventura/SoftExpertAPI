@@ -579,6 +579,14 @@ public class SoftExpertWorkflowApi
 
     }
 
+
+
+
+    /// <summary>
+    /// Marca um anexo como sicronizado, para trabalhos de envio de anexos a outros sistemas
+    /// </summary>
+    /// <param name="anexo"></param>
+    /// <returns></returns>
     public int setAttachmentSynced(Anexo anexo)
     {
         string sql = $@"UPDATE ADATTACHMENT SET NMUSERUPD  = NMUSERUPD||'-synced' WHERE CDATTACHMENT = :cdAttachment";
@@ -587,6 +595,106 @@ public class SoftExpertWorkflowApi
         parametros.Add(":cdAttachment", anexo.cdattachment);
 
         return db.Execute(sql, parametros);
+    }
+
+
+
+
+
+
+
+
+    /// <summary>
+    /// Obter os dados de uma instancia da tabela wfprocess
+    /// </summary>
+    /// <param name="WorkflowID"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public dynamic getWorkFlowData(string WorkflowID)
+    {
+        string sql = $@"SELECT p.*
+                        FROM wfprocess p
+                        WHERE p.idprocess = :WorkflowID";
+
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":WorkflowID", WorkflowID);
+
+        DataTable list = null;
+        try
+        {
+            list = db.Query(sql, parametros);
+
+            return list.AsEnumerable()
+            .Select(row =>
+            {
+                dynamic obj = new ExpandoObject();
+                var objDictionary = (IDictionary<string, object>)obj;
+                foreach (var column in list.Columns.Cast<DataColumn>())
+                {
+                    objDictionary[column.ColumnName.ToLower()] = row[column];
+                }
+                return obj;
+            })
+            .FirstOrDefault();
+
+
+        }
+        catch (Exception erro)
+        {
+            throw new Exception($"Falha ao buscar os arquivo no bando de dados. Erro: {erro.Message}");
+        }
+
+    }
+
+
+
+
+
+
+    /// <summary>
+    /// Obtem os dados de um formulario de uma instancia. Necessário passar a instancia e o ID da entidade/tabela
+    /// </summary>
+    /// <param name="WorkflowID"></param>
+    /// <param name="EntityID"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public dynamic getFormData(string WorkflowID, string EntityID)
+    {
+        string sql = $@"SELECT formulario.*
+                        FROM wfprocess p
+                        --
+                        JOIN GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
+                        JOIN DYN{EntityID} formulario on formulario.oid = GNF.OIDENTITYREG
+                        WHERE p.idprocess = :WorkflowID";
+
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":WorkflowID", WorkflowID);
+
+        DataTable list = null;
+        try
+        {
+            list = db.Query(sql, parametros);
+
+            return list.AsEnumerable()
+            .Select(row =>
+            {
+                dynamic obj = new ExpandoObject();
+                var objDictionary = (IDictionary<string, object>)obj;
+                foreach (var column in list.Columns.Cast<DataColumn>())
+                {
+                    objDictionary[column.ColumnName.ToLower()] = row[column];
+                }
+                return obj;
+            })
+            .FirstOrDefault();
+
+
+        }
+        catch (Exception erro)
+        {
+            throw new Exception($"Falha ao buscar os arquivo no bando de dados. Erro: {erro.Message}");
+        }
+
     }
 }
 

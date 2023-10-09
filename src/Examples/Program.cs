@@ -82,5 +82,15 @@ listGridItems listGridItems = new listGridItems(wfAPI);
 listGridItems.Main();
 
 
+//lista os parametros de uma instancia deworkflow
+getWorkFlowData getWorkFlowData = new getWorkFlowData(wfAPI);
+getWorkFlowData.Main();
+
+//lista os campos e valores de um furmulário de um dados workflow
+getFormData getFormData = new getFormData(wfAPI);
+getFormData.Main();
 
 
+//obtem os campos de um select box
+getFormSelectBox getFormSelectBox = new getFormSelectBox(wfAPI);
+getFormSelectBox.Main();
