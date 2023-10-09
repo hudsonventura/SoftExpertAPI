@@ -515,6 +515,7 @@ public class SoftExpertWorkflowApi
                 anexo.FileName = arquivo["NMFILE"].ToString();
                 anexo.cdfile = Int64.Parse(arquivo["CDFILE"].ToString());
                 anexo.cdattachment = Int64.Parse(arquivo["CDATTACHMENT"].ToString());
+                anexo.nmuserupd = arquivo["NMUSERUPD"].ToString();
                 var contentZip = (byte[])stream;
                 var content = Zip.UnzipFile(contentZip);
                 anexo.Content = content;
@@ -669,6 +670,48 @@ public class SoftExpertWorkflowApi
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
         parametros.Add(":WorkflowID", WorkflowID);
+
+        DataTable list = null;
+        try
+        {
+            list = db.Query(sql, parametros);
+
+            return list.AsEnumerable()
+            .Select(row =>
+            {
+                dynamic obj = new ExpandoObject();
+                var objDictionary = (IDictionary<string, object>)obj;
+                foreach (var column in list.Columns.Cast<DataColumn>())
+                {
+                    objDictionary[column.ColumnName.ToLower()] = row[column];
+                }
+                return obj;
+            })
+            .FirstOrDefault();
+
+
+        }
+        catch (Exception erro)
+        {
+            throw new Exception($"Falha ao buscar os arquivo no bando de dados. Erro: {erro.Message}");
+        }
+
+    }
+
+
+    /// <summary>
+    /// Busca os itens de um selectbox de um formulario. Necessário passar a tabela do selectbox e o OID do registro dessa tabela
+    /// </summary>
+    /// <param name="oid"></param>
+    /// <param name="EntityID"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public dynamic getFormSelectBox(string oid, string EntityID)
+    {
+        string sql = $@"SELECT * FROM DYN{EntityID} WHERE FGENABLED = 1 AND oid = :oid";
+
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":oid", oid);
 
         DataTable list = null;
         try

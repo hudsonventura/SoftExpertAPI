@@ -14,4 +14,5 @@ public class Anexo
     public Int64 cdattachment { get; set; }
     public string FileName { get; set; }
     public byte[] Content { get; set; }
+    public string nmuserupd { get; set; }
 }

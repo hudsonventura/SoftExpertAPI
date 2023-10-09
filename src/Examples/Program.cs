@@ -72,7 +72,7 @@ listAttachmentFromInstanceExample listAttachmentFromInstanceExample = new listAt
 listAttachmentFromInstanceExample.Main();
 
 
-//lista os itens de uma grid de uma dada instancia
+//marcar um anexo com syncronizado
 setAttachmentSynced setAttachmentSynced = new setAttachmentSynced(wfAPI);
 setAttachmentSynced.Main();
 
