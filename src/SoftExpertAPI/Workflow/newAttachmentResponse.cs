@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Text.Json.Nodes;
@@ -8,7 +8,7 @@ namespace SoftExpert.Workflow;
 
 public class newAttachmentResponse : SoftExpertResponse
 {
-    public string AttachmentID { get; private set; }
+    public int AttachmentID { get; private set; }
 
     internal static newAttachmentResponse Parse(string xmljson)
     {
@@ -27,7 +27,7 @@ public class newAttachmentResponse : SoftExpertResponse
         string type = "newAttachmentResponse";
 
         JObject jsonObject = JObject.Parse(xmljson);
-        parsed.AttachmentID = (string)jsonObject.SelectToken("SOAP-ENV:Envelope.SOAP-ENV:Body.newAttachmentResponse.RecordKey");
+        parsed.AttachmentID = (int)jsonObject.SelectToken("SOAP-ENV:Envelope.SOAP-ENV:Body.newAttachmentResponse.RecordKey");
 
         return parsed;
     }
