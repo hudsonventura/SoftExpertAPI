@@ -15,7 +15,7 @@ IConfiguration appsettings = new ConfigurationBuilder()
 	.Build();
 
 WorkflowExamples wf = new WorkflowExamples(appsettings);
-wf.Execute();
+wf.Execute(WorkflowExamples.Teste.NewWorkflow);
 
 AdminExamples admin = new AdminExamples(appsettings);
 admin.Execute();

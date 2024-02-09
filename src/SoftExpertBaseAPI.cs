@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Xml;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SoftExpert;
 using SoftExpertAPI.Interfaces;
 
-namespace src;
+namespace SoftExpertAPI;
 
 public abstract class SoftExpertBaseAPI
 {
@@ -67,6 +70,17 @@ public abstract class SoftExpertBaseAPI
         if (db_name is null) {
             throw new SoftExpertException("Uma instancia de banco de dados foi informada mas o nome do seu banco precisa ser informado na propriedade db_name");
         }
+    }
+
+    protected JToken Parse(string xml)
+    {
+        
+        // em caso de ter retornado um XML
+        XmlDocument doc = new XmlDocument();
+        doc.LoadXml(xml);
+        string json = JsonConvert.SerializeXmlNode(doc);
+        
+        return JsonConvert.DeserializeObject<dynamic>(json);
     }
 
 }

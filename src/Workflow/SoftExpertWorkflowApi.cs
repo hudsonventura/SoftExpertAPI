@@ -5,14 +5,14 @@ using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Threading.Tasks;
+using System.Net.Http;
+using System.Text;
 using RestSharp;
+using SoftExpertAPI;
 using SoftExpertAPI.Domain;
 using SoftExpertAPI.Interfaces;
 using SoftExpertAPI.Services;
-using src;
-using static SoftExpert.SoftExpertResponse;
+
 
 
 namespace SoftExpert.Workflow;
@@ -45,29 +45,42 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="UserID">Matrícula do usuário iniciador da instância</param>
     /// <returns>newWorkflowResponse, objeto com os campos Status, Code, Detail, RecordKey e RecordID. Se Code = 1 entao RecordID conterá o ID da intância gerada. Se Code != 1, uma SoftExpertException é gerada</returns>
     /// <exception cref="SoftExpertException"></exception>
-    public newWorkflowResponse newWorkflow(string ProcessID, string WorkflowTitle, string? UserID = null)
+    public string newWorkflow(string ProcessID, string WorkflowTitle, string? UserID = null)
     {
 
         string body = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
-                               <soapenv:Header/>
-                               <soapenv:Body>
-                                  <urn:newWorkflow>
-                                     <urn:ProcessID>{ProcessID}</urn:ProcessID>
-                                     <urn:WorkflowTitle>{WorkflowTitle}</urn:WorkflowTitle>
-                                     <urn:UserID>{UserID}</urn:UserID>
-                                  </urn:newWorkflow>
-                               </soapenv:Body>
-                            </soapenv:Envelope>"
+                            <soapenv:Header/>
+                            <soapenv:Body>
+                                <urn:newWorkflow>
+                                    <urn:ProcessID>{ProcessID}</urn:ProcessID>
+                                    <urn:WorkflowTitle>{WorkflowTitle}</urn:WorkflowTitle>
+                                    <urn:UserID>{UserID}</urn:UserID>
+                                </urn:newWorkflow>
+                            </soapenv:Body>
+                        </soapenv:Envelope>"
         ;
 
         try
         {
-            RestRequest request = new RestRequest(_uriModule, Method.Post);
-            request.AddHeader("SOAPAction", "urn:workflow#newWorkflow");
-            request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
 
-            var response = restClient.Execute(request);
-            return newWorkflowResponse.Parse(response.Content);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, _uriModule);
+            request.Headers.Add("SOAPAction", "urn:workflow#newWorkflow");
+            request.Content = new StringContent(body.Trim(), Encoding.UTF8, "text/xml");
+
+            HttpResponseMessage  response = restClient.SendAsync(request).Result;
+
+            var body_response = response.Content.ReadAsStringAsync().Result;
+
+            var json = Parse(body_response);
+            
+            var se_response = json.SelectToken("SOAP-ENV:Envelope")
+                                .SelectToken("SOAP-ENV:Body")
+                                .SelectToken("newWorkflowResponse");
+            var status = se_response.SelectToken("Status").ToString();
+            if(status == "FAILURE"){
+                throw new Exception(se_response.SelectToken("Detail").ToString());
+            }
+            return se_response.SelectToken("RecordID").ToString();
         }
         catch (SoftExpertException error)
         {
@@ -103,6 +116,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="SoftExpertException"></exception>
     public editEntityRecordResponse editEntityRecord(string WorkflowID, string EntityID, Dictionary<string, string> EntityAttributeList = null, Dictionary<string, Dictionary<string, string>> RelationshipList = null, Dictionary<string, Anexo> EntityAttributeFileList = null)
     {
+        throw new NotImplementedException();
         string camposForm = Gerar_EntityAttributeList(EntityAttributeList);
         string camposRelacionamento = Gerar_RelationshipList(RelationshipList);
         string anexos = Gerar_EntityAttributeFileList(EntityAttributeFileList);
@@ -137,8 +151,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             request.AddHeader("SOAPAction", "urn:workflow#newWorkflow");
             request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
 
-            var response = restClient.Execute(request);
-            return editEntityRecordResponse.Parse(response.Content);
+            //var response = restClient.Execute(request);
+            //return editEntityRecordResponse.Parse(response.Content);
         }
         catch (SoftExpertException error)
         {
@@ -242,6 +256,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="SoftExpertException"></exception>
     public executeActivityResponse executeActivity(string WorkflowID, string ActivityID, int ActionSequence, string? UserID = null, int? ActivityOrder = null)
     {
+        throw new NotImplementedException();
         string body = $@"
                 <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
                    <soapenv:Header/>
@@ -265,8 +280,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             request.AddHeader("SOAPAction", "urn:workflow#newWorkflow");
             request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
 
-            var response = restClient.Execute(request);
-            return executeActivityResponse.Parse(response.Content);
+            //var response = restClient.Execute(request);
+            //return executeActivityResponse.Parse(response.Content);
         }
         catch (SoftExpertException error)
         {
@@ -290,6 +305,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns></returns>
     public newAttachmentResponse newAttachment(string WorkflowID, string ActivityID, Anexo File, string UserID = null)
     {
+        throw new NotImplementedException();
+
         string base64 = Convert.ToBase64String(File.Content);
         string body = $@"
                 <soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:urn=""urn:workflow"">
@@ -313,8 +330,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             request.AddHeader("SOAPAction", "urn:workflow#newAttachment");
             request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
 
-            var response = restClient.Execute(request);
-            return newAttachmentResponse.Parse(response.Content);
+            //var response = restClient.Execute(request);
+            //return newAttachmentResponse.Parse(response.Content);
         }
         catch (SoftExpertException error)
         {
@@ -389,6 +406,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="SoftExpertException"></exception>
     public newChildEntityRecordResponse newChildEntityRecord(string WorkflowID, string MainEntityID, string ChildRelationshipID, Dictionary<string, string> EntityAttributeList = null, Dictionary<string, Dictionary<string, string>> RelationshipList = null, Dictionary<string, Anexo> EntityAttributeFileList = null)
     {
+        throw new NotImplementedException();
         string camposForm = Gerar_EntityAttributeList(EntityAttributeList);
         string camposRelacionamento = Gerar_RelationshipList(RelationshipList);
         string anexos = Gerar_EntityAttributeFileList(EntityAttributeFileList);
@@ -424,8 +442,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             request.AddHeader("SOAPAction", "urn:workflow#newChildEntityRecord");
             request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
 
-            var response = restClient.Execute(request);
-            return newChildEntityRecordResponse.Parse(response.Content);
+            //var response = restClient.Execute(request);
+            //return newChildEntityRecordResponse.Parse(response.Content);
         }
         catch (SoftExpertException error)
         {
@@ -775,6 +793,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns></returns>
     public editChildEntityRecordResponse editChildEntityRecord(string WorkflowID, string MainEntityID, string ChildRelationshipID, string childRecordOID, Dictionary<string, string> EntityAttributeList, Dictionary<string, Anexo>  EntityAttributeFileList = null)
     {
+        throw new NotImplementedException();
         string camposForm = Gerar_EntityAttributeList(EntityAttributeList);
         string anexos = Gerar_EntityAttributeFileList(EntityAttributeFileList);
         string body = $@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:urn=""urn:workflow"">
@@ -807,8 +826,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             request.AddHeader("SOAPAction", "urn:workflow#editChildEntityRecord");
             request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
 
-            var response = restClient.Execute(request);
-            return editChildEntityRecordResponse.Parse(response.Content);
+            //var response = restClient.Execute(request);
+            //return editChildEntityRecordResponse.Parse(response.Content);
         }
         catch (SoftExpertException error)
         {

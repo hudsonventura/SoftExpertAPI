@@ -61,12 +61,7 @@ class WorkflowExamples{
                 #region Criar instancia de processo
                 try
                 {
-                    newWorkflowResponse responseNewWF; responseNewWF = wfAPI.newWorkflow(ProcessID, WorkflowTitle, UserID);
-                    string WorkflowID_gerado = responseNewWF.RecordID;
-                    int codigoNewWorkFlow = responseNewWF.Code;
-                    SoftExpert.SoftExpertResponse.STATUS sucessoNewWorkFlow = responseNewWF.Status;
-                    string detalhesNewWorkflow = responseNewWF.Detail;
-                    WorkflowID = WorkflowID_gerado;
+                    string WorkflowID_gerado = wfAPI.newWorkflow(ProcessID, WorkflowTitle, UserID);
                 }
                 catch (Exception erro)
                 {
