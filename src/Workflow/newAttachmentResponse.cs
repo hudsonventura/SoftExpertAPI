@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Text.Json.Nodes;
@@ -14,7 +14,6 @@ public class newAttachmentResponse : SoftExpertResponse
     {
         newAttachmentResponse parsed = new newAttachmentResponse();
         parsed.PreParse(xmljson);
-        parsed.AttachmentID = xmljson;
 
 
         if (xmljson.Substring(0, 5) == "<?xml")

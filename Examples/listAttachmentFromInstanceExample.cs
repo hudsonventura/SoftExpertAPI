@@ -20,7 +20,7 @@ internal class listAttachmentFromInstanceExample
 
     internal void Main()
     {
-        string WorkflowID = "TESTE2023000001";
+        string WorkflowID = "IR099727";
 
         List<Anexo> anexos;
         try

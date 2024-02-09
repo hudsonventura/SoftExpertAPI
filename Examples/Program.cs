@@ -40,12 +40,12 @@ SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(
 );
 
 
-/*
+
 //Criar instancia de processo - Veja o exemplo complexto no arquivo newWorkflowExample.cs
 newWorkflowExample newWorkflowExample = new newWorkflowExample(wfAPI);
 newWorkflowExample.Main();
 
-
+/*
 //Anexar um arquivo no menu de anexo
 newAttachmentExample newAttachmentExample = new newAttachmentExample(wfAPI);
 newAttachmentExample.Exemplo1_ArquivoUnico();

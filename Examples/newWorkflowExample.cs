@@ -19,9 +19,9 @@ internal class newWorkflowExample
 
     internal void Main()
     {
-        string ProcessID = "CCF";       //identificador do processo
-        string WorkflowTitle = "Teste"; //titulo da instancia a ser criado
-        string UserID = "00000000000";  //matricula do usuario
+        string ProcessID = "SPF";       //identificador do processo
+        string WorkflowTitle = "17/10/2023 14:08 - hudson.ventura@outlook.com - Nome do solicitante"; //titulo da instancia a ser criado
+        string UserID = "sistema.automatico";  //matricula do usuario
 
         newWorkflowResponse responseNewWF;
         try

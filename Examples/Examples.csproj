@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SoftExpertAPI\SoftExpertAPI.csproj" />
+    <ProjectReference Include="..\src\SoftExpertAPI.csproj" />
   </ItemGroup>
 
   <ItemGroup>

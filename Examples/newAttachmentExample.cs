@@ -19,8 +19,8 @@ internal class newAttachmentExample
     internal void Exemplo1_ArquivoUnico() {
         string filePath = "120.png";                                           
         byte[] FileContent = File.ReadAllBytes(filePath);   //Binário do arquivo
-        string ActivityID = "ATIV-SOLCCF";                  //ID da atividade em que o arquivo será anexado
-        string WorkflowID = "CCF202323106";                 //ID da instancia
+        string ActivityID = "recebimentoIntegracaoFinalizar";                  //ID da atividade em que o arquivo será anexado
+        string WorkflowID = "IR154585";                 //ID da instancia
         Anexo Arquivo = new Anexo() {
             FileName = "logo.png",  //Nome do arquivo com a extensão
             Content = FileContent   //Binário do arquivo

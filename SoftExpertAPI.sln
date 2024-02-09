@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftExpertAPI", "SoftExpertAPI\SoftExpertAPI.csproj", "{3390EBCB-71F1-4834-95AE-C78BD1BADC6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftExpertAPI", "src\SoftExpertAPI.csproj", "{3390EBCB-71F1-4834-95AE-C78BD1BADC6E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{99541CD4-6CF0-4A97-ADA9-EE83752308FC}"
 EndProject
