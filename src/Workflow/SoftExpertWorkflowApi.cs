@@ -11,44 +11,31 @@ using RestSharp;
 using SoftExpertAPI.Domain;
 using SoftExpertAPI.Interfaces;
 using SoftExpertAPI.Services;
+using src;
 using static SoftExpert.SoftExpertResponse;
 
 
 namespace SoftExpert.Workflow;
 
-public class SoftExpertWorkflowApi
+public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 {
-    private readonly string _uriModule = "/apigateway/se/ws/wf_ws.php";
-    private readonly RestClient restClient;
-
-    private IDataBase db { get; set; }
-
-    /// <summary>
-    /// Construtor. Necessário passar a URL completa do ambiente do SE e os headers. Header Authorization é necessário
-    /// </summary>
-    /// <param name="url">URL completa do ambiente. Ex.: https://se.example.com.br</param>
-    /// <param name="headers">Passar os headers a serem enviados na requisição. Não esqueça do header Authorization</param>
-    /// <param name="db">Classe concreta que implemente a inteface SoftExpertAPI.Interfaces.IDataBase</param>
-    public SoftExpertWorkflowApi(string url, Dictionary<string, string> headers, SoftExpertAPI.Interfaces.IDataBase db = null)
+    public SoftExpertWorkflowApi(string baseUrl, Dictionary<string, string> headers, IDataBase db = null) : base(baseUrl, headers, db)
     {
-        restClient = new RestClient(url);
-        restClient.AddDefaultHeaders(headers);
-        restClient.AddDefaultHeader("Host", url.Split("://")[1].Split(":")[0]);
-        this.db = db;
     }
 
-    /// <summary>
-    /// Construtor. Necessário passar a URL completa do ambiente do SE e a string to Authorization incluindo o 'Basic ....'
-    /// </summary>
-    /// <param name="url">URL completa do ambiente. Ex.: https://se.example.com.br</param>
-    /// <param name="authorization">Basic no formato base64("dominio\usuario:senha") Ex.: Basic dmMgPyB1bSBjdXJpb3Nv</param>
-    public SoftExpertWorkflowApi(string url, string authorization, SoftExpertAPI.Interfaces.IDataBase db = null)
+    public SoftExpertWorkflowApi(string baseUrl, string authorization, IDataBase db = null) : base(baseUrl, authorization, db)
     {
-        restClient = new RestClient(url);
-        restClient.AddDefaultHeader("Authorization", authorization);
-        restClient.AddDefaultHeader("Host", url.Split("://")[1].Split(":")[0]);
-        this.db = db;
     }
+
+    protected override void SetUriModule()
+    {
+        _uriModule = "/apigateway/se/ws/wf_ws.php";
+    }
+
+
+
+    
+
 
     /// <summary>
     /// Este método cria uma nova instância de processo de Workflow

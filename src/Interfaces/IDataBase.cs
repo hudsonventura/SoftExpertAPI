@@ -11,4 +11,6 @@ public interface IDataBase
 {
     DataTable Query(string sql, Dictionary<string, dynamic> parametros = null);
     int Execute(string sql, Dictionary<string, dynamic> parametros = null);
+
+    string db_name {get; protected set;}
 }

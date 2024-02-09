@@ -11,44 +11,48 @@ namespace Examples;
 
 internal class ExampleOracleImplementation : SoftExpertAPI.Interfaces.IDataBase
 {
-    private readonly IConfiguration appsettings;
+    private readonly string dbConnection;
+    
 
     public ExampleOracleImplementation(IConfiguration appsettings)
     {
-        this.appsettings = appsettings;
+        dbConnection = $"Data Source = (DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL=TCP)(HOST={appsettings["Oracle:host"]})(PORT={appsettings["Oracle:port"]})))(CONNECT_DATA = (SERVICE_NAME={appsettings["Oracle:dbname"]})));User Id={appsettings["Oracle:user"]};Password={appsettings["Oracle:pass"]};";
+        db_name = appsettings["Oracle:user"];
     }
+
+    public string db_name { get; set; }
 
     public int Execute(string sql, Dictionary<string, dynamic> parametros = null)
     {
-        string dbConnection = $"Data Source = (DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL=TCP)(HOST={appsettings["Oracle:host"]})(PORT={appsettings["Oracle:port"]})))(CONNECT_DATA = (SERVICE_NAME={appsettings["Oracle:dbname"]})));User Id={appsettings["Oracle:user"]};Password={appsettings["Oracle:pass"]};";
-
         using (OracleConnection con = new OracleConnection(dbConnection))
         {
             try
             {
                 con.Open();
-
-                using (OracleCommand cmd = con.CreateCommand())
-                {
-                    cmd.CommandText = sql; 
-
-                    if (parametros != null && parametros.Count() > 0)
+                    using (OracleCommand cmd = con.CreateCommand())
                     {
-                        foreach (var item in parametros)
+                        cmd.CommandText = sql; 
+
+                        if (parametros != null && parametros.Count() > 0)
                         {
-                            cmd.Parameters.Add(new OracleParameter(item.Key, item.Value));
+                            foreach (var item in parametros)
+                            {
+                                cmd.Parameters.Add(new OracleParameter(item.Key, item.Value));
+                            }
                         }
+
+                        return cmd.ExecuteNonQuery();
                     }
-
-                    int rowsUpdated = cmd.ExecuteNonQuery(); // Execute o comando UPDATE.
-
-                    // rowsUpdated conterá o número de linhas afetadas pelo comando UPDATE.
-                    return rowsUpdated;
-                }
+                
+                
             }
             catch (Exception erro)
             {
-                throw erro;
+                string msg = erro.Message;
+                if(erro.InnerException != null){
+                    msg += erro.InnerException.Message;
+                }
+                throw new Exception($"{msg}{Environment.NewLine}SQL: {sql}");
             }
             finally
             {
@@ -59,7 +63,6 @@ internal class ExampleOracleImplementation : SoftExpertAPI.Interfaces.IDataBase
 
     public DataTable Query(string sql, Dictionary<string, dynamic> parametros = null)
     {
-        string dbConnection = $"Data Source = (DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL=TCP)(HOST={appsettings["Oracle:host"]})(PORT={appsettings["Oracle:port"]})))(CONNECT_DATA = (SERVICE_NAME={appsettings["Oracle:dbname"]})));User Id={appsettings["Oracle:user"]};Password={appsettings["Oracle:pass"]};";
         using (OracleConnection con = new OracleConnection(dbConnection))
         {
             using (OracleCommand cmd = con.CreateCommand())
@@ -96,4 +99,6 @@ internal class ExampleOracleImplementation : SoftExpertAPI.Interfaces.IDataBase
             };
         };
     }
+
+    
 }
