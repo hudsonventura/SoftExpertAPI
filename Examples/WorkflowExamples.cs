@@ -1,3 +1,4 @@
+using System.Text;
 using Examples;
 using Microsoft.Extensions.Configuration;
 using SoftExpert.Workflow;
@@ -16,7 +17,16 @@ class WorkflowExamples{
         _appsettings = appsettings;
     }
 
-    public void Execute(){
+    public enum Teste{
+        NewWorkflow,
+        NewAttachment,
+        EditEntityRecord,
+        NewChildEntityRecord,
+        EditChildEntityRecord,
+        ExecuteActivity
+    }
+
+    public void Execute(Teste tipo){
 
         #region Preparação
         string url = _appsettings["url"].ToString();
@@ -37,7 +47,6 @@ class WorkflowExamples{
         );
         #endregion
 
-
         #region Dados para uso nestes exemplos
         string ProcessID = "SPF";       //identificador do processo
         string WorkflowTitle = "O titulo da instancia de workflow";
@@ -46,55 +55,85 @@ class WorkflowExamples{
         string WorkflowID = "ID da instancia do processo";
         #endregion
 
-
-        #region Criar instancia de processo
-        try
+        switch (tipo)
         {
-            newWorkflowResponse responseNewWF; responseNewWF = wfAPI.newWorkflow(ProcessID, WorkflowTitle, UserID);
-            string WorkflowID_gerado = responseNewWF.RecordID;
-            int codigoNewWorkFlow = responseNewWF.Code;
-            SoftExpert.SoftExpertResponse.STATUS sucessoNewWorkFlow = responseNewWF.Status;
-            string detalhesNewWorkflow = responseNewWF.Detail;
-            WorkflowID = WorkflowID_gerado;
-        }
-        catch (Exception erro)
-        {
-            Console.WriteLine($"Não foi possivel criar o workflow. Erro: {erro.Message}");
-        }
-        #endregion
+            case Teste.NewWorkflow:
+                #region Criar instancia de processo
+                try
+                {
+                    newWorkflowResponse responseNewWF; responseNewWF = wfAPI.newWorkflow(ProcessID, WorkflowTitle, UserID);
+                    string WorkflowID_gerado = responseNewWF.RecordID;
+                    int codigoNewWorkFlow = responseNewWF.Code;
+                    SoftExpert.SoftExpertResponse.STATUS sucessoNewWorkFlow = responseNewWF.Status;
+                    string detalhesNewWorkflow = responseNewWF.Detail;
+                    WorkflowID = WorkflowID_gerado;
+                }
+                catch (Exception erro)
+                {
+                    Console.WriteLine($"Não foi possivel criar o workflow. Erro: {erro.Message}");
+                }
+                #endregion
+                break;
 
-        #region Anexar arquivos no menu de anexo
+            case Teste.NewAttachment:
+                #region Anexar arquivos no menu de anexo
+                List<Anexo> Arquivos = new List<Anexo>(){ 
+                    new Anexo()
+                    {
+                        FileName = "teste.txt",  //Nome do arquivo com a extensão
+                        Content = Encoding.Unicode.GetBytes("Teste 123")   //Binário do arquivo em byte[]
+                    },
+                    new Anexo()
+                    {
+                        FileName = "",
+                        Content = File.ReadAllBytes("largeLogo4.jpg")
+                    }
+                };
 
-        List<Anexo> Arquivos = new List<Anexo>(){ 
-            new Anexo()
-            {
-                FileName = "logo1.png",  //Nome do arquivo com a extensão
-                Content = File.ReadAllBytes("120.png")   //Binário do arquivo em byte[]
-            },
-            new Anexo()
-            {
-                FileName = "",
-                Content = File.ReadAllBytes("largeLogo4.jpg")
-            }
-        };
+
+                try
+                {
+                    newAttachmentResponse newAttachment = wfAPI.newAttachment(WorkflowID, ActivityID, Arquivos);
+                }
+                catch (Exception erro)
+                {
+                    Console.WriteLine($"Não foi possivel anexar o arquivo a instancia de Workflow. Erro: {erro.Message}");
+                }
+                #endregion
+                break;
+            
 
 
-        try
-        {
-            newAttachmentResponse newAttachment = wfAPI.newAttachment(WorkflowID, ActivityID, Arquivos);
+            case Teste.ExecuteActivity:
+                #region Executar uma atividade
+                try
+                {
+                    int ActionSequence = 1;
+                    executeActivityResponse executeResponse = wfAPI.executeActivity(WorkflowID, ActivityID, ActionSequence, UserID);
+                    var houveSucesso = executeResponse.Code;
+                var detalhes = executeResponse.Detail;
+                }
+                catch (Exception erro)
+                {
+                    Console.WriteLine($"Não foi possivel executar a atividade. Erro: {erro.Message}");
+                    return;
+                }
+                
+                #endregion
+                break;
+            default: break;
         }
-        catch (Exception erro)
-        {
-            Console.WriteLine($"Não foi possivel anexar o arquivo a instancia de Workflow. Erro: {erro.Message}");
-        }
-        #endregion
+
+        
+
+
+        
+
+        
                 
 
         /*
 
-        newAttachmentExample newAttachmentExample = new newAttachmentExample(wfAPI);
-        newAttachmentExample.Exemplo1_ArquivoUnico();
-        newAttachmentExample.Exemplo2_VariosArquivos();
 
 
         //Editar um formulário
@@ -106,9 +145,8 @@ class WorkflowExamples{
         newChildEntityRecordExample.Main();
 
 
-        //Executar uma atividade
-        executeActivityExample executeActivityExample = new executeActivityExample(wfAPI);
-        executeActivityExample.Main();
+
+        
 
 
 
