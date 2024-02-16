@@ -7,11 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 using SoftExpertAPI;
-using SoftExpertAPI.Domain;
-using SoftExpertAPI.Interfaces;
-using SoftExpertAPI.Services;
 
 
 
@@ -60,40 +58,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                         </soapenv:Envelope>"
         ;
 
-        try
-        {
-
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, _uriModule);
-            request.Headers.Add("SOAPAction", "urn:workflow#newWorkflow");
-            request.Content = new StringContent(body.Trim(), Encoding.UTF8, "text/xml");
-
-            HttpResponseMessage  response = restClient.SendAsync(request).Result;
-
-            var body_response = response.Content.ReadAsStringAsync().Result;
-
-            var json = Parse(body_response);
-            
-            var se_response = json.SelectToken("SOAP-ENV:Envelope")
-                                .SelectToken("SOAP-ENV:Body")
-                                .SelectToken("newWorkflowResponse");
-            var status = se_response.SelectToken("Status").ToString();
-            if(status == "FAILURE"){
-                throw new Exception(se_response.SelectToken("Detail").ToString());
-            }
-            return se_response.SelectToken("RecordID").ToString();
-        }
-        catch (SoftExpertException error)
-        {
-            error.setXMLSoapSent(body);
-            throw error;
-        }
-        catch (Exception error2)
-        {
-            var erro = new SoftExpertException(error2.Message);
-            erro.setXMLSoapSent(body);
-            throw erro;
-        }
-
+        var se_response = SendRequest("newWorkflow", body);
+        return se_response.SelectToken("RecordID").ToString();
     }
 
 
@@ -114,9 +80,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="EntityAttributeFileList">Dicionário contendo os arquivos no formato chave - valor (byte[])</param>
     /// <returns>editEntityRecordResponse, objeto com os campos Status, Code, Detail. Se Code = 1 entao houve sucesso. Se Code != 1, uma SoftExpertException é gerada</returns>
     /// <exception cref="SoftExpertException"></exception>
-    public editEntityRecordResponse editEntityRecord(string WorkflowID, string EntityID, Dictionary<string, string> EntityAttributeList = null, Dictionary<string, Dictionary<string, string>> RelationshipList = null, Dictionary<string, Anexo> EntityAttributeFileList = null)
+    public void editEntityRecord(string WorkflowID, string EntityID, Dictionary<string, string> EntityAttributeList = null, Dictionary<string, Dictionary<string, string>> RelationshipList = null, Dictionary<string, Anexo> EntityAttributeFileList = null)
     {
-        throw new NotImplementedException();
         string camposForm = Gerar_EntityAttributeList(EntityAttributeList);
         string camposRelacionamento = Gerar_RelationshipList(RelationshipList);
         string anexos = Gerar_EntityAttributeFileList(EntityAttributeFileList);
@@ -142,29 +107,9 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
                       </urn:editEntityRecord>
                    </soapenv:Body>
-                </soapenv:Envelope>"
-        ;
+                </soapenv:Envelope>";
 
-        try
-        {
-            RestRequest request = new RestRequest(_uriModule, Method.Post);
-            request.AddHeader("SOAPAction", "urn:workflow#newWorkflow");
-            request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
-
-            //var response = restClient.Execute(request);
-            //return editEntityRecordResponse.Parse(response.Content);
-        }
-        catch (SoftExpertException error)
-        {
-            error.setXMLSoapSent(body);
-            throw error;
-        }
-        catch (Exception error)
-        {
-            var erro = editEntityRecordResponse.Parse(error.Message);
-            erro.setXMLSoapSent(body);
-            return erro;
-        }
+        SendRequest("editEntityRecord", body);
     }
 
     private string Gerar_EntityAttributeFileList(Dictionary<string, Anexo> EntityAttributeFileList)
@@ -254,9 +199,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="ActivityOrder"></param>
     /// <returns>executeActivityResponse, objeto com os campos Status, Code, Detail. Se Code = 1 entao houve sucesso. Se Code != 1, uma SoftExpertException é gerada</returns>
     /// <exception cref="SoftExpertException"></exception>
-    public executeActivityResponse executeActivity(string WorkflowID, string ActivityID, int ActionSequence, string? UserID = null, int? ActivityOrder = null)
+    public void executeActivity(string WorkflowID, string ActivityID, int ActionSequence, string? UserID = null, int? ActivityOrder = null)
     {
-        throw new NotImplementedException();
         string body = $@"
                 <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
                    <soapenv:Header/>
@@ -272,28 +216,9 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                          <urn:ActivityOrder>{ActivityOrder}</urn:ActivityOrder>
                       </urn:executeActivity>
                    </soapenv:Body>
-                </soapenv:Envelope>"
-        ;
-        try
-        {
-            RestRequest request = new RestRequest(_uriModule, Method.Post);
-            request.AddHeader("SOAPAction", "urn:workflow#newWorkflow");
-            request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
-
-            //var response = restClient.Execute(request);
-            //return executeActivityResponse.Parse(response.Content);
-        }
-        catch (SoftExpertException error)
-        {
-            error.setXMLSoapSent(body);
-            throw error;
-        }
-        catch (Exception error)
-        {
-            var erro = executeActivityResponse.Parse(error.Message);
-            erro.setXMLSoapSent(body);
-            return erro;
-        }
+                </soapenv:Envelope>";
+        
+        SendRequest("executeActivity", body);
     }
 
     /// <summary>
@@ -303,9 +228,20 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="ActivityID">ID da atividade a ser executada</param>
     /// <param name="File">Arquivo a ser anexado</param>
     /// <returns></returns>
-    public newAttachmentResponse newAttachment(string WorkflowID, string ActivityID, Anexo File, string UserID = null)
+    public void newAttachment(string WorkflowID, string ActivityID, Anexo File, string UserID = null)
     {
-        throw new NotImplementedException();
+        if (File is null)
+        {
+            throw new SoftExpertException("Um dos itens da lista é nulo. Então a comunicação com o SE não foi inciada. Verifique sua lista de arquivos e tente novamente.");
+        }
+        if (File.Content is null || File.Content.Length == 0)
+        {
+            throw new SoftExpertException("Um dos itens da lista possui o conteúdo nulo ou vazio. Então a comunicação com o SE não foi inciada. Verifique sua lista de arquivos e tente novamente.");
+        }
+        if (File.FileName is null || File.FileName.Length == 0)
+        {
+            throw new SoftExpertException("Um dos itens da lista não possui o nome do arquivo (FileName), ou este é vazio. Então a comunicação com o SE não foi inciada. Verifique sua lista de arquivos e tente novamente.");
+        }
 
         string base64 = Convert.ToBase64String(File.Content);
         string body = $@"
@@ -321,74 +257,12 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                          <urn:UserID>{UserID}</urn:UserID>
                       </urn:newAttachment>
                    </soapenv:Body>
-                </soapenv:Envelope>
-                "
-        ;
-        try
-        {
-            RestRequest request = new RestRequest(_uriModule, Method.Post);
-            request.AddHeader("SOAPAction", "urn:workflow#newAttachment");
-            request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
+                </soapenv:Envelope>";
 
-            //var response = restClient.Execute(request);
-            //return newAttachmentResponse.Parse(response.Content);
-        }
-        catch (SoftExpertException error)
-        {
-            error.setXMLSoapSent(body);
-            throw error;
-        }
-        catch (Exception error)
-        {
-            var erro = newAttachmentResponse.Parse(error.Message);
-            erro.setXMLSoapSent(body);
-            return erro;
-        }
+        var se_response = SendRequest("newAttachment", body);
+        //return se_response.SelectToken("RecordID").ToString(); //TODO: Talves pegar o código do anexo gerado
     }
 
-
-    /// <summary>
-    /// Este método anexa umalista de arquivos no menu de anexo do lado esquerdo de uma instancia
-    /// </summary>
-    /// <param name="WorkflowID">ID da instancia</param>
-    /// <param name="ActivityID">ID da atividade a ser executada</param>
-    /// <param name="Files">Lista de arquivos no formato List<Anexo></param>
-    /// <returns></returns>
-    public newAttachmentResponse newAttachment(string WorkflowID, string ActivityID, List<Anexo> Files, string UserID = null)
-    {
-        foreach (Anexo File in Files) {
-            if (File is null)
-            {
-                throw new SoftExpertException("Um dos itens da lista é nulo. Então a comunicação com o SE não foi inciada. Verifique sua lista de arquivos e tente novamente.");
-            }
-            if (File.Content is null || File.Content.Length == 0)
-            {
-                throw new SoftExpertException("Um dos itens da lista possui o conteúdo nulo ou vazio. Então a comunicação com o SE não foi inciada. Verifique sua lista de arquivos e tente novamente.");
-            }
-            if (File.FileName is null || File.FileName.Length == 0)
-            {
-                throw new SoftExpertException("Um dos itens da lista não possui o nome do arquivo (FileName), ou este é vazio. Então a comunicação com o SE não foi inciada. Verifique sua lista de arquivos e tente novamente.");
-            }
-        }
-        newAttachmentResponse retorno = new newAttachmentResponse();
-        foreach (Anexo File in Files) {
-            try
-            {
-                retorno = newAttachment(WorkflowID, ActivityID, File, UserID);
-            }
-            catch (Exception error)
-            {
-                string detail = $"A iteração parou no arquivo {File.FileName} por conta do erro: {error.Message}";
-                throw new SoftExpertException(detail, retorno);
-            }
-            
-        }
-        return new newAttachmentResponse() { 
-            Code = 1,
-            Detail = "Todos os arquivos foram anexados com sucesso",
-            Status = SoftExpertResponse.STATUS.SUCCESS
-        };
-    }
 
 
 
@@ -404,9 +278,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="UserID">Matrícula do usuário iniciador da instância</param>
     /// <returns>newWorkflowResponse, objeto com os campos Status, Code, Detail, RecordKey e RecordID. Se Code = 1 entao RecordID conterá o ID da intância gerada. Se Code != 1, uma SoftExpertException é gerada</returns>
     /// <exception cref="SoftExpertException"></exception>
-    public newChildEntityRecordResponse newChildEntityRecord(string WorkflowID, string MainEntityID, string ChildRelationshipID, Dictionary<string, string> EntityAttributeList = null, Dictionary<string, Dictionary<string, string>> RelationshipList = null, Dictionary<string, Anexo> EntityAttributeFileList = null)
+    public void newChildEntityRecord(string WorkflowID, string MainEntityID, string ChildRelationshipID, Dictionary<string, string> EntityAttributeList = null, Dictionary<string, Dictionary<string, string>> RelationshipList = null, Dictionary<string, Anexo> EntityAttributeFileList = null)
     {
-        throw new NotImplementedException();
         string camposForm = Gerar_EntityAttributeList(EntityAttributeList);
         string camposRelacionamento = Gerar_RelationshipList(RelationshipList);
         string anexos = Gerar_EntityAttributeFileList(EntityAttributeFileList);
@@ -433,30 +306,9 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                                         
                                     </urn:newChildEntityRecord>
                                 </soapenv:Body>
-                            </soapenv:Envelope>"
-        ;
+                            </soapenv:Envelope>";
 
-        try
-        {
-            RestRequest request = new RestRequest(_uriModule, Method.Post);
-            request.AddHeader("SOAPAction", "urn:workflow#newChildEntityRecord");
-            request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
-
-            //var response = restClient.Execute(request);
-            //return newChildEntityRecordResponse.Parse(response.Content);
-        }
-        catch (SoftExpertException error)
-        {
-            error.setXMLSoapSent(body);
-            throw error;
-        }
-        catch (Exception error2)
-        {
-            var erro = new SoftExpertException(error2.Message);
-            erro.setXMLSoapSent(body);
-            throw erro;
-        }
-
+        SendRequest("newChildEntityRecord", body);
     }
 
 
@@ -524,7 +376,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 anexo.cdattachment = Int64.Parse(arquivo["CDATTACHMENT"].ToString());
                 anexo.nmuserupd = arquivo["NMUSERUPD"].ToString();
                 var contentZip = (byte[])stream;
-                var content = Zip.UnzipFile(contentZip);
+                var content = Utils.Zip.UnzipFile(contentZip);
                 anexo.Content = content;
                 retorno.Add(anexo);
             }
@@ -791,9 +643,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="childRecordOID"></param>
     /// <param name="formulario"></param>
     /// <returns></returns>
-    public editChildEntityRecordResponse editChildEntityRecord(string WorkflowID, string MainEntityID, string ChildRelationshipID, string childRecordOID, Dictionary<string, string> EntityAttributeList, Dictionary<string, Anexo>  EntityAttributeFileList = null)
+    public void editChildEntityRecord(string WorkflowID, string MainEntityID, string ChildRelationshipID, string childRecordOID, Dictionary<string, string> EntityAttributeList, Dictionary<string, Anexo>  EntityAttributeFileList = null)
     {
-        throw new NotImplementedException();
         string camposForm = Gerar_EntityAttributeList(EntityAttributeList);
         string anexos = Gerar_EntityAttributeFileList(EntityAttributeFileList);
         string body = $@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:urn=""urn:workflow"">
@@ -817,29 +668,9 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                                         
                                     </urn:editChildEntityRecord>
                                 </soapenv:Body>
-                            </soapenv:Envelope>"
-        ;
-
-        try
-        {
-            RestRequest request = new RestRequest(_uriModule, Method.Post);
-            request.AddHeader("SOAPAction", "urn:workflow#editChildEntityRecord");
-            request.AddParameter("text/xml", body.Trim(), ParameterType.RequestBody);
-
-            //var response = restClient.Execute(request);
-            //return editChildEntityRecordResponse.Parse(response.Content);
-        }
-        catch (SoftExpertException error)
-        {
-            error.setXMLSoapSent(body);
-            throw error;
-        }
-        catch (Exception error2)
-        {
-            var erro = new SoftExpertException(error2.Message);
-            erro.setXMLSoapSent(body);
-            throw erro;
-        }
+                            </soapenv:Envelope>";
+        
+        SendRequest("editChildEntityRecord", body);
     }
 }
 

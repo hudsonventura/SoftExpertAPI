@@ -11,7 +11,7 @@
             "preLaunchTask": "dotnet: build",
             "program": "${workspaceFolder}/Examples/bin/Debug/net6.0/Examples.dll",
             "args": [],
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/Examples/",
             "stopAtEntry": false,
             "console": "internalConsole"
         }

@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text;
 using System.Xml;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SoftExpert;
-using SoftExpertAPI.Interfaces;
 
-namespace SoftExpertAPI;
+namespace SoftExpert;
 
 public abstract class SoftExpertBaseAPI
 {
@@ -24,7 +24,7 @@ public abstract class SoftExpertBaseAPI
     /// <param name="url">URL completa do ambiente. Ex.: https://se.example.com.br</param>
     /// <param name="headers">Passar os headers a serem enviados na requisição. Não esqueça do header Authorization</param>
     /// <param name="db">Classe concreta que implemente a inteface SoftExpertAPI.Interfaces.IDataBase</param>
-    public SoftExpertBaseAPI(string baseUrl, Dictionary<string, string> headers, SoftExpertAPI.Interfaces.IDataBase db = null)
+    public SoftExpertBaseAPI(string baseUrl, Dictionary<string, string> headers, SoftExpert.IDataBase db = null)
     {
         restClient = new HttpClient();
         restClient.BaseAddress = new Uri(baseUrl);
@@ -43,14 +43,18 @@ public abstract class SoftExpertBaseAPI
     /// </summary>
     /// <param name="url">URL completa do ambiente. Ex.: https://se.example.com.br</param>
     /// <param name="authorization">Basic no formato base64("dominio\usuario:senha") Ex.: Basic dmMgPyB1bSBjdXJpb3Nv</param>
-    public SoftExpertBaseAPI(string baseUrl, string authorization, SoftExpertAPI.Interfaces.IDataBase db = null)
+    public SoftExpertBaseAPI(string baseUrl, string authorization, SoftExpert.IDataBase db = null)
     {
         restClient = new HttpClient();
         restClient.BaseAddress = new Uri(baseUrl);
         restClient.DefaultRequestHeaders.Add("Authorization", authorization);
         //restClient.AddDefaultHeader("Host", url.Split("://")[1].Split(":")[0]);
-        this.db = db;
-        this.db_name = db.db_name;
+
+        if(db != null ){
+            this.db = db;
+            this.db_name = db.db_name;
+        }
+        
         SetUriModule();
     }
 
@@ -81,6 +85,43 @@ public abstract class SoftExpertBaseAPI
         string json = JsonConvert.SerializeXmlNode(doc);
         
         return JsonConvert.DeserializeObject<dynamic>(json);
+    }
+
+
+    protected JToken SendRequest(string function, string xmlbody){
+        try
+        {
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, _uriModule);
+            request.Headers.Add("SOAPAction", $"urn:workflow#{function}");
+            request.Content = new StringContent(xmlbody.Trim(), Encoding.UTF8, "text/xml");
+
+            HttpResponseMessage  response = restClient.SendAsync(request).Result;
+            if(!response.IsSuccessStatusCode){
+                throw new Exception(response.ReasonPhrase);
+            }
+            var body_response = response.Content.ReadAsStringAsync().Result;
+
+            var json = Parse(body_response);
+            
+            var se_response = json.SelectToken("SOAP-ENV:Envelope")
+                                .SelectToken("SOAP-ENV:Body")
+                                .SelectToken($"{function}Response");
+            var status = se_response.SelectToken("Status").ToString();
+            if(status == "FAILURE"){
+                throw new SoftExpertException(se_response.SelectToken("Detail").ToString());
+            }
+            return se_response;
+        }
+        catch (SoftExpertException error)
+        {
+            error.setXMLSoapSent(xmlbody);
+            throw error;
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        
     }
 
 }

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SoftExpertAPI.Services;
+namespace SoftExpert.Utils;
 
 internal class Zip
 {

@@ -1,8 +1,9 @@
 using System.Text;
 using Examples;
 using Microsoft.Extensions.Configuration;
+using SoftExpert;
 using SoftExpert.Workflow;
-using SoftExpertAPI.Domain;
+
 
 //TODO: dependendo dos caracteres do WorkflowTitle, a instancia não pode ser criada.
 //TODO: anexar arquivo no form
@@ -12,118 +13,83 @@ using SoftExpertAPI.Domain;
 class WorkflowExamples{
 
     IConfiguration _appsettings;
+    SoftExpertWorkflowApi wfAPI;
+    ExampleOracleImplementation db;
+
+
+    
     public WorkflowExamples(IConfiguration appsettings)
     {
         _appsettings = appsettings;
-    }
 
-    public enum Teste{
-        NewWorkflow,
-        NewAttachment,
-        EditEntityRecord,
-        NewChildEntityRecord,
-        EditChildEntityRecord,
-        ExecuteActivity
-    }
-
-    public void Execute(Teste tipo){
-
-        #region Preparação
+        #region Preparação dos parametros
         string url = _appsettings["url"].ToString();
         string authorization = _appsettings["authorization"].ToString();
 
 
         //Implementação OPCIONAL de uma classe para acessar banco de dados. É necessário respeitar a interface SoftExpertAPI.Interfaces.IDataBase
         //Necessário para algumas implementações fora do escopo da API padrão do SoftExpert.
-        ExampleOracleImplementation oracle = new ExampleOracleImplementation(_appsettings);
+        db = new ExampleOracleImplementation(_appsettings);
 
 
         //Criar instancia da API para utilizar na injeção de dependecias. Necessário informar a URL completa do SE e o header Authorization ou todos os headers.
         //Se o parâmetro 'db' não for passado, alguns
-        SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(
+        wfAPI = new SoftExpertWorkflowApi(
             url, 
             authorization, 
-            db: oracle //opcional. Necessário para: listAttachmentFromInstance
+            db: db //opcional. Necessário para: listAttachmentFromInstance
         );
         #endregion
 
-        #region Dados para uso nestes exemplos
-        string ProcessID = "SPF";       //identificador do processo
-        string WorkflowTitle = "O titulo da instancia de workflow";
-        string UserID = "sistema.automatico";
-        string ActivityID = "ATIV-SOLCCF"; //ID da atividade do processo
-        string WorkflowID = "ID da instancia do processo";
-        #endregion
+        
+    }
+
+    public enum Teste{
+        NewWorkflow, //Ok
+        NewAttachment, //OK
+        EditEntityRecord, //Ok
+        NewChildEntityRecord, //Ok
+        EditChildEntityRecord, //OK
+        ExecuteActivity //Ok
+    }
+
+    public void Execute(Teste tipo){
+
+        
 
         switch (tipo)
         {
-            case Teste.NewWorkflow:
-                #region Criar instancia de processo
-                try
-                {
-                    string WorkflowID_gerado = wfAPI.newWorkflow(ProcessID, WorkflowTitle, UserID);
-                }
-                catch (Exception erro)
-                {
-                    Console.WriteLine($"Não foi possivel criar o workflow. Erro: {erro.Message}");
-                }
-                #endregion
+            case Teste.NewWorkflow: newWorkflow();
                 break;
 
-            case Teste.NewAttachment:
-                #region Anexar arquivos no menu de anexo
-                List<Anexo> Arquivos = new List<Anexo>(){ 
-                    new Anexo()
-                    {
-                        FileName = "teste.txt",  //Nome do arquivo com a extensão
-                        Content = Encoding.Unicode.GetBytes("Teste 123")   //Binário do arquivo em byte[]
-                    },
-                    new Anexo()
-                    {
-                        FileName = "",
-                        Content = File.ReadAllBytes("largeLogo4.jpg")
-                    }
-                };
+            case Teste.NewAttachment: NewAttachment();
+                break;
 
+            case Teste.ExecuteActivity: ExecuteActivity();
+                break;
 
-                try
-                {
-                    newAttachmentResponse newAttachment = wfAPI.newAttachment(WorkflowID, ActivityID, Arquivos);
-                }
-                catch (Exception erro)
-                {
-                    Console.WriteLine($"Não foi possivel anexar o arquivo a instancia de Workflow. Erro: {erro.Message}");
-                }
-                #endregion
+            case Teste.EditEntityRecord: EditEntityRecord();
                 break;
             
-
-
-            case Teste.ExecuteActivity:
-                #region Executar uma atividade
-                try
-                {
-                    int ActionSequence = 1;
-                    executeActivityResponse executeResponse = wfAPI.executeActivity(WorkflowID, ActivityID, ActionSequence, UserID);
-                    var houveSucesso = executeResponse.Code;
-                var detalhes = executeResponse.Detail;
-                }
-                catch (Exception erro)
-                {
-                    Console.WriteLine($"Não foi possivel executar a atividade. Erro: {erro.Message}");
-                    return;
-                }
-                
-                #endregion
+            case Teste.NewChildEntityRecord: NewChildEntityRecord();
                 break;
-            default: break;
+
+            case Teste.EditChildEntityRecord: EditChildEntityRecord();
+                break;
+            
+            default: throw new Exception("Tipo ainda não implementado");
+                break;
         }
 
         
+        
+
+
+
 
 
         
-
+        
         
                 
 
@@ -178,8 +144,178 @@ class WorkflowExamples{
         markActivityAsExecuted.Main();*/
 
 
-        editChildEntityRecordExample editChildEntityRecordExample = new editChildEntityRecordExample(wfAPI);
-        editChildEntityRecordExample.Main();
 
+
+    }
+
+    private void EditChildEntityRecord()
+    {
+        string MainEntityID = "IR";                                     //ID da tabela principal (entidade)
+        string WorkflowID = "IR088482";                                 //ID da instancia
+        string ChildRelationshipID = "ircomentariorel";                 //ID do relacionamento
+        string ChildRecordOID = "7898431bf32fd35d5636146ce502d057";     //OID do registro   
+
+
+
+        //os campos do fomrulário devem ser um dictionay de strings/strings, sendo nomeCampo/valorCampo
+        Dictionary<string, string> formulario = new Dictionary<string, string>();
+        formulario.Add("synced", "1"); //id do campo do formulário e valor (em string)
+        formulario.Add("usuario", "123 teste"); //id do campo do formulário e valor (em string)
+
+
+        try
+        {
+            wfAPI.editChildEntityRecord(WorkflowID, MainEntityID, ChildRelationshipID, ChildRecordOID, formulario);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
+
+    private void EditEntityRecord()
+    {
+        //os campos do fomrulário devem ser um dictionay de strings/strings, sendo nomeCampo/valorCampo
+        Dictionary<string, string> formulario = new Dictionary<string, string>();
+        formulario.Add("possuiendereco", "1"); //id do campo do formulário e valor (em string)
+        formulario.Add("ramal", "N/A");
+        //
+
+        //os relacionamentos (selectbox) a serem prenchidos
+        Dictionary<string, Dictionary<string, string>> relacionamentos = new Dictionary<string, Dictionary<string, string>>();
+        relacionamentos.Add("tipocliente", //idrelacionamento
+            new Dictionary<string, string>() {
+            //{ "campodoformdorelacionamento", "valor" },
+            { "tipo", "PESSOA JURIDICA (CNPJ)" },
+            }
+        );
+
+
+        //em caso de adicionar arquivos no formulário
+        string filePath = "120.png";
+        string FileName = "logo.png";                       //Nome do arquivo com a extensão
+        byte[] FileContent = File.ReadAllBytes(filePath);   //Binário do arquivo
+        Dictionary<string, Anexo> arquivos = new Dictionary<string, Anexo>();
+        arquivos.Add("al5termoassinad", new Anexo() { FileName = FileName, Content = FileContent });
+
+
+        try
+        {
+            string WorkflowID = "CCF202403731";
+            string EntityID = "SOLCLIENTEFORNE";    //ID da tabela (entidade)
+
+            wfAPI.editEntityRecord(WorkflowID, EntityID, formulario, relacionamentos, arquivos);
+        }
+        catch (SoftExpert.SoftExpertException erro)
+        {
+            throw;
+        }
+        catch(Exception erro){
+            throw;
+        }
+    }
+
+    private void ExecuteActivity()
+    {
+        try
+        {
+            string WorkflowID = "CCF202403731";
+            string ActivityID = "ATIV-SOLCCF";
+            int ActionSequence = 2;
+            string UserID = "sistema.automatico";
+
+            wfAPI.executeActivity(WorkflowID, ActivityID, ActionSequence, UserID);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
+
+    private void NewAttachment()
+    {
+        var arquivo1 = new Anexo()
+                            {
+                                FileName = "teste.txt",  //Nome do arquivo com a extensão
+                                Content = Encoding.UTF8.GetBytes("Teste 123")   //Binário do arquivo em byte[]
+                            };
+
+        var arquivo2 = new Anexo()
+                            {
+                                FileName = "largeLogo4.jpg",
+                                Content = File.ReadAllBytes("largeLogo4.jpg")
+                            };
+        
+
+
+        try
+        {
+            string WorkflowID = "CCF202403731";
+            string ActivityID = "ATIV-SOLCCF";
+
+            wfAPI.newAttachment(WorkflowID, ActivityID, arquivo1);
+            wfAPI.newAttachment(WorkflowID, ActivityID, arquivo2);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
+
+    private void newWorkflow()
+    {
+        try
+        {
+            string ProcessID = "CFTVs";
+            string WorkflowTitle = "O titulo da instancia de workflow";
+            string UserID = "sistema.automatico";
+
+            string WorkflowID_gerado = wfAPI.newWorkflow(ProcessID, WorkflowTitle, UserID);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
+
+    private void NewChildEntityRecord(){
+        //os campos do fomrulário devem ser um dictionay de strings/strings, sendo nomeCampo/valorCampo
+        Dictionary<string, string> formulario = new Dictionary<string, string>();
+        formulario.Add("iban", "1"); //id do campo do formulário e valor (em string)
+        formulario.Add("banco", "N/A");
+
+
+        try
+        {
+            string WorkflowID = "CCF202403731";
+            string EntityID = "SOLCLIENTEFORNE";    //ID da tabela (entidade)
+            string ChildRelationshipID = "invoices"; //ID da tabela da grid
+
+            wfAPI.newChildEntityRecord(WorkflowID, EntityID, ChildRelationshipID,  formulario);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
     }
 }

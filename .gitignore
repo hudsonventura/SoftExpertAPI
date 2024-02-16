@@ -14,3 +14,8 @@ Examples/bin/*
 Examples/obj/*
 .vscode/settings.json
 Tests/bin/*
+.vs/*
+Testes/Testes_Administracao/bin/*
+Testes/Testes_Administracao/obj/*
+Testes/Testes_Workflow/bin/*
+Testes/Testes_Workflow/obj/*

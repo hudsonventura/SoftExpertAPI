@@ -1,12 +1,10 @@
 using Examples;
 using Microsoft.Extensions.Configuration;
-using SoftExpert.Workflow;
-using SoftExpertAPI.Domain;
 
 //TODO: dependendo dos caracteres do WorkflowTitle, a instancia não pode ser criada.
 //TODO: anexar arquivo no form
 //BUG: ao passa uma atividade para a função listAttachmentFromInstance, o SQL não traz resultados. Usar sem informar a atividade.
-
+//TODO: Criar o cancelamento do Workflow
 
 
 IConfiguration appsettings = new ConfigurationBuilder()
