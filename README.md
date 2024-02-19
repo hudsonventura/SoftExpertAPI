@@ -1,242 +1,77 @@
 # SoftExpertAPI
-SoftExpertAPI é uma biblioteca que possui um conjunto de classes para abstrair a comunicação SOAP ou REST com a API do SoftExpert SESuite.<br>
-Esta biblioteca não está completa e será desenvolvida conforme necessidades e pedidos.
-<br>
-Direitos reservados a https://www.softexpert.com/<br>
-<br>
-Documentação original: https://documentation.softexpert.com/en/integration/index.html
-<br>
-<br>
-Se você quer falar comigo, por qualquer proposito, me mande um email. hudsonventura@outlook.com
+SoftExpertAPI é uma biblioteca que possui um conjunto de classes para abstrair a comunicação SOAP, REST com a API do SoftExpert SESuite e/ou via banco de dados para algumas implementações.<br>
+Esta biblioteca não está completa e será desenvolvida conforme necessidades e pedidos.  
 
-<br>
-<br>
+Direitos reservados a https://www.softexpert.com/  
 
-#### Testado no SoftExpert 2.1.7.252 e Oracle
-<br>
-Há exemplos funcionais no diretório `Examples`
+Documentação original: https://documentation.softexpert.com/en/integration/index.html  
+Documentação original nova versão: https://developer.softexpert.com/docs/data-integration/getting-started/platform-overview/  
 
-### Importação do namespace ...
-```C#
-using SoftExpert.Workflow;
+Meu email. `hudsonventura@outlook.com`  
+
+### Obs.: Testado no SoftExpert 2.1.9.x e Oracle
+
+Há exemplos funcionais no diretório `Examples`  
+
+## Get Started 
+Instale os pacotes do Nuget  
+``` bash
+dotnet add package SoftExpertAPI
 ```
-<br>
-<br>
 
-### Criar uma instancia da API de workflow para uso SEM banco de dados
+### Importe os namespaces ...
 ```C#
+using SoftExpert;
+using SoftExpert.Workflow;  //para o módulo de Workflow
+using SoftExpert.Admin;     //para o módulo de Administração
+```  
+
+### Crie uma instancia da API do módulo de Workflow SEM acesso a banco de dados
+```C#
+using SoftExpert;
+using SoftExpert.Workflow; 
+
 string authorization = "Basic base64encode(DOMINIO\USUARIO:SENHA)"; //deve ser codificado em base64
 string url = "https://se.dominio.com.br";
 SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(url, authorization);
-```
+```  
 
-<br>
-<br>
 
-### Criar uma instancia da API de workflow para uso COM banco de dados
+### Crie uma instancia da API do módulo de Administração COM acesso a banco de dados (necessário para muitas funcionalidades)
 Necessário para as funções: `listAttachmentFromInstance`<br>
-Necessário a implementação de um banco de dados (IDatabase). Ver exemplo de implementação no arquivo `Examples/ExampleOracleImplement.cs`. Podem ser implementados outros bancos de dados, desde que estes implementem a interface `IDatabase`.
+Necessário a implementação de um banco de dados (IDatabase). Ver exemplo de implementação no arquivo `Examples/ExampleOracleImplement.cs`. Podem ser implementados outros bancos de dados, desde que estes implementem a interface `IDatabase`.  
+Esta biblioteca foi testada apenas no banco de dados Oracle, utilizando a implmentação  do arquivo `Examples/ExampleOracleImplement.cs`, mas implementando a interface `IDatabase` você pode obter trabalhar normalmente.  
+
 ```C#
 string authorization = "Basic base64encode(DOMINIO\USUARIO:SENHA)"; //deve ser codificado em base64
 string url = "https://se.dominio.com.br";
 
 ExampleOracleImplement oracle = new ExampleOracleImplement(appsettings);
-SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(url, authorization, db: oracle);
-```
+SoftExpertAdminApi adminAPI = new SoftExpertAdminApi(url, authorization, db: oracle);
+```  
 
-<br>
-<br>
-
-### Usando a API - Criando uma instancia de workflow
+### Usando a API - Criando uma instancia de workflow  
 
 ```C#
 string ProcessID = "CCF";                       //identificador do processo
 string WorkflowTitle = "Teste de integração"; ; //titulo da instancia a ser criado
 string UserID = "00000000000";                  //matricula do usuario
 
-newWorkflowResponse responseNewWF;
+
 try
 {
-    responseNewWF = wfAPI.newWorkflow(ProcessID, WorkflowTitle, UserID);
+    string WorkflowIDCreated = wfAPI.newWorkflow(ProcessID, WorkflowTitle, UserID);
+}
+catch (SoftExpertException erro)
+{
+    Console.WriteLine($"Este tipo de erro é um erro retornado pela API do SoftExpert. Quando ele for lançado, significa que a comunicação com o servidor funcionou, mas você passou algum parametro que o SESuite não aceito. No 'erro.Message' há detalhes sobre o problema. Erro: {erro.Message}");
 }
 catch (Exception erro)
 {
-    Console.WriteLine($"Não foi possivel criar o workflow. Erro: {erro.Message}");
-    return;
-}
-string WorkflowID = responseNewWF.RecordID;
-int codigoNewWorkFlow = responseNewWF.Code;
-SoftExpert.SoftExpertResponse.STATUS sucessoNewWorkFlow = responseNewWF.Status;
-string detalhesNewWorkflow = responseNewWF.Detail;
-```
-
-<br>
-<br>
-
-
-### Usando a API - Editando dados do formulário
-
-```C#
-Dictionary<string, string> formulario = new Dictionary<string, string>();
-formulario.Add("possuiendereco", "1"); //id do campo do formulário e valor (em string)
-formulario.Add("ramal", "N/A");
-
-Dictionary<string, Dictionary<string, string>> relacionamentos = new Dictionary<string, Dictionary<string, string>>();
-relacionamentos.Add("tipocliente", //idrelacionamento
-    new Dictionary<string, string>() {
-            //{ "campodoformdorelacionamento", "valor" },
-            { "tipo", "PESSOA JURIDICA (CNPJ)" },
-    }
-);
-
-string EntityID = "SOLCLIENTEFORNE";
-
-//em caso de adicionar arquivos no formulário
-string filePath = "120.png";
-string FileName = "logo.png";                       //Nome do arquivo com a extensão
-byte[] FileContent = File.ReadAllBytes(filePath);   //Binário do arquivo
-Dictionary<string, Anexo> arquivos = new Dictionary<string, Anexo>();
-arquivos.Add("al5termoassinad", new Anexo() { FileName = FileName, Content = FileContent });
-
-
-editEntityRecordResponse entityResponse;
-try
-{
-    entityResponse = wfAPI.editEntityRecord(
-        WorkflowID, EntityID, formulario, //campos obrigatórios
-        relacionamentos, arquivos); //campos opcionais
-}
-catch (Exception erro)
-{
-    Console.WriteLine($"Não foi possivel editar o formulário. Erro: {erro.Message}");
-    return;
-}
-int sucessoEntity = entityResponse.Code;
-string detalhesEntity = entityResponse.Detail;
-```
-
-<br>
-<br>
-
-### Usando a API - Editando dados da grid do formulário
-
-```C#
-//Os campos são os mesmo da função editEntityRecord, adicionando o `ChildRelationshipID` que é o ID do relacionamento
-
-
-newChildEntityRecordResponse entityResponse;
-try
-{
-    entityResponse = wfAPI.newChildEntityRecord(WorkflowID, EntityID, ChildRelationshipID,  formulario, //campos obrigatórios
-                                                                            relacionamentos, arquivos); //campos opcionais
-}
-catch (Exception erro)
-{
-    Console.WriteLine($"Não foi possivel editar o formulário. Erro: {erro.Message}");
-    return;
-}
-int sucessoEntity = entityResponse.Code;
-string detalhesEntity = entityResponse.Detail;
-```
-
-<br>
-<br>
-
-
-
-### Usando a API - Execução de atividade
-
-```C#
-string ActivityID = "ATIV-SOLCCF";      //ID da atividade do fluxograma
-int ActionSequence = 3;                 //Sequence da ação da atividade. Veja na lista de ações da atividade
-
-executeActivityResponse executeResponse;
-try
-{
-    executeResponse = wfAPI.executeActivity(WorkflowID, ActivityID, ActionSequence, UserID);
-}
-catch (Exception erro)
-{
-    Console.WriteLine($"Não foi possivel executar a atividade. Erro: {erro.Message}");
-    return;
-}
-var houveSucesso = executeResponse.Code;
-var detalhes = executeResponse.Detail;
-```
-
-<br>
-<br>
-
-### Usando a API - Anexar arquivo (menu do lado esquerdo de uma instancia)
-
-```C#
-string filePath = "120.png";                                           
-byte[] FileContent = File.ReadAllBytes(filePath);   //Binário do arquivo
-string ActivityID = "ATIV-SOLCCF";                  //ID da atividade em que o arquivo será anexado
-string WorkflowID = "CCF202323106";                 //ID da instancia
-Anexo Arquivo = new Anexo() {                       //pode-se passar também uma List<Anexo>
-    FileName = "logo.png",                          //Nome do arquivo com a extensão
-    Content = FileContent                           //Binário do arquivo
-};
-
-newAttachmentResponse newAttachment;
-try
-{
-    newAttachment = wfAPI.newAttachment(WorkflowID, ActivityID, Arquivo);
-}
-catch (Exception erro)
-{
-    Console.WriteLine($"Não foi possivel anexar o arquivo a instancia de Workflow. Erro: {erro.Message}");
-    return;
+    Console.WriteLine($"Este tipo de erro é um erro genérico, que provavelmente acontecerá em caso de falha de comunicação com o servidor. Erro: {erro.Message}");
 }
 ```
 
-<br>
-<br>
-
-
-### Usando a API - Listar arquivos (menu do lado esquerdo de uma instancia)
-Necessário a implementação de um banco de dados.
-
-```C#
-string WorkflowID = "TESTE2023000001";                                           
-List<Anexo> anexos;
-try
-{
-    anexos =  wfAPI.listAttachmentFromInstance(WorkflowID);
-}
-catch (Exception erro)
-{
-    Console.WriteLine($"Não foi possivel criar o workflow. Erro: {erro.Message}");
-    return;
-}
-
-foreach (var anexo in anexos)
-{
-    File.WriteAllBytes($"{Environment.CurrentDirectory}{anexo.FileName}", anexo.Content);
-}
-```
-
-<br>
-<br>
-
-
-### Usando a API - Listar itens de uma grid de uma instancia de WF
-``` C#
-string WorkflowID = "IR090867";
-string MainEntityID = "IR";
-string ChildEntityID = "IRCOMENTARIO";
-string ChildOID = "OIDABCX0LIPROHT4H2";
-
-
-List<dynamic> itens_grid;
-try
-{
-    itens_grid =  wfAPI.listGridItems(WorkflowID, MainEntityID, ChildEntityID, ChildOID);
-}
-catch (Exception erro)
-{
-    Console.WriteLine($"Não foi possivel criar o workflow. Erro: {erro.Message}");
-    return;
-}
-```
+## Demais exemplos
+Há mais exemplos nos arquivos [Examples/WorkflowExamples.cs](Examples/WorkflowExamples.cs) e no [Examples/AdminExamples.cs](Examples/AdminExamples.cs).  
+Não se esquece de que se precisar de acesso ao banco de dados, implemente a interface `IDatabase` como no exemplo [Examples/ExampleOracleImplementation.cs](Examples/ExampleOracleImplementation.cs)

@@ -50,7 +50,15 @@ class WorkflowExamples{
         EditEntityRecord, //Ok
         NewChildEntityRecord, //Ok
         EditChildEntityRecord, //OK
-        ExecuteActivity //Ok
+        ExecuteActivity, //Ok
+        getFormData,
+        getFormSelectBox,
+        getWorkFlowData,
+        listAttachmentFromInstanceExample,
+        ListGridItems,
+        markActivityAsExecuted,
+        setAttachmentSynced,
+
     }
 
     public void Execute(Teste tipo){
@@ -77,75 +85,61 @@ class WorkflowExamples{
             case Teste.EditChildEntityRecord: EditChildEntityRecord();
                 break;
             
-            default: throw new Exception("Tipo ainda não implementado");
+            case Teste.ListGridItems: ListGridItems();
+                break;
+                
+            case Teste.getFormData:
+                break;
+
+            case Teste.getFormSelectBox:
+                break;
+
+            case Teste.getWorkFlowData:
+                break;
+
+            case Teste.listAttachmentFromInstanceExample:
+                break;
+
+            case Teste.markActivityAsExecuted:
+                break;
+
+            case Teste.setAttachmentSynced:
+                break;
+
+            default:
+                throw new Exception("Tipo ainda não implementado");
                 break;
         }
 
         
         
 
+    }
 
-
-
-
-        
-        
-        
-                
-
-        /*
-
-
-
-        //Editar um formulário
-        editEntityRecordExample editEntityRecordExample = new editEntityRecordExample(wfAPI);
-        editEntityRecordExample.Main();
-
-        //Adiciona um item em uma grid de um formulário
-        newChildEntityRecordExample newChildEntityRecordExample = new newChildEntityRecordExample(wfAPI);
-        newChildEntityRecordExample.Main();
-
-
-
+    class ExemploClasseGrid{
         
 
+    }
+    private void ListGridItems()
+    {
+        string WorkflowID = "IR090867";
+        string MainEntityID = "IR";
+        string ChildEntityID = "IRCOMENTARIO";
+        string ChildOID = "OIDABCX0LIPROHT4H2";
 
 
-
-        //Lista os anexos de uma instancia
-        listAttachmentFromInstanceExample listAttachmentFromInstanceExample = new listAttachmentFromInstanceExample(wfAPI);
-        listAttachmentFromInstanceExample.Main();
-
-
-        //marcar um anexo com syncronizado
-        setAttachmentSynced setAttachmentSynced = new setAttachmentSynced(wfAPI);
-        setAttachmentSynced.Main();
-
-
-        //lista os itens de uma grid de uma dada instancia
-        listGridItems listGridItems = new listGridItems(wfAPI);
-        listGridItems.Main();
-
-        //lista os parametros de uma instancia deworkflow
-        getWorkFlowData getWorkFlowData = new getWorkFlowData(wfAPI);
-        getWorkFlowData.Main();
-
-        //lista os campos e valores de um furmulário de um dados workflow
-        getFormData getFormData = new getFormData(wfAPI);
-        getFormData.Main();
-
-
-        //obtem os campos de um select box
-        getFormSelectBox getFormSelectBox = new getFormSelectBox(wfAPI);
-        getFormSelectBox.Main(); 
-
-        //marca uma atividade como executada com sucesso
-        markActivityAsExecuted markActivityAsExecuted = new markActivityAsExecuted(wfAPI);
-        markActivityAsExecuted.Main();*/
-
-
-
-
+        try
+        {
+            List<dynamic> itens_grid =  wfAPI.listGridItems<ExemploClasseGrid>(WorkflowID, MainEntityID, ChildEntityID, ChildOID);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
     }
 
     private void EditChildEntityRecord()
