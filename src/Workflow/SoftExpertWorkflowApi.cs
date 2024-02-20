@@ -44,7 +44,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="SoftExpertException"></exception>
     public string newWorkflow(string ProcessID, string WorkflowTitle, string? UserID = null)
     {
-
+        //BUG: dependendo dos caracteres do WorkflowTitle, a instancia não pode ser criada.
         string body = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
                             <soapenv:Header/>
                             <soapenv:Body>
@@ -324,6 +324,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="SoftExpertException"></exception>
     /// <exception cref="Exception"></exception>
     public List<Anexo> listAttachmentFromInstance(string WorkflowID, string ActivityID = "") {
+        //BUG: ao passa uma atividade para a função listAttachmentFromInstance, o SQL não traz resultados. Usar sem informar a atividade.
         if (db is null) {
             throw new SoftExpertException("Uma instancia de banco de dados não foi informada na criação deste objeto. Crie forneça uma conexão com seu banco de dados implementando a interface SoftExpertAPI.Interfaces.IDataBase");
         }
@@ -446,7 +447,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns></returns>
     public int setAttachmentSynced(Anexo anexo)
     {
-        string sql = $@"UPDATE ADATTACHMENT SET NMUSERUPD  = NMUSERUPD||'-synced' WHERE CDATTACHMENT = :cdAttachment";
+        string sql = $@"UPDATE {db_name}.ADATTACHMENT SET NMUSERUPD  = NMUSERUPD||'-synced' WHERE CDATTACHMENT = :cdAttachment";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
         parametros.Add(":cdAttachment", anexo.cdattachment);
@@ -715,6 +716,17 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 return anexo;
             })
             .FirstOrDefault();
+    }
+
+    public int changeWorflowTitle(string workflowID, string title)
+    {
+        string sql = $@"UPDATE {db_name}.WFPROCESS SET NMPROCESS = :title WHERE IDPROCESS= :workflowID";
+
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":title", title);
+        parametros.Add(":workflowID", workflowID);
+
+        return db.Execute(sql, parametros);
     }
 }
 

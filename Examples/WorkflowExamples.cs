@@ -4,14 +4,14 @@ using Microsoft.Extensions.Configuration;
 using SoftExpert;
 using SoftExpert.Workflow;
 
-
-//TODO: dependendo dos caracteres do WorkflowTitle, a instancia não pode ser criada.
 //TODO: anexar arquivo no form
-//BUG: ao passa uma atividade para a função listAttachmentFromInstance, o SQL não traz resultados. Usar sem informar a atividade.
-
-
+//TODO: Criar a checagem de instancia de banco de dados em todas as funções que dela necessitarem.
+/*if (db is null) {
+            throw new SoftExpertException("Uma instancia de banco de dados não foi informada na criação deste objeto. Crie forneça uma conexão com seu banco de dados implementando a interface SoftExpertAPI.Interfaces.IDataBase");
+        }*/
+        
 class WorkflowExamples{
-
+    
     IConfiguration _appsettings;
     SoftExpertWorkflowApi wfAPI;
 
@@ -59,6 +59,8 @@ class WorkflowExamples{
         setAttachmentSynced,
         GetFileFromOID,
         GetFileFromFormField,
+        ChangeWorflowTitle,
+        CancelWorkflow
     }
 
     public void Execute(Teste tipo){
@@ -112,6 +114,12 @@ class WorkflowExamples{
             case Teste.GetFileFromFormField: GetFileFromFormField();
                 break;
 
+            case Teste.ChangeWorflowTitle: ChangeWorflowTitle();
+                break;
+
+            case Teste.CancelWorkflow: CancelWorkflow();
+                break;
+
             default:
                 throw new Exception("Tipo ainda não implementado");
                 break;
@@ -120,6 +128,30 @@ class WorkflowExamples{
 
 
 
+    }
+
+    private void CancelWorkflow()
+    {
+        //TODO: Criar o cancelamento do Workflow
+        throw new NotImplementedException();
+    }
+
+    private void ChangeWorflowTitle()
+    {
+        string WorkflowID = "CCF202400005";
+        var title = "Título de testes";
+        try
+        {
+            wfAPI.changeWorflowTitle(WorkflowID, title);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
     }
 
     private void GetFileFromFormField()

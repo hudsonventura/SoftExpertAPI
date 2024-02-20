@@ -206,4 +206,25 @@ public class Testes_Workflow
             throw;
         }
     }
+
+    [Fact]
+    public void WF_07_ChangeWorflowTitle()
+    {
+        string WorkflowID = "CCF202400005";
+        var title = "Título de testes";
+
+        try
+        {
+            var value =  _softExpertApi.changeWorflowTitle(WorkflowID, title);
+
+
+            Assert.NotNull(value);
+            Assert.IsType<int>(value);
+            Assert.True(value == 1);
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
 }
