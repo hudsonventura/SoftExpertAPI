@@ -341,8 +341,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                         --
                         from {db_name}.wfprocess p
                         JOIN {db_name}.WFSTRUCT A ON A.IDPROCESS = P.IDOBJECT
-                        left {db_name}.JOIN WFPROCATTACHMENT ATAASSOC ON A.IDOBJECT = ATAASSOC.IDSTRUCT
-                        left {db_name}.JOIN ADATTACHMENT ANEXO ON ATAASSOC.CDATTACHMENT = ANEXO.CDATTACHMENT
+                        left {db_name}.WFPROCATTACHMENT ATAASSOC ON A.IDOBJECT = ATAASSOC.IDSTRUCT
+                        left {db_name}.ADATTACHMENT ANEXO ON ATAASSOC.CDATTACHMENT = ANEXO.CDATTACHMENT
                         join {db_name}.ADATTACHFILE a on ANEXO.CDATTACHMENT = a.CDATTACHMENT
                         join {db_name}.GNCOMPFILECONTCOPY c on a.CDCOMPLEXFILECONT = c.CDCOMPLEXFILECONT
                         join {db_name}.gnfile g on c.CDCOMPLEXFILECONT = g.CDCOMPLEXFILECONT
