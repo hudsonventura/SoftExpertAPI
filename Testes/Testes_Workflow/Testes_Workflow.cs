@@ -184,4 +184,26 @@ public class Testes_Workflow
             throw;
         }
     }
+
+    [Fact]
+    public void WF_06_listAttachmentFromInstance()
+    {
+        string WorkflowID = "IR088482";
+
+        try
+        {
+            var arquivos =  _softExpertApi.listAttachmentFromInstance(WorkflowID);
+
+
+            Assert.NotNull(arquivos);
+            Assert.True(arquivos.Count > 0);
+
+            Assert.IsType<string>(arquivos[0].FileName);
+            Assert.IsType<byte[]>(arquivos[0].Content);
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
 }
