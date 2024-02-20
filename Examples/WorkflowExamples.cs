@@ -56,7 +56,7 @@ class WorkflowExamples{
         listAttachmentFromInstanceExample,
         ListGridItems,
         markActivityAsExecuted,
-        setAttachmentSynced,
+        SetAttachmentSynced,
         GetFileFromOID,
         GetFileFromFormField,
         ChangeWorflowTitle,
@@ -105,7 +105,7 @@ class WorkflowExamples{
             case Teste.markActivityAsExecuted:
                 break;
 
-            case Teste.setAttachmentSynced:
+            case Teste.SetAttachmentSynced: SetAttachmentSynced();
                 break;
 
             case Teste.GetFileFromOID: GetFileFromOID();
@@ -128,6 +128,24 @@ class WorkflowExamples{
 
 
 
+    }
+
+    private void SetAttachmentSynced()
+    {
+        int cdattachment = 2153826;
+
+        try
+        {
+            int number_rows_affected = wfAPI.setAttachmentSynced(cdattachment);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
     }
 
     private void CancelWorkflow()
@@ -344,8 +362,8 @@ class WorkflowExamples{
 
         try
         {
-            string WorkflowID = "CCF202403731";
-            string ActivityID = "ATIV-SOLCCF";
+            string WorkflowID = "SM2022030046";
+            string ActivityID = "atvsolicitarmiro";
 
             wfAPI.newAttachment(WorkflowID, ActivityID, arquivo1);
             wfAPI.newAttachment(WorkflowID, ActivityID, arquivo2);
