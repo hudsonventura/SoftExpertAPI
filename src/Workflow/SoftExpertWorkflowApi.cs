@@ -227,7 +227,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="ActivityID">ID da atividade a ser executada</param>
     /// <param name="File">Arquivo a ser anexado</param>
     /// <returns></returns>
-    public void newAttachment(string WorkflowID, string ActivityID, Anexo File, string UserID = null)
+    public int newAttachment(string WorkflowID, string ActivityID, Anexo File, string UserID = null)
     {
         if (File is null)
         {
@@ -259,7 +259,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 </soapenv:Envelope>";
 
         var se_response = SendRequest("newAttachment", body);
-        //return se_response.SelectToken("RecordID").ToString(); //TODO: Talves pegar o código do anexo gerado
+        return Int32.Parse(se_response.SelectToken("RecordKey").ToString());
     }
 
 
@@ -445,12 +445,12 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// </summary>
     /// <param name="anexo"></param>
     /// <returns></returns>
-    public int setAttachmentSynced(Anexo anexo)
+    public int setAttachmentSynced(int cdAttachment)
     {
         string sql = $@"UPDATE {db_name}.ADATTACHMENT SET NMUSERUPD  = NMUSERUPD||'-synced' WHERE CDATTACHMENT = :cdAttachment";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":cdAttachment", anexo.cdattachment);
+        parametros.Add(":cdAttachment", cdAttachment);
 
         return db.Execute(sql, parametros);
     }
