@@ -340,13 +340,13 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 				        substr(g.NMFILE, INSTR(g.NMFILE, '.', -1)+1) AS EXT,
 				        g.NRSIZE, g.FLFILE
                         --
-                        from wfprocess p
-                        JOIN WFSTRUCT A ON A.IDPROCESS = P.IDOBJECT
-                        left JOIN WFPROCATTACHMENT ATAASSOC ON A.IDOBJECT = ATAASSOC.IDSTRUCT
-                        left JOIN ADATTACHMENT ANEXO ON ATAASSOC.CDATTACHMENT = ANEXO.CDATTACHMENT
-                        join ADATTACHFILE a on ANEXO.CDATTACHMENT = a.CDATTACHMENT
-                        join GNCOMPFILECONTCOPY c on a.CDCOMPLEXFILECONT = c.CDCOMPLEXFILECONT
-                        join gnfile g on c.CDCOMPLEXFILECONT = g.CDCOMPLEXFILECONT
+                        from {db_name}.wfprocess p
+                        JOIN {db_name}.WFSTRUCT A ON A.IDPROCESS = P.IDOBJECT
+                        left {db_name}.JOIN WFPROCATTACHMENT ATAASSOC ON A.IDOBJECT = ATAASSOC.IDSTRUCT
+                        left {db_name}.JOIN ADATTACHMENT ANEXO ON ATAASSOC.CDATTACHMENT = ANEXO.CDATTACHMENT
+                        join {db_name}.ADATTACHFILE a on ANEXO.CDATTACHMENT = a.CDATTACHMENT
+                        join {db_name}.GNCOMPFILECONTCOPY c on a.CDCOMPLEXFILECONT = c.CDCOMPLEXFILECONT
+                        join {db_name}.gnfile g on c.CDCOMPLEXFILECONT = g.CDCOMPLEXFILECONT
                         --
                         where ANEXO.CDATTACHMENT IS NOT NULL AND p.idprocess = :WorkflowID {ActivityID}
                         order by P.idprocess DESC";
@@ -401,11 +401,11 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns></returns>
     public List<dynamic> listGridItems(string WorkflowID, string MainEntityID, string ChildEntityID, string ChildOID) {
         string sql = $@"SELECT grid.*
-                        FROM wfprocess p
+                        FROM {db_name}.wfprocess p
                         --
-                        JOIN GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
-                        JOIN DYN{MainEntityID} formulario on formulario.oid = GNF.OIDENTITYREG
-                        JOIN DYN{ChildEntityID} grid ON grid.{ChildOID} = formulario.oid
+                        JOIN {db_name}.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
+                        JOIN {db_name}.DYN{MainEntityID} formulario on formulario.oid = GNF.OIDENTITYREG
+                        JOIN {db_name}.DYN{ChildEntityID} grid ON grid.{ChildOID} = formulario.oid
                         --
                         WHERE p.idprocess = :WorkflowID";
 
@@ -429,8 +429,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 return obj;
             })
             .ToList();
-
-            
         }
         catch (Exception erro)
         {
@@ -473,7 +471,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     public dynamic getWorkFlowData(string WorkflowID)
     {
         string sql = $@"SELECT p.*
-                        FROM wfprocess p
+                        FROM {db_name}.wfprocess p
                         WHERE p.idprocess = :WorkflowID";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
@@ -521,40 +519,33 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     public dynamic getFormData(string WorkflowID, string EntityID)
     {
         string sql = $@"SELECT formulario.*
-                        FROM wfprocess p
+                        FROM {db_name}.wfprocess p
                         --
-                        JOIN GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
-                        JOIN DYN{EntityID} formulario on formulario.oid = GNF.OIDENTITYREG
+                        JOIN {db_name}.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
+                        JOIN {db_name}.DYN{EntityID} formulario on formulario.oid = GNF.OIDENTITYREG
                         WHERE p.idprocess = :WorkflowID";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
         parametros.Add(":WorkflowID", WorkflowID);
 
-        DataTable list = null;
-        try
-        {
-            list = db.Query(sql, parametros);
 
-            return list.AsEnumerable()
-            .Select(row =>
+        DataTable list = db.Query(sql, parametros);
+        if (list == null || list.Rows.Count == 0){
+            throw new SoftExpertException($"A instancia de workflow '{WorkflowID}' não foi encontrada com a tabela '{EntityID}'");
+        }
+
+        return list.AsEnumerable()
+        .Select(row =>
+        {
+            dynamic obj = new ExpandoObject();
+            var objDictionary = (IDictionary<string, object>)obj;
+            foreach (var column in list.Columns.Cast<DataColumn>())
             {
-                dynamic obj = new ExpandoObject();
-                var objDictionary = (IDictionary<string, object>)obj;
-                foreach (var column in list.Columns.Cast<DataColumn>())
-                {
-                    objDictionary[column.ColumnName.ToLower()] = row[column];
-                }
-                return obj;
-            })
-            .FirstOrDefault();
-
-
-        }
-        catch (Exception erro)
-        {
-            throw new Exception($"Falha ao buscar os arquivo no bando de dados. Erro: {erro.Message}");
-        }
-
+                objDictionary[column.ColumnName.ToLower()] = row[column];
+            }
+            return obj;
+        })
+        .FirstOrDefault();
     }
 
 
@@ -570,38 +561,59 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="Exception"></exception>
     public dynamic getFormSelectBox(string oid, string EntityID)
     {
-        string sql = $@"SELECT * FROM DYN{EntityID} WHERE FGENABLED = 1 AND oid = :oid";
+        string sql = $@"SELECT * FROM {db_name}.DYN{EntityID} WHERE FGENABLED = 1 AND oid = :oid";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
         parametros.Add(":oid", oid);
 
-        DataTable list = null;
-        try
-        {
-            list = db.Query(sql, parametros);
 
-            return list.AsEnumerable()
-            .Select(row =>
+        DataTable list = db.Query(sql, parametros);
+
+        return list.AsEnumerable()
+        .Select(row =>
+        {
+            dynamic obj = new ExpandoObject();
+            var objDictionary = (IDictionary<string, object>)obj;
+            foreach (var column in list.Columns.Cast<DataColumn>())
             {
-                dynamic obj = new ExpandoObject();
-                var objDictionary = (IDictionary<string, object>)obj;
-                foreach (var column in list.Columns.Cast<DataColumn>())
-                {
-                    objDictionary[column.ColumnName.ToLower()] = row[column];
-                }
-                return obj;
-            })
-            .FirstOrDefault();
-
-
-        }
-        catch (Exception erro)
-        {
-            throw new Exception($"Falha ao buscar os arquivo no bando de dados. Erro: {erro.Message}");
-        }
-
+                objDictionary[column.ColumnName.ToLower()] = row[column];
+            }
+            return obj;
+        })
+        .FirstOrDefault();
     }
 
+
+    public Anexo getFileFromOID(string oid){
+        string sql = $@"select FLDATA, --possui o blod
+                            NMNAME, --nome e extensão do arquivo
+                            IDEXTENSION, --somente a extensão
+                            NRSIZE -- tamanho do arquivo em bytes
+                            from {db_name}.seblob
+                            where oid = :OID";
+
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":OID", oid);
+
+
+        
+        DataTable list = db.Query(sql, parametros);
+        if (list == null || list.Rows.Count == 0){
+            throw new SoftExpertException($"O oid '{oid}' não foi encontrado na tabela 'SEBLOB'");
+        }
+
+        return list.AsEnumerable()
+            .Select(row =>
+            {
+                Anexo anexo = new Anexo();
+                
+                // Mapeamento dos campos para as propriedades da classe Anexo
+                anexo.FileName = row["NMNAME"].ToString();
+                anexo.Content = (byte[])row["FLDATA"];
+                return anexo;
+            })
+            .FirstOrDefault();
+    }
 
 
 
@@ -613,8 +625,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns></returns>
     public int markActivityAsExecuted(string WorkflowID, string ActivityID)
     {
-        string sql = $@"UPDATE WFSTRUCT SET FGSTATUS = 3 WHERE IDOBJECT = 
-                        (SELECT A.IDOBJECT FROM wfprocess p JOIN wfstruct a on a.idprocess = p.idobject WHERE p.idprocess = :WorkflowID AND IDSTRUCT = :ActivityID)";
+        string sql = $@"UPDATE {db_name}.WFSTRUCT SET FGSTATUS = 3 WHERE IDOBJECT = 
+                        (SELECT A.IDOBJECT FROM {db_name}.wfprocess p JOIN {db_name}.wfstruct a on a.idprocess = p.idobject WHERE p.idprocess = :WorkflowID AND IDSTRUCT = :ActivityID)";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
         parametros.Add(":WorkflowID", WorkflowID);
@@ -625,8 +637,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             return 0;
         }
 
-        sql = $@"DELETE FROM wftask WHERE IDACTIVITY = 
-                    (SELECT A.IDOBJECT FROM wfprocess p JOIN wfstruct a on a.idprocess = p.idobject WHERE p.idprocess = :WorkflowID AND IDSTRUCT = :ActivityID)";
+        sql = $@"DELETE FROM {db_name}.wftask WHERE IDACTIVITY = 
+                    (SELECT A.IDOBJECT FROM {db_name}.wfprocess p JOIN {db_name}.wfstruct a on a.idprocess = p.idobject WHERE p.idprocess = :WorkflowID AND IDSTRUCT = :ActivityID)";
 
         return db.Execute(sql, parametros);
     }
@@ -671,6 +683,39 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                             </soapenv:Envelope>";
         
         SendRequest("editChildEntityRecord", body);
+    }
+
+    public Anexo getFileFromFormField(string WorkflowID, string MainEntityID, string FormField)
+    {
+        string sql = $@"SELECT SEBLOB.*
+                            FROM {db_name}.wfprocess p
+                            JOIN {db_name}.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
+                            JOIN {db_name}.dyn{MainEntityID} formulario on formulario.oid = GNF.OIDENTITYREG
+                            JOIN {db_name}.SEBLOB ON SEBLOB.OID = formulario.oid{FormField}
+                            --
+                            WHERE p.idprocess = :WorkflowID";
+
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":WorkflowID", WorkflowID);
+
+
+        
+        DataTable list = db.Query(sql, parametros);
+        if (list == null || list.Rows.Count == 0){
+            throw new SoftExpertException($"Não foi encontrado na tabela 'SEBLOB' um OID do campo '{FormField}' da tabela '{MainEntityID}' ou o arquivo não foi anexado na instancia '{WorkflowID}'");
+        }
+
+        return list.AsEnumerable()
+            .Select(row =>
+            {
+                Anexo anexo = new Anexo();
+                
+                // Mapeamento dos campos para as propriedades da classe Anexo
+                anexo.FileName = row["NMNAME"].ToString();
+                anexo.Content = (byte[])row["FLDATA"];
+                return anexo;
+            })
+            .FirstOrDefault();
     }
 }
 

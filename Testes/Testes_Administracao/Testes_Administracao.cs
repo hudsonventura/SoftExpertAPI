@@ -34,11 +34,26 @@ public class Testes_Administracao
 
 
     [Fact]
-    public void ADM_01_EnableDisableUser()
+    public void ADM_01_DisableUser()
     {
         try
         {
             api.disableUser("01234567891");
+            Assert.True(1==1);
+        }
+        catch (SoftExpert.SoftExpertException)
+        {
+            Assert.Fail("Erro na execução");
+            throw;
+        }
+    }
+
+    [Fact]
+    public void ADM_01_EnableUser()
+    {
+        try
+        {
+            api.enableUser("01234567891");
             Assert.True(1==1);
         }
         catch (SoftExpert.SoftExpertException)

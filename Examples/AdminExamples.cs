@@ -28,7 +28,8 @@ public class AdminExamples
         #region Habilitar / Desabilitar usuário
         try
         {
-            api.db_disableUser("01234567891");
+            api.enableUser("01234567891");
+            api.disableUser("01234567891");
         }
         catch (System.Exception error)
         {

@@ -14,10 +14,9 @@ class WorkflowExamples{
 
     IConfiguration _appsettings;
     SoftExpertWorkflowApi wfAPI;
-    ExampleOracleImplementation db;
 
 
-    
+
     public WorkflowExamples(IConfiguration appsettings)
     {
         _appsettings = appsettings;
@@ -29,7 +28,7 @@ class WorkflowExamples{
 
         //Implementação OPCIONAL de uma classe para acessar banco de dados. É necessário respeitar a interface SoftExpertAPI.Interfaces.IDataBase
         //Necessário para algumas implementações fora do escopo da API padrão do SoftExpert.
-        db = new ExampleOracleImplementation(_appsettings);
+        ExampleOracleImplementation db = new ExampleOracleImplementation(_appsettings);
 
 
         //Criar instancia da API para utilizar na injeção de dependecias. Necessário informar a URL completa do SE e o header Authorization ou todos os headers.
@@ -58,12 +57,13 @@ class WorkflowExamples{
         ListGridItems,
         markActivityAsExecuted,
         setAttachmentSynced,
-
+        GetFileFromOID,
+        GetFileFromFormField,
     }
 
     public void Execute(Teste tipo){
 
-        
+
 
         switch (tipo)
         {
@@ -78,17 +78,17 @@ class WorkflowExamples{
 
             case Teste.EditEntityRecord: EditEntityRecord();
                 break;
-            
+
             case Teste.NewChildEntityRecord: NewChildEntityRecord();
                 break;
 
             case Teste.EditChildEntityRecord: EditChildEntityRecord();
                 break;
-            
+
             case Teste.ListGridItems: ListGridItems();
                 break;
                 
-            case Teste.getFormData:
+            case Teste.getFormData: getFormData();
                 break;
 
             case Teste.getFormSelectBox:
@@ -106,20 +106,80 @@ class WorkflowExamples{
             case Teste.setAttachmentSynced:
                 break;
 
+            case Teste.GetFileFromOID: GetFileFromOID();
+                break;
+
+            case Teste.GetFileFromFormField: GetFileFromFormField();
+                break;
+
             default:
                 throw new Exception("Tipo ainda não implementado");
                 break;
         }
 
-        
-        
+
+
 
     }
 
-    class ExemploClasseGrid{
-        
+    private void GetFileFromFormField()
+    {
+        string WorkflowID = "CCF202400005";
+        string EntityID = "SOLCLIENTEFORNE";
+        string FormField = "comprovante";
 
+        try
+        {
+            var anexo =  wfAPI.getFileFromFormField(WorkflowID, EntityID, FormField);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
     }
+
+    private void GetFileFromOID()
+    {
+        string oid = "ca0d26bcb6d294c48933e719f1959b86";
+
+        try
+        {
+            var anexo =  wfAPI.getFileFromOID(oid);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
+
+    private void getFormData()
+    {
+        string WorkflowID = "CCF202400005";
+        string EntityID = "SOLCLIENTEFORNE";
+
+        try
+        {
+            var form =  wfAPI.getFormData(WorkflowID, EntityID);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
+
+
     private void ListGridItems()
     {
         string WorkflowID = "IR090867";
@@ -130,7 +190,7 @@ class WorkflowExamples{
 
         try
         {
-            List<dynamic> itens_grid =  wfAPI.listGridItems<ExemploClasseGrid>(WorkflowID, MainEntityID, ChildEntityID, ChildOID);
+            List<dynamic> itens_grid =  wfAPI.listGridItems(WorkflowID, MainEntityID, ChildEntityID, ChildOID);
         }
         catch (SoftExpertException erro)
         {
