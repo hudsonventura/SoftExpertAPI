@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Dynamic;
-using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using Domain;
-using Newtonsoft.Json.Linq;
-using SoftExpertAPI;
 
 
 
@@ -732,6 +726,11 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
     //TODO: Documentar e escrever testes sobre getWorflowStatus
+    /// <summary>
+    /// Este método verifica o Status de uma instância
+    /// </summary>
+    /// <param name="workflowID"></param>
+    /// <returns>WFStatus</returns>
     public WFStatus getWorflowStatus(string WorkflowID){
         string sql = $@"SELECT fgstatus
                             FROM {db_name}.wfprocess p
@@ -761,6 +760,11 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
     //TODO: Documentar e escrever testes sobre getWorflowActualActivities
+    /// <summary>
+    /// Este método verifica a lista de atividades habilitadas de uma instancia
+    /// </summary>
+    /// <param name="workflowID"></param>
+    /// <returns>List<string></returns>
     public List<string> getActualActivities(string WorkflowID){
         string sql = $@"SELECT a.idstruct
                             FROM {db_name}.wfprocess p
