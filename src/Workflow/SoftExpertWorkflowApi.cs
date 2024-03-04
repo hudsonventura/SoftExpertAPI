@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using Domain;
 using Newtonsoft.Json.Linq;
 using SoftExpertAPI;
 
@@ -728,6 +729,64 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
         return db.Execute(sql, parametros);
     }
+
+
+    //TODO: Documentar e escrever testes sobre getWorflowStatus
+    public WFStatus getWorflowStatus(string WorkflowID){
+        string sql = $@"SELECT fgstatus
+                            FROM {db_name}.wfprocess p
+                            WHERE p.idprocess = :WorkflowID";
+
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":WorkflowID", WorkflowID);
+
+
+        
+        DataTable list = db.Query(sql, parametros);
+        if (list == null || list.Rows.Count == 0){
+            throw new SoftExpertException($"Não foi encontrado um workflow com o id '{WorkflowID}'");
+        }
+
+        int fgStatusValue = Convert.ToInt32(list.Rows[0]["fgstatus"]);
+
+        if (Enum.IsDefined(typeof(WFStatus), fgStatusValue))
+        {
+            return (WFStatus)fgStatusValue;
+        }
+        else
+        {
+            throw new SoftExpertException($"Valor desconhecido para fgstatus: {fgStatusValue}");
+        }
+    }
+
+
+    //TODO: Documentar e escrever testes sobre getWorflowActualActivities
+    public List<string> getActualActivities(string WorkflowID){
+        string sql = $@"SELECT a.idstruct
+                            FROM {db_name}.wfprocess p
+                            --
+                            JOIN {db_name}.wfstruct a on a.idprocess = p.idobject
+                            JOIN {db_name}.wftask c on c.IDACTIVITY = a.idobject
+                            --
+                            WHERE p.idprocess = :WorkflowID";
+
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":WorkflowID", WorkflowID);
+
+
+        DataTable list = db.Query(sql, parametros);
+        if (list == null || list.Rows.Count == 0){
+            throw new SoftExpertException($"Não foi encontrado um workflow em andamento com o id '{WorkflowID}'. Verifique se ele realmente está em andamento");
+        }
+
+        return list.AsEnumerable()
+               .Select(row => row["idstruct"].ToString())
+               .ToList();
+
+    }
+
+
+
 }
 
 
