@@ -97,7 +97,10 @@ public abstract class SoftExpertBaseAPI
 
             HttpResponseMessage  response = restClient.SendAsync(request).Result;
             if(!response.IsSuccessStatusCode){
-                throw new Exception(response.ReasonPhrase);
+                if(response.ReasonPhrase != ""){
+                    throw new Exception(response.ReasonPhrase);
+                }
+                throw new Exception($"Falha ao conectar ao servidor {restClient.BaseAddress.AbsoluteUri}");
             }
             var body_response = response.Content.ReadAsStringAsync().Result;
 

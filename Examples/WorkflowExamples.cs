@@ -150,8 +150,20 @@ class WorkflowExamples{
 
     private void CancelWorkflow()
     {
-        //TODO: Criar o cancelamento do Workflow
-        throw new NotImplementedException();
+        string WorkflowID = "CCF202400005";
+        string Explanation = "Justificativa teste";
+        try
+        {
+            wfAPI.cancelWorkflow(WorkflowID, Explanation);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
     }
 
     private void ChangeWorflowTitle()

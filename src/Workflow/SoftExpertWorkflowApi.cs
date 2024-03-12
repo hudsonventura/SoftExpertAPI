@@ -789,8 +789,22 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
     }
 
-
-
+    public void cancelWorkflow(string workflowID, string explanation, string userID = null)
+    {
+        string body = $@"
+                <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
+                   <soapenv:Header/>
+                   <soapenv:Body>
+                      <urn:cancelWorkflow>
+                         <urn:WorkflowID>{workflowID}</urn:WorkflowID>
+                         <urn:Explanation>{explanation}</urn:Explanation>
+                         <urn:UserID>{userID}</urn:UserID>
+                      </urn:cancelWorkflow>
+                   </soapenv:Body>
+                </soapenv:Envelope>";
+        
+        SendRequest("cancelWorkflow", body);
+    }
 }
 
 
