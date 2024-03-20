@@ -195,6 +195,47 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="SoftExpertException"></exception>
     public void executeActivity(string WorkflowID, string ActivityID, int ActionSequence, string? UserID = null, int? ActivityOrder = null)
     {
+        try
+        {
+            executeActivityWorkflowTry(WorkflowID, ActivityID, ActionSequence, UserID, ActivityOrder);
+            return;
+        }
+        catch (SoftExpertException errorWF)
+        {
+            if(errorWF.Code == -20){
+                throw;
+            }
+            try
+            {
+                executeActivityProblemTry(WorkflowID, ActivityID, ActionSequence, UserID, ActivityOrder);
+                return;
+            }
+            catch (SoftExpertException errorPB)
+            {
+                if(errorPB.Code == -20){
+                    throw;
+                }
+                try
+                {
+                    executeActivityIncidentTry(WorkflowID, ActivityID, ActionSequence, UserID, ActivityOrder);
+                    return;
+                }
+                catch (SoftExpertException errorIn)
+                {
+                    if(errorIn.Code == -20){
+                        throw;
+                    }
+                }
+            }
+            throw;
+        }
+        catch (System.Exception){
+            throw;
+        }
+    }
+
+    private void executeActivityWorkflowTry(string WorkflowID, string ActivityID, int ActionSequence, string? UserID = null, int? ActivityOrder = null)
+    {
         string body = $@"
                 <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
                    <soapenv:Header/>
@@ -213,6 +254,50 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 </soapenv:Envelope>";
         
         SendRequest("executeActivity", body);
+    }
+
+    private void executeActivityProblemTry(string WorkflowID, string ActivityID, int ActionSequence, string? UserID = null, int? ActivityOrder = null)
+    {
+        string body = $@"
+                <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
+                   <soapenv:Header/>
+                   <soapenv:Body>
+                      <urn:executeActivity>
+                         <!--You may enter the following 5 items in any order-->
+                         <urn:ProblemID>{WorkflowID}</urn:ProblemID>
+                         <urn:ActivityID>{ActivityID}</urn:ActivityID>
+                         <urn:ActionSequence>{ActionSequence}</urn:ActionSequence>
+                         <!--Optional:-->
+                         <urn:UserID>{UserID}</urn:UserID>
+                         <!--Optional:-->
+                         <urn:ActivityOrder>{ActivityOrder}</urn:ActivityOrder>
+                      </urn:executeActivity>
+                   </soapenv:Body>
+                </soapenv:Envelope>";
+        
+        SendRequest("executeActivity", body, "/apigateway/se/ws/pb_ws.php");
+    }
+
+    private void executeActivityIncidentTry(string WorkflowID, string ActivityID, int ActionSequence, string? UserID = null, int? ActivityOrder = null)
+    {
+        string body = $@"
+                <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
+                   <soapenv:Header/>
+                   <soapenv:Body>
+                      <urn:executeActivity>
+                         <!--You may enter the following 5 items in any order-->
+                         <urn:IncidentID>{WorkflowID}</urn:IncidentID>
+                         <urn:ActivityID>{ActivityID}</urn:ActivityID>
+                         <urn:ActionSequence>{ActionSequence}</urn:ActionSequence>
+                         <!--Optional:-->
+                         <urn:UserID>{UserID}</urn:UserID>
+                         <!--Optional:-->
+                         <urn:ActivityOrder>{ActivityOrder}</urn:ActivityOrder>
+                      </urn:executeActivity>
+                   </soapenv:Body>
+                </soapenv:Envelope>";
+        
+        SendRequest("executeActivity", body, "/apigateway/se/ws/in_ws.php");
     }
 
     /// <summary>
@@ -789,7 +874,44 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
     }
 
+    /// <summary>
+    /// Cancela um fluxo de workflow, incidente ou problema
+    /// </summary>
+    /// <param name="workflowID">ID da instancia de workflow, incidente ou problema</param>
+    /// <param name="explanation">Justificativa</param>
+    /// <param name="userID">Matricula do usuario que está cancelando. Ele precisa ter permissão na segurança para cancelar</param>
     public void cancelWorkflow(string workflowID, string explanation, string userID = null)
+    {
+        try
+        {
+            cancelWorkflowTry(workflowID, explanation, userID);
+            return;
+        }
+        catch (System.Exception errorWF)
+        {
+            try
+            {
+                cancelProblemTry(workflowID, explanation, userID);
+                return;
+            }
+            catch (System.Exception)
+            {
+                 try
+                {
+                    cancelIncidentTry(workflowID, explanation, userID);
+                    return;
+                }
+                catch (System.Exception)
+                {
+                    
+                }
+            }
+            throw;
+        }
+    }
+
+
+    private void cancelWorkflowTry(string workflowID, string explanation, string userID = null)
     {
         string body = $@"
                 <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
@@ -802,8 +924,41 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                       </urn:cancelWorkflow>
                    </soapenv:Body>
                 </soapenv:Envelope>";
-        
         SendRequest("cancelWorkflow", body);
+    }
+
+    private void cancelProblemTry(string workflowID, string explanation, string userID = null)
+    {
+        string body = $@"
+                <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
+                   <soapenv:Header/>
+                   <soapenv:Body>
+                      <urn:cancelProblem>
+                         <urn:ProblemID>{workflowID}</urn:ProblemID>
+                         <urn:Explanation>{explanation}</urn:Explanation>
+                         <urn:UserID>{userID}</urn:UserID>
+                      </urn:cancelProblem>
+                   </soapenv:Body>
+                </soapenv:Envelope>";
+        
+        SendRequest("cancelProblem", body, "/apigateway/se/ws/pb_ws.php");
+    }
+
+    private void cancelIncidentTry(string workflowID, string explanation, string userID)
+    {
+        string body = $@"
+                <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
+                   <soapenv:Header/>
+                   <soapenv:Body>
+                      <urn:cancelIncident>
+                         <urn:IncidentID>{workflowID}</urn:IncidentID>
+                         <urn:Explanation>{explanation}</urn:Explanation>
+                         <urn:UserID>{userID}</urn:UserID>
+                      </urn:cancelIncident>
+                   </soapenv:Body>
+                </soapenv:Envelope>";
+        
+        SendRequest("cancelIncident", body, "/apigateway/se/ws/in_ws.php");
     }
 }
 

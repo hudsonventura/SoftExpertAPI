@@ -88,10 +88,10 @@ public abstract class SoftExpertBaseAPI
     }
 
 
-    protected JToken SendRequest(string function, string xmlbody){
+    protected JToken SendRequest(string function, string xmlbody, string urimodule = null){
         try
         {
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, _uriModule);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, (urimodule is null) ? _uriModule : urimodule);
             request.Headers.Add("SOAPAction", $"urn:workflow#{function}");
             request.Content = new StringContent(xmlbody.Trim(), Encoding.UTF8, "text/xml");
 
@@ -110,8 +110,11 @@ public abstract class SoftExpertBaseAPI
                                 .SelectToken("SOAP-ENV:Body")
                                 .SelectToken($"{function}Response");
             var status = se_response.SelectToken("Status").ToString();
+            var code = se_response.SelectToken("Code").ToString();
             if(status == "FAILURE"){
-                throw new SoftExpertException(se_response.SelectToken("Detail").ToString());
+                var error = new SoftExpertException(se_response.SelectToken("Detail").ToString(), int.Parse(code));
+                error.setXMLSoapReceived(body_response);
+                throw error;
             }
             return se_response;
         }

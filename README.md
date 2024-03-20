@@ -26,6 +26,7 @@ using SoftExpert.Workflow;  //para o módulo de Workflow
 using SoftExpert.Admin;     //para o módulo de Administração
 ```  
 
+
 ### Crie uma instancia da API do módulo de Workflow SEM acesso a banco de dados
 ```C#
 using SoftExpert;
@@ -75,3 +76,39 @@ catch (Exception erro)
 ## Demais exemplos
 Há mais exemplos nos arquivos [Examples/WorkflowExamples.cs](Examples/WorkflowExamples.cs) e no [Examples/AdminExamples.cs](Examples/AdminExamples.cs).  
 Não se esquece de que se precisar de acesso ao banco de dados, implemente a interface `IDatabase` como no exemplo [Examples/ExampleOracleImplementation.cs](Examples/ExampleOracleImplementation.cs)
+
+
+## Funções do módulo de Workflow
+ - **NewWorkflow** - Criar uma nova instância de um processo
+ - **CancelWorkflow** - Cancelar uma instância
+ - **ChangeWorflowTitle** ¹ - Alterar o título de uma instância
+ - **ExecuteActivity** - Executar uma atividade
+
+ - **NewAttachment** - Anexar um novo arquivo no menu de anexos do lado esquerdo
+ - **listAttachmentFromInstance** *¹ - Listar os arquivos de uma instância 
+
+ - **EditEntityRecord** - Editar os campos de um formulário
+ - **getFormData** ¹ - Obter os dados (campos e valores) de um formulário
+
+ - **getFormSelectBox** *¹ - Obter o valor de um selectbox de um formulário
+ - **getWorkFlowData** *¹ - 
+ - **GetFileFromOID** *¹ - Onter um arquivo de um formlário
+ - **GetFileFromFormField** *¹ - 
+
+ - **NewChildEntityRecord** - Criar um registro de uma grid
+ - **EditChildEntityRecord** - Editar um registro de uma grid
+ - **ListGridItems** ¹ - Listar os registros de uma grid
+do menu do lado esquerdo
+
+Obs.:  
+( * ) - Itens já foram implementados mas ainda não possuem exemplos.  
+( ¹ ) - Itens necessitam de acesso a banco de dados, então precisarão da implementação da interface `IDatabase`.
+
+
+## Funções do módulo de Administração
+ - **enableUser** ¹ - Ativar um usuário
+ - **disableUser** ¹ - Desativar um usuário
+
+Obs.:  
+( * ) - Itens já foram implementados mas ainda não possuem exemplos.  
+( ¹ ) - Itens necessitam de acesso a banco de dados, então precisarão da implementação da interface `IDatabase`.

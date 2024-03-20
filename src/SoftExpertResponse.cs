@@ -59,7 +59,7 @@ namespace SoftExpert
 
             if (Status is not STATUS.SUCCESS)
             {
-                throw new SoftExpertException(Detail, this);
+                throw new SoftExpertException(Detail, 0, this);
             }
 
             return response;

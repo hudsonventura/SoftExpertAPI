@@ -44,16 +44,16 @@ class WorkflowExamples{
     }
 
     public enum Teste{
-        NewWorkflow, //Ok
-        NewAttachment, //OK
-        EditEntityRecord, //Ok
-        NewChildEntityRecord, //Ok
-        EditChildEntityRecord, //OK
-        ExecuteActivity, //Ok
+        NewWorkflow,
+        NewAttachment,
+        EditEntityRecord,
+        NewChildEntityRecord,
+        EditChildEntityRecord,
+        ExecuteActivity,
         getFormData,
         getFormSelectBox,
         getWorkFlowData,
-        listAttachmentFromInstanceExample,
+        listAttachmentFromInstance,
         ListGridItems,
         markActivityAsExecuted,
         SetAttachmentSynced,
@@ -99,7 +99,7 @@ class WorkflowExamples{
             case Teste.getWorkFlowData:
                 break;
 
-            case Teste.listAttachmentFromInstanceExample:
+            case Teste.listAttachmentFromInstance:
                 break;
 
             case Teste.markActivityAsExecuted:
@@ -130,6 +130,8 @@ class WorkflowExamples{
 
     }
 
+
+
     private void SetAttachmentSynced()
     {
         int cdattachment = 2153826;
@@ -150,8 +152,8 @@ class WorkflowExamples{
 
     private void CancelWorkflow()
     {
-        string WorkflowID = "CCF202400005";
-        string Explanation = "Justificativa teste";
+        string WorkflowID = "VBG202002801";
+        string Explanation = "Fluxo com mais de 4 anos";
         try
         {
             wfAPI.cancelWorkflow(WorkflowID, Explanation);
@@ -339,9 +341,9 @@ class WorkflowExamples{
     {
         try
         {
-            string WorkflowID = "CCF202403731";
-            string ActivityID = "ATIV-SOLCCF";
-            int ActionSequence = 2;
+            string WorkflowID = "VBG202002800";
+            string ActivityID = "Descarga";
+            int ActionSequence = 1;
             string UserID = "sistema.automatico";
 
             wfAPI.executeActivity(WorkflowID, ActivityID, ActionSequence, UserID);
