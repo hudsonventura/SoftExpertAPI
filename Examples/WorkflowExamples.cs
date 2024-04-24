@@ -60,7 +60,8 @@ class WorkflowExamples{
         GetFileFromOID,
         GetFileFromFormField,
         ChangeWorflowTitle,
-        CancelWorkflow
+        CancelWorkflow,
+        AddHistoryComment
     }
 
     public void Execute(Teste tipo){
@@ -119,6 +120,9 @@ class WorkflowExamples{
 
             case Teste.CancelWorkflow: CancelWorkflow();
                 break;
+            
+            case Teste.AddHistoryComment: AddHistoryComment();
+                break;
 
             default:
                 throw new Exception("Tipo ainda não implementado");
@@ -130,7 +134,25 @@ class WorkflowExamples{
 
     }
 
+    private void AddHistoryComment()
+    {
+        string WorkflowID = "CQN202400096";
+        string Comment = "Téste com acento barras / e especiais $%&¨  e 'aspas simples' e \"aspas duplas\"";
+        int CdUser = 9;
 
+        try
+        {
+            wfAPI.addHistoryComment(WorkflowID, Comment);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
 
     private void SetAttachmentSynced()
     {

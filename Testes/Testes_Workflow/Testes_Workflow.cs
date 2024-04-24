@@ -14,9 +14,18 @@ public class Testes_Workflow
 
     //parametros ficticios utilizados apenas para os testes
     string ProcessID = "CCF";
-    string WorkflowID = "CCF202400005";
+    string WorkflowID = "CCF202400006";
     string EntityID = "SOLCLIENTEFORNE";
     string ActivityID = "ATIV-SOLCCF";
+
+    string ChieldEntityID = "invoices";
+
+    int ActionSequence_Error = 1;
+    int ActionSequence_Success = 2;
+
+    int cduser = 9;
+
+    string oidFile = "ca0d26bcb6d294c48933e719f1959b86";
 
     public Testes_Workflow(ITestOutputHelper output){
         _appsettings = new ConfigurationBuilder()
@@ -167,11 +176,9 @@ public class Testes_Workflow
     [Fact]
     public void WF_05_GetFile_FromOID()
     {
-        string oid = "ca0d26bcb6d294c48933e719f1959b86";
-
         try
         {
-            var anexo =  _softExpertApi.getFileFromOID(oid);
+            var anexo =  _softExpertApi.getFileFromOID(oidFile);
 
             Assert.NotNull(anexo.FileName);
             Assert.NotNull(anexo.Content);
@@ -237,5 +244,91 @@ public class Testes_Workflow
 
         Assert.NotNull(number_rows_affected);
         Assert.IsType<int>(number_rows_affected);
+    }
+
+    
+
+
+
+    [Fact]
+    public void WF_09_newChildEntityRecord()
+    {
+        Dictionary<string, string> EntityAttributeList = new Dictionary<string, string>() {
+            { "pais", "Brazuca"},
+            { "chavedobanco", "101020203030"},
+            { "contabancaria", "10203040506070"},
+            { "iban", "4654897892510321654897897451004510780417891561984"},
+        };
+        try
+        {
+            _softExpertApi.newChildEntityRecord(WorkflowID, EntityID, ChieldEntityID, EntityAttributeList, null);
+            Assert.True(1==1);
+        }
+        catch (System.Exception error)
+        {
+            throw;
+        }
+    }
+
+
+    [Fact]
+    public void WF_10_newAttachment()
+    {
+        Anexo arquivo = new Anexo() { FileName = "Teste.txt", Content =  Encoding.UTF8.GetBytes("Conteúdo deve ser um array de bytes (byte[])")};
+
+        try
+        {
+            _softExpertApi.newAttachment(WorkflowID, ActivityID, arquivo);
+            Assert.True(1==1);
+        }
+        catch (System.Exception error)
+        {
+            throw;
+        }
+    }
+
+
+    [Fact]
+    public void WF_11_addHistoryComment()
+    {
+        try
+        {
+            _softExpertApi.addHistoryComment("NOVAEMP001292", "Comentário de testes com $%@ caractestes especiais, 'aspas simples' e \"aspas duplas\"", cduser);
+            Assert.True(1==1);
+        }
+        catch (System.Exception error)
+        {
+            throw;
+        }
+    }
+
+
+
+
+    [Fact]
+    public void WF_99_excuteActivity_Error()
+    {
+        try
+        {
+            _softExpertApi.executeActivity(WorkflowID, ActivityID, ActionSequence_Error);
+        }
+        catch (System.Exception error)
+        {
+            Assert.True(1==1);
+        }
+    }
+
+    [Fact]
+    public void WF_99_excuteActivity_Success()
+    {
+        try
+        {
+            _softExpertApi.executeActivity(WorkflowID, ActivityID, ActionSequence_Success);
+            Assert.True(1==1);
+        }
+        catch (System.Exception error)
+        {
+            throw;
+        }
     }
 }

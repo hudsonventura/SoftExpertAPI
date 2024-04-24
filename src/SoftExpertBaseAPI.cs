@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Xml;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -88,7 +89,7 @@ public abstract class SoftExpertBaseAPI
     }
 
 
-    protected JToken SendRequest(string function, string xmlbody, string urimodule = null){
+    protected JToken SendRequestSOAP(string function, string xmlbody, string urimodule = null){
         try
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, (urimodule is null) ? _uriModule : urimodule);
@@ -130,5 +131,46 @@ public abstract class SoftExpertBaseAPI
         
     }
 
+
+    protected void SendRequestRest(HttpRequestMessage request)
+    {
+        HttpResponseMessage  response = restClient.SendAsync(request).Result;
+
+        string json_response = null;
+        
+        try
+        {
+            var bodyResponse = response.Content.ReadAsStringAsync().Result;
+            using (JsonDocument document = JsonDocument.Parse(bodyResponse))
+            {
+                JsonElement root = document.RootElement;
+                if (root.TryGetProperty("response", out JsonElement responseElement))
+                {
+                    json_response = responseElement.GetString();
+                }
+            }
+        }
+        catch (System.Exception erro)
+        {
+            
+        }
+
+        if(response.IsSuccessStatusCode ){
+            return; //Success!
+        }
+        
+        if(!response.IsSuccessStatusCode && json_response is not null){
+            throw new Exception($"SoftExpert error: {json_response}");
+        }
+
+
+        if(!response.IsSuccessStatusCode){
+            throw new Exception($"Falha ao conectar ao servidor {restClient.BaseAddress.AbsoluteUri}. {response.StatusCode} -> {response.Content.ReadAsStringAsync().Result}");
+        }
+
+
+
+        return;
+    }
 }
 

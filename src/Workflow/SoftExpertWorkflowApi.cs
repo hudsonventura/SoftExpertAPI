@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.Linq;
+using System.Net.Http;
 using Domain;
 
 
@@ -52,7 +53,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                         </soapenv:Envelope>"
         ;
 
-        var se_response = SendRequest("newWorkflow", body);
+        var se_response = SendRequestSOAP("newWorkflow", body);
         return se_response.SelectToken("RecordID").ToString();
     }
 
@@ -103,7 +104,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                    </soapenv:Body>
                 </soapenv:Envelope>";
 
-        SendRequest("editEntityRecord", body);
+        SendRequestSOAP("editEntityRecord", body);
     }
 
     private string Gerar_EntityAttributeFileList(Dictionary<string, Anexo> EntityAttributeFileList)
@@ -253,7 +254,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                    </soapenv:Body>
                 </soapenv:Envelope>";
         
-        SendRequest("executeActivity", body);
+        SendRequestSOAP("executeActivity", body);
     }
 
     private void executeActivityProblemTry(string WorkflowID, string ActivityID, int ActionSequence, string? UserID = null, int? ActivityOrder = null)
@@ -275,7 +276,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                    </soapenv:Body>
                 </soapenv:Envelope>";
         
-        SendRequest("executeActivity", body, "/apigateway/se/ws/pb_ws.php");
+        SendRequestSOAP("executeActivity", body, "/apigateway/se/ws/pb_ws.php");
     }
 
     private void executeActivityIncidentTry(string WorkflowID, string ActivityID, int ActionSequence, string? UserID = null, int? ActivityOrder = null)
@@ -297,7 +298,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                    </soapenv:Body>
                 </soapenv:Envelope>";
         
-        SendRequest("executeActivity", body, "/apigateway/se/ws/in_ws.php");
+        SendRequestSOAP("executeActivity", body, "/apigateway/se/ws/in_ws.php");
     }
 
     /// <summary>
@@ -338,7 +339,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                    </soapenv:Body>
                 </soapenv:Envelope>";
 
-        var se_response = SendRequest("newAttachment", body);
+        var se_response = SendRequestSOAP("newAttachment", body);
         return Int32.Parse(se_response.SelectToken("RecordKey").ToString());
     }
 
@@ -387,7 +388,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                                 </soapenv:Body>
                             </soapenv:Envelope>";
 
-        SendRequest("newChildEntityRecord", body);
+        SendRequestSOAP("newChildEntityRecord", body);
     }
 
 
@@ -762,7 +763,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                                 </soapenv:Body>
                             </soapenv:Envelope>";
         
-        SendRequest("editChildEntityRecord", body);
+        SendRequestSOAP("editChildEntityRecord", body);
     }
 
     public Anexo getFileFromFormField(string WorkflowID, string MainEntityID, string FormField)
@@ -924,7 +925,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                       </urn:cancelWorkflow>
                    </soapenv:Body>
                 </soapenv:Envelope>";
-        SendRequest("cancelWorkflow", body);
+        SendRequestSOAP("cancelWorkflow", body);
     }
 
     private void cancelProblemTry(string workflowID, string explanation, string userID = null)
@@ -941,7 +942,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                    </soapenv:Body>
                 </soapenv:Envelope>";
         
-        SendRequest("cancelProblem", body, "/apigateway/se/ws/pb_ws.php");
+        SendRequestSOAP("cancelProblem", body, "/apigateway/se/ws/pb_ws.php");
     }
 
     private void cancelIncidentTry(string workflowID, string explanation, string userID)
@@ -958,8 +959,44 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                    </soapenv:Body>
                 </soapenv:Envelope>";
         
-        SendRequest("cancelIncident", body, "/apigateway/se/ws/in_ws.php");
+        SendRequestSOAP("cancelIncident", body, "/apigateway/se/ws/in_ws.php");
     }
+
+
+
+    /// <summary>
+    /// Adiciona um comentário no histório de uma instancia de WorkFlow
+    /// </summary>
+    /// <param name="workflowID">ID da instancia de workflow, incidente ou problema</param>
+    /// <param name="explanation">Justificativa</param>
+    /// <param name="userID">Matricula do usuario que está cancelando. Ele precisa ter permissão na segurança para cancelar</param>
+    public void addHistoryComment(string workflowID, string comment, int cduser = 0)
+    {
+        string endpoint = "/apigateway/se/exp/chatbot/api/task/comment.php";
+        try
+        {
+            Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>(){
+                {"idInstance", workflowID},
+                {"cdProduct", 39},
+                {"text", comment.Replace("&", "e").Replace("#", "")},
+            };
+            if(cduser > 0){
+                parametros.Add("cdUser", cduser);
+            }
+            string query = string.Join("&", parametros.Select(p => $"{p.Key}={p.Value}"));
+
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{endpoint}?{query}");
+
+            SendRequestRest(request);
+            return;
+        }
+        catch (System.Exception errorWF)
+        {
+            throw;
+        }
+    }
+
+    
 }
 
 
