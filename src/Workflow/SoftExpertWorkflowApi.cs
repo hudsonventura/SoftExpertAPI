@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
@@ -996,7 +996,21 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         }
     }
 
-    
+    public void unlinkActivityFromUser(string workflowID, string ActivityID)
+    {
+        string body = $@"
+                <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
+                <soapenv:Header/>
+                <soapenv:Body>
+                    <urn:unlinkActivityFromUser>
+                        <urn:WorkflowID>{workflowID}</urn:WorkflowID>
+                        <urn:ActivityID>{ActivityID}</urn:ActivityID>
+                    </urn:unlinkActivityFromUser>
+                </soapenv:Body>
+                </soapenv:Envelope>";
+        
+        SendRequestSOAP("unlinkActivityFromUser", body);
+    }
 }
 
 

@@ -61,7 +61,8 @@ class WorkflowExamples{
         GetFileFromFormField,
         ChangeWorflowTitle,
         CancelWorkflow,
-        AddHistoryComment
+        AddHistoryComment,
+        unlinkActivityFromUser,
     }
 
     public void Execute(Teste tipo){
@@ -122,6 +123,9 @@ class WorkflowExamples{
                 break;
             
             case Teste.AddHistoryComment: AddHistoryComment();
+                break;
+
+            case Teste.unlinkActivityFromUser: unlinkActivityFromUser();
                 break;
 
             default:
@@ -448,6 +452,25 @@ class WorkflowExamples{
             string ChildRelationshipID = "invoices"; //ID da tabela da grid
 
             wfAPI.newChildEntityRecord(WorkflowID, EntityID, ChildRelationshipID,  formulario);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
+
+    private void unlinkActivityFromUser()
+    {
+        try
+        {
+            string WorkflowID = "PRO20240518";
+            string ActivityID = "AnalisarDemanda";
+
+            wfAPI.unlinkActivityFromUser(WorkflowID, ActivityID);
         }
         catch (SoftExpertException erro)
         {
