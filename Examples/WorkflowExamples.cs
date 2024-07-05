@@ -36,7 +36,10 @@ class WorkflowExamples{
         wfAPI = new SoftExpertWorkflowApi(
             url, 
             authorization, 
-            db: db //opcional. Necessário para: listAttachmentFromInstance
+            db: db, //opcional. Necessário para: listAttachmentFromInstance
+            login: _appsettings["login"].ToString(),
+            pass: _appsettings["pass"].ToString(),
+            domain: _appsettings["domain"].ToString()
         );
         #endregion
 
@@ -63,6 +66,7 @@ class WorkflowExamples{
         CancelWorkflow,
         AddHistoryComment,
         unlinkActivityFromUser,
+        reactivateWorkflow
     }
 
     public void Execute(Teste tipo){
@@ -126,6 +130,9 @@ class WorkflowExamples{
                 break;
 
             case Teste.unlinkActivityFromUser: unlinkActivityFromUser();
+                break;
+
+            case Teste.reactivateWorkflow: reactivateWorkflow();
                 break;
 
             default:
@@ -471,6 +478,27 @@ class WorkflowExamples{
             string ActivityID = "AnalisarDemanda";
 
             wfAPI.unlinkActivityFromUser(WorkflowID, ActivityID);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
+
+    private void reactivateWorkflow()
+    {
+        try
+        {
+            string WorkflowID = "CA2024000378";
+            string Explanation = "Just a test";
+            string ActivityID = "Usuário17125165826853";
+            string UserID = "MATRICULA";
+
+            wfAPI.reactivateWorkflow(WorkflowID, ActivityID, Explanation, UserID);
         }
         catch (SoftExpertException erro)
         {

@@ -12,7 +12,7 @@ public class ExampleOracleImplementation : SoftExpert.IDataBase
     public ExampleOracleImplementation(IConfiguration appsettings)
     {
         dbConnection = $"Data Source = (DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL=TCP)(HOST={appsettings["Oracle:host"]})(PORT={appsettings["Oracle:port"]})))(CONNECT_DATA = (SERVICE_NAME={appsettings["Oracle:dbname"]})));User Id={appsettings["Oracle:user"]};Password={appsettings["Oracle:pass"]};";
-        db_name = appsettings["Oracle:user"];
+        db_name = appsettings["Oracle:dbowner"];
     }
 
     public string db_name { get; set; }

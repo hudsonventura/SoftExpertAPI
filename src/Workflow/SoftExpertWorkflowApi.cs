@@ -1,10 +1,12 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using Domain;
+using Newtonsoft.Json;
 
 
 
@@ -12,11 +14,11 @@ namespace SoftExpert.Workflow;
 
 public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 {
-    public SoftExpertWorkflowApi(string baseUrl, Dictionary<string, string> headers, IDataBase db = null) : base(baseUrl, headers, db)
+    public SoftExpertWorkflowApi(string baseUrl, Dictionary<string, string> headers, IDataBase db = null, string login = null, string pass = null, string domain = null) : base(baseUrl, headers, db, login, pass, domain)
     {
     }
 
-    public SoftExpertWorkflowApi(string baseUrl, string authorization, IDataBase db = null) : base(baseUrl, authorization, db)
+    public SoftExpertWorkflowApi(string baseUrl, string authorization, IDataBase db = null, string login = null, string pass = null, string domain = null) : base(baseUrl, authorization, db, login, pass, domain)
     {
     }
 
@@ -996,6 +998,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         }
     }
 
+    
     public void unlinkActivityFromUser(string workflowID, string ActivityID)
     {
         string body = $@"
@@ -1011,6 +1014,89 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         
         SendRequestSOAP("unlinkActivityFromUser", body);
     }
+
+
+
+    public void reactivateWorkflow(string workflowID, string ActivityID, string explanation, string userID)
+    {
+        try
+        {
+            var obj = GetIDObjectToManageInstance(workflowID, ActivityID);
+            if(obj == null){
+                throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}' e que possua a atividade '{ActivityID}'");
+            }
+            Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>(){
+                {"oid", obj.p_idobject},
+                {"action", 2},
+            };
+            string query = string.Join("&", parametros.Select(p => $"{p.Key}={p.Value}"));
+
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"/se/v16780/workflow/wf_management/management_action.php?{query}");
+
+            string token = GetToken();
+            request.Headers.Add("Cookie", $"se-authentication-token={token}");
+
+            var payload = new Dictionary<string, string>
+            {
+                { "fgstatus", "1" },
+                { "cditemreturn", obj.s_idobject },
+                { "justify", explanation }
+            };
+            string jsonBody = JsonConvert.SerializeObject(payload);
+
+            request.Content = new FormUrlEncodedContent(payload);
+
+
+            HttpResponseMessage  response = restClient.SendAsync(request).Result;
+            if(!response.IsSuccessStatusCode){
+                throw new Exception("Houve um problema ao reativar a instancia");
+            }
+
+            string responseBody = response.Content.ReadAsStringAsync().Result;
+            if(responseBody.Contains("softexpert/login")){
+                throw new Exception("Houve um erro ao gerar/obter op token para reativar a instancia");
+            }
+
+            return;
+        }
+        catch (System.Exception errorWF)
+        {
+            throw;
+        }
+        
+
+    }
+
+
+    private dynamic GetIDObjectToManageInstance(string workflowID, string ActivityID){
+        string sql = $@"select p.idprocess, s.IDSTRUCT, s.NMSTRUCT, s.IDOBJECT as s_IDOBJECT, s.DTENABLED, NRORDER, p.IDOBJECT as p_IDOBJECT, P.FGSTATUS
+                            from {db_name}.WFPROCESS p
+                            LEFT join {db_name}.WFSTRUCT s on p.IDOBJECT = s.IDPROCESS
+                            where p.IDPROCESS = :workflowID and s.IDSTRUCT = :ActivityID
+                            and s.DTENABLED is not null
+                            order by s.DTENABLED DESC, s.TMENABLED DESC";
+
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":workflowID", workflowID);
+        parametros.Add(":ActivityID", ActivityID);
+
+
+        DataTable list = db.Query(sql, parametros);
+
+        if (list.Rows.Count > 0)
+        {
+            var row = list.Rows[0];
+            return new 
+            {
+                s_idobject = row["s_IDOBJECT"].ToString(),
+                p_idobject = row["p_IDOBJECT"].ToString()
+            };
+        }
+        else
+        {
+            return null; // Ou retorne um objeto anônimo com valores padrão, se preferir
+        }
+    }    
 }
 
 

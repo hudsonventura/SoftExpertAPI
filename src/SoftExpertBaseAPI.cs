@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Web;
 using System.Xml;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -19,13 +21,19 @@ public abstract class SoftExpertBaseAPI
 
     public string db_name = null;
 
+    //usado para gestão de instancias não implementadas na API original do SE, como reativar e retornar instâncias de workflow
+    public string? login { get; private set; }
+    public string? pass { get; private set; }
+    public string? domain { get; private set; }
+
+
     /// <summary>
     /// Construtor. Necessário passar a URL completa do ambiente do SE e os headers. Header Authorization é necessário
     /// </summary>
     /// <param name="url">URL completa do ambiente. Ex.: https://se.example.com.br</param>
     /// <param name="headers">Passar os headers a serem enviados na requisição. Não esqueça do header Authorization</param>
     /// <param name="db">Classe concreta que implemente a inteface SoftExpertAPI.Interfaces.IDataBase</param>
-    public SoftExpertBaseAPI(string baseUrl, Dictionary<string, string> headers, SoftExpert.IDataBase db = null)
+    public SoftExpertBaseAPI(string baseUrl, Dictionary<string, string> headers, SoftExpert.IDataBase db = null, string login = null, string pass = null, string domain = null)
     {
         restClient = new HttpClient();
         restClient.BaseAddress = new Uri(baseUrl);
@@ -36,6 +44,9 @@ public abstract class SoftExpertBaseAPI
         //restClient.AddDefaultHeader("Host", url.Split("://")[1].Split(":")[0]);
         this.db = db;
         this.db_name = db.db_name;
+        this.login = login;
+        this.pass = pass;
+        this.domain = domain;
         SetUriModule();
     }
 
@@ -44,12 +55,16 @@ public abstract class SoftExpertBaseAPI
     /// </summary>
     /// <param name="url">URL completa do ambiente. Ex.: https://se.example.com.br</param>
     /// <param name="authorization">Basic no formato base64("dominio\usuario:senha") Ex.: Basic dmMgPyB1bSBjdXJpb3Nv</param>
-    public SoftExpertBaseAPI(string baseUrl, string authorization, SoftExpert.IDataBase db = null)
+    public SoftExpertBaseAPI(string baseUrl, string authorization, SoftExpert.IDataBase db = null,string login = null, string pass = null, string domain = null)
     {
         restClient = new HttpClient();
         restClient.BaseAddress = new Uri(baseUrl);
         restClient.DefaultRequestHeaders.Add("Authorization", authorization);
         //restClient.AddDefaultHeader("Host", url.Split("://")[1].Split(":")[0]);
+
+        this.login = login;
+        this.pass = pass;
+        this.domain = domain;
 
         if(db != null ){
             this.db = db;
@@ -171,6 +186,94 @@ public abstract class SoftExpertBaseAPI
 
 
         return;
+    }
+
+
+
+    static string token = null;
+    protected string GetToken(){
+        if(token != null){
+            return token;
+        }
+
+
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/softexpert/selogin");
+        var headers = new Dictionary<string, string>
+        {
+            { "Accept", "*/*" },
+            { "Accept-Language", "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7" },
+            { "Connection", "keep-alive" },
+            { "Content-Type", "application/x-www-form-urlencoded; charset=UTF-8" },
+            { "Origin", restClient.BaseAddress.ToString() },
+            { "Referer", $"{restClient.BaseAddress.ToString()}/softexpert/external-login" }
+        };
+        foreach (var header in headers)
+        {
+            request.Headers.TryAddWithoutValidation(header.Key, header.Value);
+        }
+
+        string jsonBody = JsonConvert.SerializeObject(new 
+            {
+                AuthenticationParameter = new
+                {
+                    language = 2,
+                    hashGUID = (string)null,
+                    domain = this.domain,
+                    accessType = "DESKTOP",
+                    login = this.login,
+                    password = this.pass,
+                    externalUser = true,
+                    logout = true
+                }
+            }
+        );
+        string urlEncodedBody = $"json={HttpUtility.UrlEncode(jsonBody)}";
+        request.Content = new StringContent(urlEncodedBody, Encoding.UTF8, "application/x-www-form-urlencoded");
+
+
+        using (HttpClient client = new HttpClient())
+        {
+            client.BaseAddress = new Uri(restClient.BaseAddress.ToString());
+            HttpResponseMessage  response = client.SendAsync(request).Result;
+            if(!response.IsSuccessStatusCode ){
+                Console.WriteLine();
+            }
+
+            // Verifique o status da resposta
+            if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                throw new Exception($"Houve um erro ao tentar realizar login com o usuário externo");
+            }
+
+            // Obtenha os cookies da resposta
+            IEnumerable<string> cookies;
+            if (response.Headers.TryGetValues("Set-Cookie", out cookies))
+            {
+                var authToken = cookies
+                    .Select(cookie => cookie.Split(';').FirstOrDefault(part => part.Trim().StartsWith("se-authentication-token=")))
+                    .FirstOrDefault(cookie => cookie != null)?
+                    .Split('=').Last();
+
+                if (authToken != null)
+                {
+                    token = authToken;
+                    return token;
+                }
+                else
+                {
+                    throw new Exception("se-authentication-token não encontrado nos cookies");
+                }
+            }
+            else
+            {
+                throw new Exception("Nenhum cookie encontrado na resposta");
+            }
+        }
+
+    }
+
+    private void RequestNewToken(){
+
     }
 }
 
