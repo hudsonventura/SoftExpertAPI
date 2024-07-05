@@ -66,7 +66,8 @@ class WorkflowExamples{
         CancelWorkflow,
         AddHistoryComment,
         unlinkActivityFromUser,
-        reactivateWorkflow
+        reactivateWorkflow,
+        returnWorkflow
     }
 
     public void Execute(Teste tipo){
@@ -135,15 +136,16 @@ class WorkflowExamples{
             case Teste.reactivateWorkflow: reactivateWorkflow();
                 break;
 
+            case Teste.returnWorkflow: returnWorkflow();
+                break;
+
             default:
                 throw new Exception("Tipo ainda não implementado");
                 break;
         }
-
-
-
-
     }
+
+
 
     private void AddHistoryComment()
     {
@@ -499,6 +501,28 @@ class WorkflowExamples{
             string UserID = "MATRICULA";
 
             wfAPI.reactivateWorkflow(WorkflowID, ActivityID, Explanation, UserID);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
+
+
+    private void returnWorkflow()
+    {
+        try
+        {
+            string WorkflowID = "PRO20240564";
+            string Explanation = "Just a test";
+            string ActivityID = "CriarSolicitacao";
+            string UserID = "MATRICULA";
+
+            wfAPI.returnWorkflow(WorkflowID, ActivityID, Explanation, UserID);
         }
         catch (SoftExpertException erro)
         {

@@ -1054,7 +1054,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
             string responseBody = response.Content.ReadAsStringAsync().Result;
             if(responseBody.Contains("softexpert/login")){
-                throw new Exception("Houve um erro ao gerar/obter op token para reativar a instancia");
+                throw new Exception("Houve um problema ao reativar a instancia");
             }
 
             return;
@@ -1063,8 +1063,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         {
             throw;
         }
-        
-
     }
 
 
@@ -1096,7 +1094,57 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         {
             return null; // Ou retorne um objeto anônimo com valores padrão, se preferir
         }
-    }    
+    }   
+
+
+    public void returnWorkflow(string workflowID, string ActivityID, string explanation, string userID)
+    {
+        try
+        {
+            var obj = GetIDObjectToManageInstance(workflowID, ActivityID);
+            if(obj == null){
+                throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}' e que possua a atividade '{ActivityID}'");
+            }
+            Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>(){
+                {"idobject", obj.s_idobject},
+                {"idprocess", obj.p_idobject}
+            };
+            string query = string.Join("&", parametros.Select(p => $"{p.Key}={p.Value}"));
+
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"/se/v16780/workflow/wf_management/management_activity_cancel.php?{query}");
+
+            string token = GetToken();
+            request.Headers.Add("Cookie", $"se-authentication-token={token}");
+
+            var payload = new Dictionary<string, string>
+            {
+                { "dscomment", explanation }
+            };
+            string jsonBody = JsonConvert.SerializeObject(payload);
+            request.Content = new FormUrlEncodedContent(payload);
+
+
+            HttpResponseMessage  response = restClient.SendAsync(request).Result;
+            if(!response.IsSuccessStatusCode){
+                throw new Exception("Houve um problema ao reativar a instancia");
+            }
+
+            string responseBody = response.Content.ReadAsStringAsync().Result;
+            if(responseBody.Contains("softexpert/login")){
+                throw new Exception("Houve um problema ao retornar a instancia");
+            }
+
+            if(responseBody.Contains("Ocorreu um erro ao tentar processar informações")){
+                throw new Exception("Houve um problema ao retornar a instancia");
+            }
+
+            return;
+        }
+        catch (System.Exception errorWF)
+        {
+            throw;
+        }
+    } 
 }
 
 
