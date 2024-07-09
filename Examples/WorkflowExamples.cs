@@ -67,7 +67,8 @@ class WorkflowExamples{
         AddHistoryComment,
         unlinkActivityFromUser,
         reactivateWorkflow,
-        returnWorkflow
+        returnWorkflow,
+        delegateWorkflow
     }
 
     public void Execute(Teste tipo){
@@ -137,6 +138,9 @@ class WorkflowExamples{
                 break;
 
             case Teste.returnWorkflow: returnWorkflow();
+                break;
+
+            case Teste.delegateWorkflow: delegateWorkflow();
                 break;
 
             default:
@@ -523,6 +527,27 @@ class WorkflowExamples{
             string UserID = "MATRICULA";
 
             wfAPI.returnWorkflow(WorkflowID, ActivityID, Explanation, UserID);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
+
+    private void delegateWorkflow()
+    {
+        try
+        {
+            string WorkflowID = "PRO20240564";
+            string Explanation = "AGORA!!!";
+            string ActivityID = "CriarSolicitacao";
+            string UserID = "MATRICULA";
+
+            wfAPI.delegateWorkflow(WorkflowID, ActivityID, Explanation, UserID);
         }
         catch (SoftExpertException erro)
         {

@@ -196,6 +196,10 @@ public abstract class SoftExpertBaseAPI
             return token;
         }
 
+        if(this.login == null || this.pass == null || this.domain == null){
+            throw new Exception("Adicione o login, pass e domain na injeção de dependendias do objeto SoftExpertWorkflowApi");
+        }
+
 
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/softexpert/selogin");
         var headers = new Dictionary<string, string>

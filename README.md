@@ -1,5 +1,11 @@
 # SoftExpertAPI
-SoftExpertAPI é uma biblioteca que possui um conjunto de classes para abstrair a comunicação SOAP, REST com a API do SoftExpert SESuite e/ou via banco de dados para algumas implementações.<br>
+  
+
+<img src="src/120.png" alt="Dotnet Logo" width="100px" height="100px">
+<img src="src/dotnet_logo.png" alt="Dotnet Logo" width="180px" height="100px">
+
+  
+SoftExpertAPI é uma biblioteca em Dotnet Core / C#, que possui um conjunto de classes para abstrair a comunicação SOAP, REST com a API do SoftExpert SESuite e/ou via banco de dados para algumas implementações.<br>
 Esta biblioteca não está completa e será desenvolvida conforme necessidades e pedidos.  
 
 Direitos reservados a https://www.softexpert.com/  

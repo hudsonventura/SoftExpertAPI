@@ -3,16 +3,16 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Description>SoftExpertAPI é uma biblioteca que possui um conjunto de classes para abstrair a comunicação SOAP e REST com a API nativa do SoftExpert SESuite.</Description>
-    <AssemblyVersion>1.2.12</AssemblyVersion>
-    <FileVersion>1.2.12</FileVersion>
+    <Description>SoftExpertAPI é uma biblioteca que possui um conjunto de classes para abstrair a comunicação SOAP e REST com a API nativa do SoftExpert SESuite, e outras ferramentas que as APIs nativas não permitem.</Description>
+    <AssemblyVersion>1.2.14</AssemblyVersion>
+    <FileVersion>1.2.14</FileVersion>
     <PackageProjectUrl>https://github.com/hudsonventura/SoftExpertAPI</PackageProjectUrl>
     <PackageLicense>https://github.com/hudsonventura/SoftExpertAPI/raw/main/LICENSE</PackageLicense>
     <Authors>Hudson Ventura</Authors>
     <Company>Hudson Ventura</Company>
     <PackageId>SoftExpertAPI</PackageId>
     <Product>SoftExpertAPI</Product>
-    <Version>1.2.12</Version>
+    <Version>1.2.14</Version>
     <AssemblyName>SoftExpertAPI</AssemblyName>
     <Language>dotnet</Language>
     <Copyright>Direitos reservados a https://www.softexpert.com/</Copyright>
