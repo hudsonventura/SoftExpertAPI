@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -15,13 +16,10 @@ namespace SoftExpert.Workflow;
 
 public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 {
-    public SoftExpertWorkflowApi(string baseUrl, Dictionary<string, string> headers, IDataBase db = null, string login = null, string pass = null, string domain = null) : base(baseUrl, headers, db, login, pass, domain)
+    public SoftExpertWorkflowApi(Configurations configs) : base(configs)
     {
     }
 
-    public SoftExpertWorkflowApi(string baseUrl, string authorization, IDataBase db = null, string login = null, string pass = null, string domain = null) : base(baseUrl, authorization, db, login, pass, domain)
-    {
-    }
 
     protected override void SetUriModule()
     {

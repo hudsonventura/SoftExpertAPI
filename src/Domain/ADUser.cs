@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 
-namespace src.Domain;
+namespace Domain;
 
 public class ADUser
 {

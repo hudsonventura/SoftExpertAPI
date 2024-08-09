@@ -6,12 +6,8 @@ namespace SoftExpert.Admin;
 
 public class SoftExpertAdminApi : SoftExpertBaseAPI
 {
-    public SoftExpertAdminApi(string baseUrl, Dictionary<string, string> headers, IDataBase db = null) : base(baseUrl, headers, db)
+    public SoftExpertAdminApi(Configurations configs) : base(configs)
     {
-    }
-
-    public SoftExpertAdminApi(string baseUrl, string authorization, IDataBase db = null) : base(baseUrl, authorization, db)
-    { 
     }
 
     protected override void SetUriModule()

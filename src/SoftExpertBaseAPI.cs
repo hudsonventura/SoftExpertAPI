@@ -6,9 +6,11 @@ using System.Text;
 using System.Text.Json;
 using System.Web;
 using System.Xml;
+using Domain;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SoftExpert;
+using static SoftExpert.Configurations;
 
 namespace SoftExpert;
 
@@ -26,6 +28,8 @@ public abstract class SoftExpertBaseAPI
     public string? pass { get; private set; }
     public string? domain { get; private set; }
 
+    public StorageFiles storage { get; private set; }
+
 
     /// <summary>
     /// Construtor. Necessário passar a URL completa do ambiente do SE e os headers. Header Authorization é necessário
@@ -33,21 +37,29 @@ public abstract class SoftExpertBaseAPI
     /// <param name="url">URL completa do ambiente. Ex.: https://se.example.com.br</param>
     /// <param name="headers">Passar os headers a serem enviados na requisição. Não esqueça do header Authorization</param>
     /// <param name="db">Classe concreta que implemente a inteface SoftExpertAPI.Interfaces.IDataBase</param>
-    public SoftExpertBaseAPI(string baseUrl, Dictionary<string, string> headers, SoftExpert.IDataBase db = null, string login = null, string pass = null, string domain = null)
+    public SoftExpertBaseAPI(Configurations configs)
     {
         restClient = new HttpClient();
-        restClient.BaseAddress = new Uri(baseUrl);
-        foreach (var head in headers)
-        {
-            restClient.DefaultRequestHeaders.Add(head.Key, head.Value);
+        restClient.BaseAddress = new Uri(configs.baseUrl);
+
+        if(configs.headers.Count() > 0){
+            foreach (var head in configs.headers)
+            {
+                restClient.DefaultRequestHeaders.Add(head.Key, head.Value);
+            }
         }
-        //restClient.AddDefaultHeader("Host", url.Split("://")[1].Split(":")[0]);
+        if(configs.authorization != string.Empty){
+            restClient.DefaultRequestHeaders.Add("Authorization", configs.authorization);
+        }
+        
         this.db = db;
-        this.db_name = db.db_name;
-        this.login = login;
-        this.pass = pass;
-        this.domain = domain;
+        this.db_name = configs.db.db_name;
+        this.login = configs.login;
+        this.pass = configs.pass;
+        this.domain = configs.domain;
         SetUriModule();
+
+        this.storage = configs.storage;
     }
 
     /// <summary>
