@@ -2,14 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using Domain;
 using Newtonsoft.Json;
-using src.Domain;
-
 
 
 namespace SoftExpert.Workflow;
@@ -406,6 +402,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="SoftExpertException"></exception>
     /// <exception cref="Exception"></exception>
     public List<Anexo> listAttachmentFromInstance(string WorkflowID, string ActivityID = "") {
+        require("IDataBase", db);
+
         //BUG: ao passa uma atividade para a função listAttachmentFromInstance, o SQL não traz resultados. Usar sem informar a atividade.
         if (db is null) {
             throw new SoftExpertException("Uma instancia de banco de dados não foi informada na criação deste objeto. Crie forneça uma conexão com seu banco de dados implementando a interface SoftExpertAPI.Interfaces.IDataBase");
@@ -482,6 +480,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="ChildOID">OID da grid. Pode ser obtida ao inspecionar uma grid dentro do formulário principal. Formato: OIDFBCX6LIPRTHT4H2</param>
     /// <returns></returns>
     public List<dynamic> listGridItems(string WorkflowID, string MainEntityID, string ChildEntityID, string ChildOID) {
+        require("IDataBase", db);
+
         string sql = $@"SELECT grid.*
                         FROM {db_name}.wfprocess p
                         --
@@ -529,6 +529,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns></returns>
     public int setAttachmentSynced(int cdAttachment)
     {
+        require("IDataBase", db);
+
         string sql = $@"UPDATE {db_name}.ADATTACHMENT SET NMUSERUPD  = NMUSERUPD||'-synced' WHERE CDATTACHMENT = :cdAttachment";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
@@ -552,6 +554,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="Exception"></exception>
     public dynamic getWorkFlowData(string WorkflowID)
     {
+        require("IDataBase", db);
+
         string sql = $@"SELECT p.*
                         FROM {db_name}.wfprocess p
                         WHERE p.idprocess = :WorkflowID";
@@ -600,6 +604,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="Exception"></exception>
     public dynamic getFormData(string WorkflowID, string EntityID)
     {
+        require("IDataBase", db);
+
         string sql = $@"SELECT formulario.*
                         FROM {db_name}.wfprocess p
                         --
@@ -643,6 +649,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="Exception"></exception>
     public dynamic getFormSelectBox(string oid, string EntityID)
     {
+        require("IDataBase", db);
+
         string sql = $@"SELECT * FROM {db_name}.DYN{EntityID} WHERE FGENABLED = 1 AND oid = :oid";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
@@ -667,6 +675,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
     public Anexo getFileFromOID(string oid){
+        require("IDataBase", db);
+
         string sql = $@"select FLDATA, --possui o blod
                             NMNAME, --nome e extensão do arquivo
                             IDEXTENSION, --somente a extensão
@@ -707,6 +717,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns></returns>
     public int markActivityAsExecuted(string WorkflowID, string ActivityID)
     {
+        require("IDataBase", db);
+
         string sql = $@"UPDATE {db_name}.WFSTRUCT SET FGSTATUS = 3 WHERE IDOBJECT = 
                         (SELECT A.IDOBJECT FROM {db_name}.wfprocess p JOIN {db_name}.wfstruct a on a.idprocess = p.idobject WHERE p.idprocess = :WorkflowID AND IDSTRUCT = :ActivityID)";
 
@@ -767,9 +779,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         SendRequestSOAP("editChildEntityRecord", body);
     }
 
-    public Anexo getFileFromFormField(string WorkflowID, string MainEntityID, string FormField)
-    {
-        string sql = $@"SELECT SEBLOB.*
+        require("IDataBase", db);
                             FROM {db_name}.wfprocess p
                             JOIN {db_name}.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
                             JOIN {db_name}.dyn{MainEntityID} formulario on formulario.oid = GNF.OIDENTITYREG
@@ -787,6 +797,14 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             throw new SoftExpertException($"Não foi encontrado na tabela 'SEBLOB' um OID do campo '{FormField}' da tabela '{MainEntityID}' ou o arquivo não foi anexado na instancia '{WorkflowID}'");
         }
 
+    private void require(string type, dynamic obj)
+    {
+        if(obj == null){
+            throw new SoftExpertException($"Objeto do tipo {type} é nulo ou ausente, não foi implementado ou nao foi iniciado corretamente. Veja a documentação.");
+        }
+    }
+
+
         return list.AsEnumerable()
             .Select(row =>
             {
@@ -802,6 +820,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
     public int changeWorflowTitle(string workflowID, string title)
     {
+        require("IDataBase", db);
+
         string sql = $@"UPDATE {db_name}.WFPROCESS SET NMPROCESS = :title WHERE IDPROCESS= :workflowID";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
@@ -819,6 +839,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="workflowID"></param>
     /// <returns>WFStatus</returns>
     public WFStatus getWorflowStatus(string WorkflowID){
+        require("IDataBase", db);
+
         string sql = $@"SELECT fgstatus
                             FROM {db_name}.wfprocess p
                             WHERE p.idprocess = :WorkflowID";
@@ -853,6 +875,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="workflowID"></param>
     /// <returns>List<string></returns>
     public List<string> getActualActivities(string WorkflowID){
+        require("IDataBase", db);
+        
         string sql = $@"SELECT a.idstruct
                             FROM {db_name}.wfprocess p
                             --
@@ -1066,6 +1090,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
     private dynamic GetIDObjectToManageInstance(string workflowID, string ActivityID){
+        require("IDataBase", db);
+
         string sql = $@"select p.idprocess, s.IDSTRUCT, s.NMSTRUCT, s.IDOBJECT as s_IDOBJECT, s.DTENABLED, NRORDER, p.IDOBJECT as p_IDOBJECT, P.FGSTATUS
                             from {db_name}.WFPROCESS p
                             LEFT join {db_name}.WFSTRUCT s on p.IDOBJECT = s.IDPROCESS
@@ -1202,6 +1228,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
     private ADUser GetUser(string userID){
+        require("IDataBase", db);
+
         string sql = $@"select *
                             from {db_name}.ADUSER
                             where iduser = :userID";
