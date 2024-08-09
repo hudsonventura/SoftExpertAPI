@@ -20,6 +20,8 @@ public abstract class SoftExpertBaseAPI
     protected readonly HttpClient restClient;
 
     protected IDataBase db = null;
+    protected IFileDownload downloader = null;
+
 
     public string db_name = null;
 
@@ -42,6 +44,7 @@ public abstract class SoftExpertBaseAPI
         restClient = new HttpClient();
         restClient.BaseAddress = new Uri(configs.baseUrl);
 
+        //headers e authorization
         if(configs.headers.Count() > 0){
             foreach (var head in configs.headers)
             {
@@ -51,8 +54,15 @@ public abstract class SoftExpertBaseAPI
         if(configs.authorization != string.Empty){
             restClient.DefaultRequestHeaders.Add("Authorization", configs.authorization);
         }
+
+        if(configs.downloader != null){
+            this.downloader = configs.downloader;
+        }
         
-        this.db = db;
+        if(configs.db != null){
+            this.db = configs.db;
+        }
+        
         this.db_name = configs.db.db_name;
         this.login = configs.login;
         this.pass = configs.pass;

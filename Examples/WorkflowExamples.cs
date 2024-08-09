@@ -22,25 +22,27 @@ class WorkflowExamples{
         _appsettings = appsettings;
 
         #region Preparação dos parametros
-        string url = _appsettings["url"].ToString();
-        string authorization = _appsettings["authorization"].ToString();
-
 
         //Implementação OPCIONAL de uma classe para acessar banco de dados. É necessário respeitar a interface SoftExpertAPI.Interfaces.IDataBase
         //Necessário para algumas implementações fora do escopo da API padrão do SoftExpert.
-        ExampleOracleImplementation db = new ExampleOracleImplementation(_appsettings);
+        ExampleOracleImplementation _db = new ExampleOracleImplementation(_appsettings);
+
+        IFileDownload _downloader = new ExampleFileDownloadImplementation(appsettings);
 
 
         //Criar instancia da API para utilizar na injeção de dependecias. Necessário informar a URL completa do SE e o header Authorization ou todos os headers.
-        //Se o parâmetro 'db' não for passado, alguns
-        wfAPI = new SoftExpertWorkflowApi(
-            url, 
-            authorization, 
-            db: db, //opcional. Necessário para: listAttachmentFromInstance
-            login: _appsettings["login"].ToString(),
-            pass: _appsettings["pass"].ToString(),
-            domain: _appsettings["domain"].ToString()
-        );
+        //Se o parâmetro 'db' não for passado, algumas funções não serão corretamente executadas
+        SoftExpert.Configurations configs = new Configurations(){
+            baseUrl = _appsettings["url"].ToString(),
+            db = _db,
+            downloader = _downloader,
+            login = _appsettings["login"].ToString(),
+            pass = _appsettings["pass"].ToString(),
+            domain = _appsettings["domain"].ToString(),
+            authorization = _appsettings["authorization"].ToString()
+        };
+        wfAPI = new SoftExpertWorkflowApi(configs);
+        
         #endregion
 
         
@@ -149,7 +151,7 @@ class WorkflowExamples{
         }
     }
 
-
+    
 
     private void AddHistoryComment()
     {
@@ -227,13 +229,15 @@ class WorkflowExamples{
 
     private void GetFileFromFormField()
     {
-        string WorkflowID = "CCF202400005";
+        string WorkflowID = "CCF202205758";
         string EntityID = "SOLCLIENTEFORNE";
         string FormField = "comprovante";
+        
 
         try
         {
-            var anexo =  wfAPI.getFileFromFormField(WorkflowID, EntityID, FormField);
+            //var anexo =  wfAPI.getFileFromFormField(WorkflowID, EntityID, FormField);
+            var anexo2 =  wfAPI.getFileFromFormFieldDirectory(WorkflowID, EntityID, FormField);
         }
         catch (SoftExpertException erro)
         {
@@ -502,7 +506,7 @@ class WorkflowExamples{
             string WorkflowID = "CA2024000378";
             string Explanation = "Just a test";
             string ActivityID = "Usuário17125165826853";
-            string UserID = "MATRICULA";
+            string UserID = "36460047898";
 
             wfAPI.reactivateWorkflow(WorkflowID, ActivityID, Explanation, UserID);
         }

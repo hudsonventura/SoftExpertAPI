@@ -5,6 +5,7 @@ namespace SoftExpert;
 public class Configurations
 {
     public IDataBase db { get; set; }
+    public IFileDownload downloader { get; set; }
 
     public string db_name = null;
 

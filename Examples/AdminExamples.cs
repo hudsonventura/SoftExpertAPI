@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using SoftExpert;
 using SoftExpert.Admin;
 
 namespace Examples;
@@ -16,11 +17,19 @@ public class AdminExamples
 
         
         #region Preparação
-        string urlBase = _appsettings["url"].ToString();
+        string url = _appsettings["url"].ToString();
         string authorization = _appsettings["authorization"].ToString();
 
         ExampleOracleImplementation oracle = new ExampleOracleImplementation(_appsettings);
-        SoftExpertAdminApi api = new SoftExpertAdminApi(urlBase, authorization, oracle);
+
+        SoftExpert.Configurations configs = new Configurations(){
+            baseUrl = url,
+            db = oracle,
+            headers = new Dictionary<string, string>(){{"Authorization", ""}}
+        };
+        SoftExpertAdminApi api = new SoftExpertAdminApi(configs);
+
+        
 
         #endregion
 

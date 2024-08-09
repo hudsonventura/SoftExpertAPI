@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
@@ -779,11 +779,17 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         SendRequestSOAP("editChildEntityRecord", body);
     }
 
+
+
+    private DataTable getFileFromFormField_DetermineOrigin(string WorkflowID, string MainEntityID, string FormField){
         require("IDataBase", db);
+
+        string sql = $@"SELECT EFFILE.cdfile, SEBLOB.*
                             FROM {db_name}.wfprocess p
                             JOIN {db_name}.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
                             JOIN {db_name}.dyn{MainEntityID} formulario on formulario.oid = GNF.OIDENTITYREG
                             JOIN {db_name}.SEBLOB ON SEBLOB.OID = formulario.oid{FormField}
+                            JOIN {db_name}.EFFILE ON SEBLOB.CDEFFILE = EFFILE.CDEFFILE
                             --
                             WHERE p.idprocess = :WorkflowID";
 
@@ -796,6 +802,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         if (list == null || list.Rows.Count == 0){
             throw new SoftExpertException($"Não foi encontrado na tabela 'SEBLOB' um OID do campo '{FormField}' da tabela '{MainEntityID}' ou o arquivo não foi anexado na instancia '{WorkflowID}'");
         }
+        return list;
+    }
 
     private void require(string type, dynamic obj)
     {
@@ -805,7 +813,20 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     }
 
 
-        return list.AsEnumerable()
+    /// <summary>
+    /// Busca um arquivo a partir de um campo de um formlário do SE
+    /// </summary>
+    /// <param name="WorkflowID"></param>
+    /// <param name="MainEntityID"></param>
+    /// <param name="FormField"></param>
+    /// <returns></returns>
+    public Anexo getFileFromFormField(string WorkflowID, string MainEntityID, string FormField)
+    {
+        DataTable list = getFileFromFormField_DetermineOrigin(WorkflowID, MainEntityID, FormField);
+
+        try
+        {
+            return list.AsEnumerable()
             .Select(row =>
             {
                 Anexo anexo = new Anexo();
@@ -813,10 +834,59 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 // Mapeamento dos campos para as propriedades da classe Anexo
                 anexo.FileName = row["NMNAME"].ToString();
                 anexo.Content = (byte[])row["FLDATA"];
+                anexo.extension = row["IDEXTENSION"].ToString();
                 return anexo;
             })
             .FirstOrDefault();
+        }
+        catch (System.Exception error)
+        {
+            throw new Exception("O campo FLDATA da tabela SEBLOB está vazio. O armazenamento de arquivos deve ser corrigido para diretório");
+        }
+        
     }
+
+    public Anexo getFileFromFormFieldDirectory(string WorkflowID, string MainEntityID, string FormField)
+    {
+        require("IFileDownloader", downloader);
+
+        DataTable list = getFileFromFormField_DetermineOrigin(WorkflowID, MainEntityID, FormField);
+
+        Anexo anexo = new Anexo();
+        try
+        {
+            anexo = list.AsEnumerable()
+            .Select(row =>
+            {
+                anexo.FileName = row["NMNAME"].ToString();
+                anexo.cdfile = Int64.Parse(row["CDFILE"].ToString());
+                anexo.extension = row["IDEXTENSION"].ToString();
+                return anexo;
+            })
+            .FirstOrDefault();
+        }
+        catch (System.Exception error)
+        {
+            throw new Exception("O campo CDEFFILE da tabela SEBLOB está vazio. O armazenamento de arquivos deve ser corrigido para banco de dados");
+        }
+
+        try
+        {
+            anexo = downloader.DownloadFile(anexo);
+            return anexo;
+        }
+        catch (System.Exception)
+        {
+            throw;
+        }
+
+        throw new Exception($"Algo deu errado e não foi possível obter o anexo corretamente. Reporte este bug");
+    }
+
+
+
+
+
 
     public int changeWorflowTitle(string workflowID, string title)
     {
@@ -1249,7 +1319,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         {
             throw new SoftExpertException($"O usuário de matricula '{userID}' não foi encontrado.");
         }
-    }   
+    }
 }
 
 
