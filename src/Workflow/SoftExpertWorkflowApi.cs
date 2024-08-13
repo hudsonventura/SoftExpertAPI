@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
@@ -405,9 +405,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         require("IDataBase", db);
 
         //BUG: ao passa uma atividade para a função listAttachmentFromInstance, o SQL não traz resultados. Usar sem informar a atividade.
-        if (db is null) {
-            throw new SoftExpertException("Uma instancia de banco de dados não foi informada na criação deste objeto. Crie forneça uma conexão com seu banco de dados implementando a interface SoftExpertAPI.Interfaces.IDataBase");
-        }
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
         if (ActivityID != "") {
