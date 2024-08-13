@@ -111,7 +111,7 @@ class WorkflowExamples{
             case Teste.getWorkFlowData:
                 break;
 
-            case Teste.listAttachmentFromInstance:
+            case Teste.listAttachmentFromInstance: listAttachmentFromInstance();
                 break;
 
             case Teste.markActivityAsExecuted:
@@ -229,6 +229,23 @@ class WorkflowExamples{
         }
     }
 
+    private void listAttachmentFromInstance(){
+        string WorkflowID = "NOVAEMP001295";
+
+        try
+        {
+            var anexos =  wfAPI.listAttachmentFromInstance(WorkflowID);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
+
     private void GetFileFromFormField()
     {
         string WorkflowID = "CCF202205758";
@@ -238,8 +255,7 @@ class WorkflowExamples{
 
         try
         {
-            //var anexo =  wfAPI.getFileFromFormField(WorkflowID, EntityID, FormField);
-            var anexo2 =  wfAPI.getFileFromFormFieldDirectory(WorkflowID, EntityID, FormField);
+            var anexo =  wfAPI.getFileFromFormField(WorkflowID, EntityID, FormField);
         }
         catch (SoftExpertException erro)
         {

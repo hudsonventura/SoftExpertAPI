@@ -1,8 +1,23 @@
+using System;
 using SoftExpert;
 
 namespace SoftExpert;
 
 public interface IFileDownload
 {
-    Anexo DownloadFile(Anexo anexo);
+    /// <summary>
+    /// Realiza o download de um arquivo do tipo anexo de um diretório controlado
+    /// </summary>
+    /// <param name="filename"></param>
+    /// <returns></returns>
+    byte[] DownloadFileAttach(string filename);
+
+
+
+    /// <summary>
+    /// Realiza o download de um arquivo de formulário de um diretório controlado
+    /// </summary>
+    /// <param name="filename"></param>
+    /// <returns></returns>
+    byte[] DownloadFileForm(string filename);
 }

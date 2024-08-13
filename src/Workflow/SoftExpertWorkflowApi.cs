@@ -443,15 +443,19 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
         List<Anexo> retorno = new List<Anexo>();
         foreach (DataRow arquivo in list.Rows) {
+            Int64 cdfile = Int64.Parse(arquivo["CDFILE"].ToString());
+            Anexo anexo = new Anexo();
+
             try
             {
-                Anexo anexo = new Anexo();
+                
                 var stream = arquivo["FLFILE"];
                 
                 anexo.FileName = arquivo["NMFILE"].ToString();
                 anexo.cdfile = Int64.Parse(arquivo["CDFILE"].ToString());
                 anexo.cdattachment = Int64.Parse(arquivo["CDATTACHMENT"].ToString());
                 anexo.nmuserupd = arquivo["NMUSERUPD"].ToString();
+                anexo.extension = arquivo["EXT"].ToString();
                 var contentZip = (byte[])stream;
                 var content = Utils.Zip.UnzipFile(contentZip);
                 anexo.Content = content;
@@ -459,7 +463,20 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             }
             catch (Exception erro)
             {
-                throw new Exception($"Falha ao descompactar o arquivo '{arquivo["NMFILE"]}'. Erro: {erro.Message}");
+                try
+                {
+                    anexo.FileName = arquivo["NMFILE"].ToString();
+                    anexo.cdfile = Int64.Parse(arquivo["CDFILE"].ToString());
+                    anexo.cdattachment = Int64.Parse(arquivo["CDATTACHMENT"].ToString());
+                    anexo.nmuserupd = arquivo["NMUSERUPD"].ToString();
+                    anexo.Content = downloader.DownloadFileAttach($"{anexo.cdfile.ToString($"D{8}")}.{arquivo["EXT"].ToString()}");;
+                    retorno.Add(anexo);
+                }
+                catch (System.Exception erro2)
+                {
+                    throw new Exception($"Falha ao descompactar o arquivo '{arquivo["NMFILE"]}'. Erro: {erro.Message}");
+                }
+                
             }
             
         }
@@ -877,7 +894,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
         try
         {
-            anexo = downloader.DownloadFile(anexo);
+            anexo.Content = downloader.DownloadFileForm($"{anexo.cdfile.ToString($"D{8}")}.{anexo.extension}");
             return anexo;
         }
         catch (System.Exception)

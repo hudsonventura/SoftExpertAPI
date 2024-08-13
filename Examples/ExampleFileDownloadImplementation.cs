@@ -25,7 +25,8 @@ public class ExampleFileDownloadImplementation : IFileDownload
         RemotePort = int.Parse(appsettings["SSH:Server:port"].ToString());
         RemoteUsername = appsettings["SSH:Server:user"].ToString();
         RemotePassword = appsettings["SSH:Server:pass"].ToString();
-        RemoteFilePath = appsettings["SSH:Server:path"].ToString();
+        RemoteFilePath_Form = appsettings["SSH:Server:path_form"].ToString();
+        RemoteFilePath_Attach = appsettings["SSH:Server:path_attach"].ToString();
 
     }
 
@@ -40,22 +41,35 @@ public class ExampleFileDownloadImplementation : IFileDownload
     private int RemotePort { get; }
     private string RemoteUsername { get; }
     private string RemotePassword { get; }
-    private string RemoteFilePath { get; }
-    public Anexo DownloadFile(Anexo anexo)
+    private string RemoteFilePath_Form { get; }
+    private string RemoteFilePath_Attach { get; }
+    public byte[] DownloadFileAttach(string filename)
     {
-        string remoteFilePath = $"{RemoteFilePath}{anexo.cdfile.ToString($"D{8}")}.{anexo.extension}";
+        string remoteFilePath = $"{RemoteFilePath_Attach}{filename}";
 
         switch (Type)
         {
-            case AccessType.DirectAccess: return DownloadDirect(remoteFilePath, anexo, RemoteHost, RemotePort, RemoteUsername, RemotePassword);
-            case AccessType.TunneledAccess: return DownloadWithTunelSSH(remoteFilePath, anexo);
+            case AccessType.DirectAccess: return DownloadDirect(remoteFilePath, RemoteHost, RemotePort, RemoteUsername, RemotePassword);
+            case AccessType.TunneledAccess: return DownloadWithTunelSSH(remoteFilePath);
+        }
+        return null;
+    }
+
+    public byte[] DownloadFileForm(string filename)
+    {
+        string remoteFilePath = $"{RemoteFilePath_Form}{filename}";
+
+        switch (Type)
+        {
+            case AccessType.DirectAccess: return DownloadDirect(remoteFilePath, RemoteHost, RemotePort, RemoteUsername, RemotePassword);
+            case AccessType.TunneledAccess: return DownloadWithTunelSSH(remoteFilePath);
         }
         return null;
     }
 
 
 
-    private Anexo DownloadDirect(string remoteFilePath, Anexo anexo, string host, int port, string user, string pass){
+    private byte[] DownloadDirect(string remoteFilePath, string host, int port, string user, string pass){
         using (var sftp = new SftpClient(host, port, user, pass))
         {
             try
@@ -64,8 +78,7 @@ public class ExampleFileDownloadImplementation : IFileDownload
                 using (var memoryStream = new MemoryStream())
                 {
                     sftp.DownloadFile(remoteFilePath, memoryStream);
-                    anexo.Content = memoryStream.ToArray();
-                    return anexo;
+                    return memoryStream.ToArray();
                 }
             }
             catch (Exception ex)
@@ -75,7 +88,7 @@ public class ExampleFileDownloadImplementation : IFileDownload
         }
     }
 
-    private Anexo DownloadWithTunelSSH(string remoteFilePath, Anexo anexo){
+    private byte[] DownloadWithTunelSSH(string remoteFilePath){
         using (var client = new SshClient(GatewayHost, GatewayPort, GatewayUsername, GatewayPassword))
         {
             client.Connect();
@@ -84,7 +97,7 @@ public class ExampleFileDownloadImplementation : IFileDownload
             client.AddForwardedPort(portForwarded);
             portForwarded.Start();
 
-            return DownloadDirect(remoteFilePath, anexo, "127.0.0.1", 55, RemoteUsername, RemotePassword);
+            return DownloadDirect(remoteFilePath, "127.0.0.1", 55, RemoteUsername, RemotePassword);
         }
     }
 }

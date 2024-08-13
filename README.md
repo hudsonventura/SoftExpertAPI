@@ -1,9 +1,9 @@
 # SoftExpertAPI
   
-
-<img src="src/120.png" alt="Dotnet Logo" width="100px" height="100px">
-<img src="src/dotnet_logo.png" alt="Dotnet Logo" width="180px" height="100px">
-
+<p align="center">
+	<img src="src/120.png" alt="Dotnet Logo" width="100px" height="100px">
+	<img src="src/dotnet_logo.png" alt="Dotnet Logo" width="180px" height="100px">
+</p>
   
 SoftExpertAPI é uma biblioteca em Dotnet Core / C#, que possui um conjunto de classes para abstrair a comunicação SOAP, REST com a API do SoftExpert SESuite e/ou via banco de dados para algumas implementações.<br>
 Esta biblioteca não está completa e será desenvolvida conforme necessidades e pedidos.  Há uma tabela no final com as funções implementada e suas limitações.   
@@ -106,25 +106,24 @@ Em caso dos arquivos de formulário, documentos e anexos não estiverem no banco
 
 ## Funções do módulo de Workflow
 
-| Função                         | Banco de dados | Objetivo                                                  |
-| ------------------------------ | -------------- | --------------------------------------------------------- |
-| **NewWorkflow**                |                | Criar uma nova instância de um processo                   |
-| **CancelWorkflow**             |                | Cancelar uma instância                                    |
-| **ChangeWorflowTitle**         | X              | Alterar o título de uma instância                         |
-| **ExecuteActivity**            |                | Executar uma atividade                                    |
-| **NewAttachment**              |                | Anexar um novo arquivo no menu de anexos do lado esquerdo |
-| **listAttachmentFromInstance** | X              | Listar os arquivos de uma instância                       |
-| **EditEntityRecord**           |                | Editar os campos de um formulário                         |
-| **getFormData**                | X              | Obter os dados (campos e valores) de um formulário        |
-| **getFormSelectBox**           | X              | Obter o valor de um selectbox de um formulário            |
-| **getWorkFlowData**            | X              |                                                           |
-| **GetFileFromOID**             | X              | Obter um arquivo de um formlário                          |
-| **GetFileFromFormField**       | X              |                                                           |
-| **NewChildEntityRecord**       |                | Criar um registro de uma grid                             |
-| **EditChildEntityRecord**      |                | Editar um registro de uma grid                            |
-| **ListGridItems**              | X              | Listar os registros de uma grid do menu do lado esquerdo  |
-|                                |                |                                                           |
-|                                |                |                                                           |
+| Função                         | Banco de dados | Diretório Controlado | Objetivo                                                  |
+| ------------------------------ | -------------- | -------------------- | --------------------------------------------------------- |
+| **NewWorkflow**                |                |                      | Criar uma instância de um processo                        |
+| **CancelWorkflow**             |                |                      | Cancelar uma instância                                    |
+| **ChangeWorflowTitle**         | ❌              |                      | Alterar o título de uma instância                         |
+| **ExecuteActivity**            |                |                      | Executar uma atividade                                    |
+| **NewAttachment**              |                |                      | Anexar um novo arquivo no menu de anexos do lado esquerdo |
+| **listAttachmentFromInstance** | ❌              | ❌                    | Listar os arquivos de uma instância                       |
+| **EditEntityRecord**           |                |                      | Editar os campos de um formulário                         |
+| **getFormData**                | ❌              |                      | Obter os dados (campos e valores) de um formulário        |
+| **getFormSelectBox**           | ❌              |                      | Obter o valor de um selectbox de um formulário            |
+| **getWorkFlowData**            | ❌              |                      | Obter os dados de uma instancia da tabela wfprocess       |
+| **GetFileFromOID**             | ❌              |                      | Obter um arquivo de um formlário                          |
+| **getFileFromFormField**       | ❌              | ❌                    | Obter um arquivo de um campo do formulário                |
+| **NewChildEntityRecord**       |                |                      | Criar um registro de uma grid                             |
+| **EditChildEntityRecord**      |                |                      | Editar um registro de uma grid                            |
+| **ListGridItems**              | ❌              |                      | Listar os registros de uma grid do menu do lado esquerdo  |
+
 
  
 Obs.:  
@@ -135,5 +134,5 @@ Obs.:
 
 | Função          | Banco de dados | Objetivo             |
 | --------------- | -------------- | -------------------- |
-| **enableUser**  | X              | Ativar um usuário    |
-| **disableUser** | X              | Desativar um usuário |
+| **enableUser**  | ❌              | Ativar um usuário    |
+| **disableUser** | ❌              | Desativar um usuário |
