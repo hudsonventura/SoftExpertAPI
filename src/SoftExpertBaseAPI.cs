@@ -26,9 +26,9 @@ public abstract class SoftExpertBaseAPI
     public string db_name = null;
 
     //usado para gestão de instancias não implementadas na API original do SE, como reativar e retornar instâncias de workflow
-    public string? login { get; private set; }
-    public string? pass { get; private set; }
-    public string? domain { get; private set; }
+    public string login { get; private set; } = string.Empty;
+    public string pass { get; private set; } = string.Empty;
+    public string domain { get; private set; } = string.Empty;
 
     public StorageFiles storage { get; private set; }
 
@@ -51,8 +51,19 @@ public abstract class SoftExpertBaseAPI
                 restClient.DefaultRequestHeaders.Add(head.Key, head.Value);
             }
         }
-        if(configs.authorization != string.Empty){
-            restClient.DefaultRequestHeaders.Add("Authorization", configs.authorization);
+        if(configs.token != string.Empty){
+            restClient.DefaultRequestHeaders.Add("Authorization", configs.token);
+        }else{
+            try
+            {
+                string base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{configs.domain}\\{configs.login}:{configs.pass}"));
+                restClient.DefaultRequestHeaders.Add("Authorization", $"Basic {base64}");
+            }
+            catch (System.Exception)
+            {
+                throw new Exception("Necessário passar via configs login, senha e domain, ou passar o token do usuário");
+            }
+            
         }
 
         if(configs.downloader != null){
@@ -137,6 +148,9 @@ public abstract class SoftExpertBaseAPI
             if(!response.IsSuccessStatusCode){
                 if(response.ReasonPhrase != ""){
                     throw new Exception(response.ReasonPhrase);
+                }
+                if(response.StatusCode != 0){
+                    throw new SoftExpertException($"{restClient.BaseAddress.AbsoluteUri} respondeu {response.StatusCode}");
                 }
                 throw new Exception($"Falha ao conectar ao servidor {restClient.BaseAddress.AbsoluteUri}");
             }

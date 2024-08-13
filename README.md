@@ -6,7 +6,7 @@
 
   
 SoftExpertAPI é uma biblioteca em Dotnet Core / C#, que possui um conjunto de classes para abstrair a comunicação SOAP, REST com a API do SoftExpert SESuite e/ou via banco de dados para algumas implementações.<br>
-Esta biblioteca não está completa e será desenvolvida conforme necessidades e pedidos.  
+Esta biblioteca não está completa e será desenvolvida conforme necessidades e pedidos.  Há uma tabela no final com as funções implementada e suas limitações.   
 
 Direitos reservados a https://www.softexpert.com/  
 
@@ -33,28 +33,47 @@ using SoftExpert.Admin;     //para o módulo de Administração
 ```  
 
 
-### Crie uma instancia da API do módulo de Workflow SEM acesso a banco de dados
+### Crie uma instancia da API do módulo de Workflow
+
 ```C#
 using SoftExpert;
 using SoftExpert.Workflow; 
 
 string authorization = "Basic base64encode(DOMINIO\USUARIO:SENHA)"; //deve ser codificado em base64
-string url = "https://se.dominio.com.br";
-SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(url, authorization);
+string url = ;
+
+//Implementação OPCIONAL de uma classe para acessar banco de dados. É necessário respeitar a interface SoftExpertAPI.Interfaces.IDataBase
+//Necessário para algumas implementações fora do escopo da API padrão do SoftExpert.
+ExampleOracleImplementation _db = new ExampleOracleImplementation(_appsettings);
+
+
+//Necessário em casos em que os arquivos do SE não ficam no banco de dados
+IFileDownload _downloader = new ExampleFileDownloadImplementation(appsettings);
+
+
+//Criar instancia da API para utilizar na injeção de dependecias. Necessário informar a URL completa do SE e o header Authorization ou todos os headers.
+//Se o parâmetro 'db' não for passado, algumas funções não serão corretamente executadas
+SoftExpert.Configurations configs = new Configurations(){
+
+	baseUrl = "https://se.dominio.com.br",
+	
+	login = "usuario para login",
+	pass = "senha do usuario",
+	domain = "dominio em caso de sincronização com o AD. Senao, não preencher",
+	token = "SEU TOKEN GERADO NO SEU PERFIL DE USUARIO" //passar em caso de não passar login e senha. Se passado o token, login e senha serão ignorados
+
+	//OPCIONAIS
+	db = _db,                 //Necessário para funções que acessam o banco de dados. Implementar a interface SoftExpert.IDataBase
+	downloader = _downloader, //Necessário para caso os arquivos do SE fiquem em um diretório controlado. Implementar a interface SoftExpert.IFileDownload
+};
+wfAPI = new SoftExpertWorkflowApi(configs);
 ```  
 
 
 ### Crie uma instancia da API do módulo de Administração COM acesso a banco de dados (necessário para muitas funcionalidades)
-Necessário para as funções: `listAttachmentFromInstance`<br>
-Necessário a implementação de um banco de dados (IDatabase). Ver exemplo de implementação no arquivo `Examples/ExampleOracleImplement.cs`. Podem ser implementados outros bancos de dados, desde que estes implementem a interface `IDatabase`.  
-Esta biblioteca foi testada apenas no banco de dados Oracle, utilizando a implmentação  do arquivo `Examples/ExampleOracleImplement.cs`, mas implementando a interface `IDatabase` você pode obter trabalhar normalmente.  
 
 ```C#
-string authorization = "Basic base64encode(DOMINIO\USUARIO:SENHA)"; //deve ser codificado em base64
-string url = "https://se.dominio.com.br";
-
-ExampleOracleImplement oracle = new ExampleOracleImplement(appsettings);
-SoftExpertAdminApi adminAPI = new SoftExpertAdminApi(url, authorization, db: oracle);
+SoftExpertAdminApi adminAPI = new SoftExpertAdminApi(configs);
 ```  
 
 ### Usando a API - Criando uma instancia de workflow  
@@ -81,40 +100,40 @@ catch (Exception erro)
 
 ## Demais exemplos
 Há mais exemplos nos arquivos [Examples/WorkflowExamples.cs](Examples/WorkflowExamples.cs) e no [Examples/AdminExamples.cs](Examples/AdminExamples.cs).  
-Não se esquece de que se precisar de acesso ao banco de dados, implemente a interface `IDatabase` como no exemplo [Examples/ExampleOracleImplementation.cs](Examples/ExampleOracleImplementation.cs)
+Não se esquece de que se precisar de acesso ao banco de dados, implemente a interface `SoftExpert.IDataBase` como no exemplo em [Examples/ExampleOracleImplementation.cs](Examples/ExampleOracleImplementation.cs).  
+Em caso dos arquivos de formulário, documentos e anexos não estiverem no banco de dados, será necessário implementar a interface `SoftExpert.IFileDownload` como no exemplo em [Examples/ExampleFileDownloadImplementation.cs](Examples/ExampleFileDownloadImplementation.cs).
 
 
 ## Funções do módulo de Workflow
- - **NewWorkflow** - Criar uma nova instância de um processo
- - **CancelWorkflow** - Cancelar uma instância
- - **ChangeWorflowTitle** ¹ - Alterar o título de uma instância
- - **ExecuteActivity** - Executar uma atividade
 
- - **NewAttachment** - Anexar um novo arquivo no menu de anexos do lado esquerdo
- - **listAttachmentFromInstance** *¹ - Listar os arquivos de uma instância 
+| Função                         | Banco de dados | Objetivo                                                  |
+| ------------------------------ | -------------- | --------------------------------------------------------- |
+| **NewWorkflow**                |                | Criar uma nova instância de um processo                   |
+| **CancelWorkflow**             |                | Cancelar uma instância                                    |
+| **ChangeWorflowTitle**         | X              | Alterar o título de uma instância                         |
+| **ExecuteActivity**            |                | Executar uma atividade                                    |
+| **NewAttachment**              |                | Anexar um novo arquivo no menu de anexos do lado esquerdo |
+| **listAttachmentFromInstance** | X              | Listar os arquivos de uma instância                       |
+| **EditEntityRecord**           |                | Editar os campos de um formulário                         |
+| **getFormData**                | X              | Obter os dados (campos e valores) de um formulário        |
+| **getFormSelectBox**           | X              | Obter o valor de um selectbox de um formulário            |
+| **getWorkFlowData**            | X              |                                                           |
+| **GetFileFromOID**             | X              | Obter um arquivo de um formlário                          |
+| **GetFileFromFormField**       | X              |                                                           |
+| **NewChildEntityRecord**       |                | Criar um registro de uma grid                             |
+| **EditChildEntityRecord**      |                | Editar um registro de uma grid                            |
+| **ListGridItems**              | X              | Listar os registros de uma grid do menu do lado esquerdo  |
+|                                |                |                                                           |
+|                                |                |                                                           |
 
- - **EditEntityRecord** - Editar os campos de um formulário
- - **getFormData** ¹ - Obter os dados (campos e valores) de um formulário
-
- - **getFormSelectBox** *¹ - Obter o valor de um selectbox de um formulário
- - **getWorkFlowData** *¹ - 
- - **GetFileFromOID** *¹ - Onter um arquivo de um formlário
- - **GetFileFromFormField** *¹ - 
-
- - **NewChildEntityRecord** - Criar um registro de uma grid
- - **EditChildEntityRecord** - Editar um registro de uma grid
- - **ListGridItems** ¹ - Listar os registros de uma grid
-do menu do lado esquerdo
-
+ 
 Obs.:  
-( * ) - Itens já foram implementados mas ainda não possuem exemplos.  
-( ¹ ) - Itens necessitam de acesso a banco de dados, então precisarão da implementação da interface `IDatabase`.
+**Coluna Banco de dados** - Itens necessitam de acesso a banco de dados, então precisarão da implementação da interface `IDatabase`.
 
 
 ## Funções do módulo de Administração
- - **enableUser** ¹ - Ativar um usuário
- - **disableUser** ¹ - Desativar um usuário
 
-Obs.:  
-( * ) - Itens já foram implementados mas ainda não possuem exemplos.  
-( ¹ ) - Itens necessitam de acesso a banco de dados, então precisarão da implementação da interface `IDatabase`.
+| Função          | Banco de dados | Objetivo             |
+| --------------- | -------------- | -------------------- |
+| **enableUser**  | X              | Ativar um usuário    |
+| **disableUser** | X              | Desativar um usuário |

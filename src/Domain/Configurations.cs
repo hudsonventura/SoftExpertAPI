@@ -13,9 +13,9 @@ public class Configurations
     public string baseUrl { get; set; } = string.Empty;
     public string login { get; set; } = string.Empty;
     public string pass { get; set; } = string.Empty;
-    public string domain { get; set; } = string.Empty;
+    public string domain { get; set; } = "SE Suite";
 
-    public string authorization { get; set; } = string.Empty;
+    public string token { get; set; } = string.Empty;
 
     public Dictionary<string, string> headers { get; set; } = new Dictionary<string, string>();
 

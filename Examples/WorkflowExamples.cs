@@ -27,6 +27,8 @@ class WorkflowExamples{
         //Necessário para algumas implementações fora do escopo da API padrão do SoftExpert.
         ExampleOracleImplementation _db = new ExampleOracleImplementation(_appsettings);
 
+
+        //Necessário em casos em que os arquivos do SE não ficam no banco de dados
         IFileDownload _downloader = new ExampleFileDownloadImplementation(appsettings);
 
 
@@ -36,10 +38,10 @@ class WorkflowExamples{
             baseUrl = _appsettings["url"].ToString(),
             db = _db,
             downloader = _downloader,
-            login = _appsettings["login"].ToString(),
+            login = _appsettings["user"].ToString(),
             pass = _appsettings["pass"].ToString(),
-            domain = _appsettings["domain"].ToString(),
-            authorization = _appsettings["authorization"].ToString()
+            //domain = _appsettings["domain"].ToString(),
+            //token = _appsettings["authorization"].ToString()
         };
         wfAPI = new SoftExpertWorkflowApi(configs);
         
