@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
@@ -841,12 +841,20 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         }
         catch (System.Exception error)
         {
-            throw new Exception("O campo FLDATA da tabela SEBLOB está vazio. O armazenamento de arquivos deve ser corrigido para diretório");
+            try
+            {
+                return getFileFromFormFieldDirectory(WorkflowID, MainEntityID, FormField);
+            }
+            catch (System.Exception erro)
+            {
+                string msg = (erro.InnerException == null) ? error.Message : erro.InnerException.Message;
+                throw new SoftExpertException($"Houve um erro no download do arquivo {msg}");
+            }
         }
         
     }
 
-    public Anexo getFileFromFormFieldDirectory(string WorkflowID, string MainEntityID, string FormField)
+    private Anexo getFileFromFormFieldDirectory(string WorkflowID, string MainEntityID, string FormField)
     {
         require("IFileDownloader", downloader);
 
