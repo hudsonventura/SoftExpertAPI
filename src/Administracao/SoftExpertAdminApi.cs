@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 
-namespace SoftExpert.Admin;
+namespace SoftExpertAPI.Admin;
 
 public class SoftExpertAdminApi : SoftExpertBaseAPI
 {

@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
+using SoftExpertAPI;
 using System.Data;
 
 namespace Examples;
 
-public class ExampleOracleImplementation : SoftExpert.IDataBase
+public class ExampleOracleImplementation : IDataBase
 {
     private readonly string dbConnection;
     

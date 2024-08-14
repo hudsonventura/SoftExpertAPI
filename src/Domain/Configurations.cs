@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace SoftExpert;
+namespace SoftExpertAPI;
 
 public class Configurations
 {
@@ -20,13 +20,4 @@ public class Configurations
     public Dictionary<string, string> headers { get; set; } = new Dictionary<string, string>();
 
 
-    public StorageFiles storage { get; private set; } = StorageFiles.Database;
-
-
-
-    public enum StorageFiles
-    {
-        Database = 1,
-        Directory = 2
-    }
 }

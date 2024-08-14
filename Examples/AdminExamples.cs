@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
-using SoftExpert;
-using SoftExpert.Admin;
+using SoftExpertAPI;
+using SoftExpertAPI.Admin;
 
 namespace Examples;
 
@@ -20,9 +20,9 @@ public class AdminExamples
         string url = _appsettings["url"].ToString();
         string authorization = _appsettings["authorization"].ToString();
 
-        ExampleOracleImplementation oracle = new ExampleOracleImplementation(_appsettings);
+        IDataBase oracle = new ExampleOracleImplementation(_appsettings);
 
-        SoftExpert.Configurations configs = new Configurations(){
+        Configurations configs = new Configurations(){
             baseUrl = url,
             db = oracle,
             headers = new Dictionary<string, string>(){{"Authorization", ""}}

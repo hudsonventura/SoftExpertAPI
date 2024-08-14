@@ -8,7 +8,7 @@ using Domain;
 using Newtonsoft.Json;
 
 
-namespace SoftExpert.Workflow;
+namespace SoftExpertAPI.Workflow;
 
 public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 {

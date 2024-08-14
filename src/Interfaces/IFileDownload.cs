@@ -1,7 +1,4 @@
-using System;
-using SoftExpert;
-
-namespace SoftExpert;
+namespace SoftExpertAPI;
 
 public interface IFileDownload
 {

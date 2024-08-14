@@ -15,7 +15,7 @@ Documentação original nova versão: https://developer.softexpert.com/docs/data
 
 Meu email. `hudsonventura@outlook.com`  
 
-### Obs.: Testado no SoftExpert 2.1.9.x e Oracle
+### Obs.: Testado no SoftExpert 2.1.9.x e 2.2.1.x com bando de dados Oracle
 
 Há exemplos funcionais no diretório `Examples`  
 
@@ -40,7 +40,6 @@ using SoftExpert;
 using SoftExpert.Workflow; 
 
 string authorization = "Basic base64encode(DOMINIO\USUARIO:SENHA)"; //deve ser codificado em base64
-string url = ;
 
 //Implementação OPCIONAL de uma classe para acessar banco de dados. É necessário respeitar a interface SoftExpertAPI.Interfaces.IDataBase
 //Necessário para algumas implementações fora do escopo da API padrão do SoftExpert.

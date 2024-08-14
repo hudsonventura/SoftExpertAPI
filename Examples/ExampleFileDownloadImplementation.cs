@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Renci.SshNet;
-using SoftExpert;
+using SoftExpertAPI;
 
 namespace Examples;
 

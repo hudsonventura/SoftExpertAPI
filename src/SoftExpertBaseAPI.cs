@@ -6,13 +6,10 @@ using System.Text;
 using System.Text.Json;
 using System.Web;
 using System.Xml;
-using Domain;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SoftExpert;
-using static SoftExpert.Configurations;
 
-namespace SoftExpert;
+namespace SoftExpertAPI;
 
 public abstract class SoftExpertBaseAPI
 {
@@ -30,7 +27,6 @@ public abstract class SoftExpertBaseAPI
     public string pass { get; private set; } = string.Empty;
     public string domain { get; private set; } = string.Empty;
 
-    public StorageFiles storage { get; private set; }
 
 
     /// <summary>
@@ -80,7 +76,6 @@ public abstract class SoftExpertBaseAPI
         this.domain = configs.domain;
         SetUriModule();
 
-        this.storage = configs.storage;
     }
 
     /// <summary>
@@ -88,7 +83,7 @@ public abstract class SoftExpertBaseAPI
     /// </summary>
     /// <param name="url">URL completa do ambiente. Ex.: https://se.example.com.br</param>
     /// <param name="authorization">Basic no formato base64("dominio\usuario:senha") Ex.: Basic dmMgPyB1bSBjdXJpb3Nv</param>
-    public SoftExpertBaseAPI(string baseUrl, string authorization, SoftExpert.IDataBase db = null,string login = null, string pass = null, string domain = null)
+    public SoftExpertBaseAPI(string baseUrl, string authorization, SoftExpertAPI.IDataBase db = null,string login = null, string pass = null, string domain = null)
     {
         restClient = new HttpClient();
         restClient.BaseAddress = new Uri(baseUrl);

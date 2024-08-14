@@ -1,8 +1,8 @@
 using System.Text;
 using Examples;
 using Microsoft.Extensions.Configuration;
-using SoftExpert;
-using SoftExpert.Workflow;
+using SoftExpertAPI;
+using SoftExpertAPI.Workflow;
 
 //TODO: anexar arquivo no form
 //TODO: Criar a checagem de instancia de banco de dados em todas as funções que dela necessitarem.
@@ -34,7 +34,7 @@ class WorkflowExamples{
 
         //Criar instancia da API para utilizar na injeção de dependecias. Necessário informar a URL completa do SE e o header Authorization ou todos os headers.
         //Se o parâmetro 'db' não for passado, algumas funções não serão corretamente executadas
-        SoftExpert.Configurations configs = new Configurations(){
+        Configurations configs = new Configurations(){
             baseUrl = _appsettings["url"].ToString(),
             db = _db,
             downloader = _downloader,
@@ -389,7 +389,7 @@ class WorkflowExamples{
 
             wfAPI.editEntityRecord(WorkflowID, EntityID, formulario, relacionamentos, arquivos);
         }
-        catch (SoftExpert.SoftExpertException erro)
+        catch (SoftExpertException erro)
         {
             throw;
         }
