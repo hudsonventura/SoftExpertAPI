@@ -39,8 +39,6 @@ using SoftExpertAPI.Admin;     //para o módulo de Administração
 using SoftExpertAPI;
 using SoftExpertAPI.Workflow; 
 
-string authorization = "Basic base64encode(DOMINIO\USUARIO:SENHA)"; //deve ser codificado em base64
-
 //Implementação OPCIONAL de uma classe para acessar banco de dados. É necessário respeitar a interface SoftExpertAPI.Interfaces.IDataBase
 //Necessário para algumas implementações fora do escopo da API padrão do SoftExpert.
 ExampleOracleImplementation _db = new ExampleOracleImplementation(_appsettings);
@@ -133,7 +131,7 @@ Em caso dos arquivos de formulário, documentos e anexos não estiverem no banco
 | **GetWorflowStatus**           |       ❌        |                      |    ❌    |                                                                                    |
 | **GetActualActivities**        |       ❌        |                      |    ❌    | Este método tráz a lista de atividades habilitadas de uma instancia                |
 
-Obs. Exemplos no arquivo `Examples/WorkflowExamples.cs`.  
+Obs. Exemplos no arquivo  [Examples/WorkflowExamples.cs](Examples/WorkflowExamples.cs).  
 
 ## Funções do módulo de Administração
 
@@ -142,19 +140,12 @@ Obs. Exemplos no arquivo `Examples/WorkflowExamples.cs`.
 | **enableUser**  |       ❌        |                      |    ✔    | Ativar um usuário    |
 | **disableUser** |       ❌        |                      |    ✔    | Desativar um usuário |
 
-Obs. Exemplos no arquivo `Examples/AdminExamples.cs`.  
+Obs. Exemplos no arquivo [Examples/AdminExamples.cs](Examples/AdminExamples.cs).  
 
 
 Obs. Gerais:  
-Funções iniciadas com letra minúscula como `newWorkflow`, são apenas uma tradução para alguma API original do SE.
-Funções iniciadas com letra maiúscula como `AddHistoryComment`, possuem desenvolvimento próprio e/ou não usam apenas alguma API original do SE.
-❌ **Coluna Banco de dados** - Itens necessitam de acesso a banco de dados, então precisarão da implementação da interface `IDatabase`.
-❌ **Coluna Diretório Controlado** - Itens que caso você possua arquivos de formulário, anexo e documento em um diretório controlado, então precisarão da implementação da interface `IFileDownloader`.
-✔ **Coluna Exemplo** - Itens que já possuem exemplo implementado. Veja no diretório `Examples`.
-
-
-
-Para buildar a lib
-``` bash
-dotnet pack --configuration Debug
-```
+Funções iniciadas com letra minúscula como `newWorkflow`, são apenas uma tradução para alguma API original do SE.  
+Funções iniciadas com letra maiúscula como `AddHistoryComment`, possuem desenvolvimento próprio e/ou não usam apenas alguma API original do SE.  
+❌ **Coluna Banco de dados** - Itens necessitam de acesso a banco de dados, então precisarão da implementação da interface `IDatabase`.  
+❌ **Coluna Diretório Controlado** - Itens que caso você possua arquivos de formulário, anexo e documento em um diretório controlado, então precisarão da implementação da interface `IFileDownloader`.  
+✔ **Coluna Exemplo** - Itens que já possuem exemplo implementado. Veja no diretório `Examples`.  
