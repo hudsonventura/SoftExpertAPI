@@ -181,7 +181,7 @@ class WorkflowExamples{
 
         try
         {
-            int number_rows_affected = wfAPI.setAttachmentSynced(cdattachment);
+            int number_rows_affected = wfAPI.SetAttachmentSynced(cdattachment);
         }
         catch (SoftExpertException erro)
         {
@@ -217,7 +217,7 @@ class WorkflowExamples{
         var title = "Título de testes";
         try
         {
-            wfAPI.changeWorflowTitle(WorkflowID, title);
+            wfAPI.ChangeWorflowTitle(WorkflowID, title);
         }
         catch (SoftExpertException erro)
         {
@@ -234,7 +234,7 @@ class WorkflowExamples{
 
         try
         {
-            var anexos =  wfAPI.listAttachmentFromInstance(WorkflowID);
+            var anexos =  wfAPI.ListAttachmentFromInstance(WorkflowID);
         }
         catch (SoftExpertException erro)
         {
@@ -255,7 +255,7 @@ class WorkflowExamples{
 
         try
         {
-            var anexo =  wfAPI.getFileFromFormField(WorkflowID, EntityID, FormField);
+            var anexo =  wfAPI.GetFileFromFormField(WorkflowID, EntityID, FormField);
         }
         catch (SoftExpertException erro)
         {
@@ -273,7 +273,7 @@ class WorkflowExamples{
 
         try
         {
-            var anexo =  wfAPI.getFileFromOID(oid);
+            var anexo =  wfAPI.GetFileFromOID(oid);
         }
         catch (SoftExpertException erro)
         {
@@ -292,7 +292,7 @@ class WorkflowExamples{
 
         try
         {
-            var form =  wfAPI.getFormData(WorkflowID, EntityID);
+            var form =  wfAPI.GetFormData(WorkflowID, EntityID);
         }
         catch (SoftExpertException erro)
         {
@@ -315,7 +315,7 @@ class WorkflowExamples{
 
         try
         {
-            List<dynamic> itens_grid =  wfAPI.listGridItems(WorkflowID, MainEntityID, ChildEntityID, ChildOID);
+            List<dynamic> itens_grid =  wfAPI.ListGridItems(WorkflowID, MainEntityID, ChildEntityID, ChildOID);
         }
         catch (SoftExpertException erro)
         {
