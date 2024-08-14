@@ -298,6 +298,14 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         SendRequestSOAP("executeActivity", body, "/apigateway/se/ws/in_ws.php");
     }
 
+
+
+
+
+
+
+
+
     /// <summary>
     /// Este método anexa um arquivo no menu de anexo do lado esquerdo de uma instancia
     /// </summary>
@@ -401,7 +409,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns>Lista de objetos da classe Anexo, contendo nome do arquivo, cdfile e conteúdo em byte[]</returns>
     /// <exception cref="SoftExpertException"></exception>
     /// <exception cref="Exception"></exception>
-    public List<Anexo> listAttachmentFromInstance(string WorkflowID, string ActivityID = "") {
+    public List<Anexo> ListAttachmentFromInstance(string WorkflowID, string ActivityID = "") {
         require("IDataBase", db);
 
         //BUG: ao passa uma atividade para a função listAttachmentFromInstance, o SQL não traz resultados. Usar sem informar a atividade.
@@ -485,6 +493,9 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
 
+
+
+
     /// <summary>
     /// Traz todos os itens de uma grid de uma dada instancia
     /// </summary>
@@ -493,7 +504,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="ChildEntityID">ID da entidade/tabela da grid</param>
     /// <param name="ChildOID">OID da grid. Pode ser obtida ao inspecionar uma grid dentro do formulário principal. Formato: OIDFBCX6LIPRTHT4H2</param>
     /// <returns></returns>
-    public List<dynamic> listGridItems(string WorkflowID, string MainEntityID, string ChildEntityID, string ChildOID) {
+    public List<dynamic> ListGridItems(string WorkflowID, string MainEntityID, string ChildEntityID, string ChildOID) {
         require("IDataBase", db);
 
         string sql = $@"SELECT grid.*
@@ -541,7 +552,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// </summary>
     /// <param name="anexo"></param>
     /// <returns></returns>
-    public int setAttachmentSynced(int cdAttachment)
+    public int SetAttachmentSynced(int cdAttachment)
     {
         require("IDataBase", db);
 
@@ -566,7 +577,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="WorkflowID"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public dynamic getWorkFlowData(string WorkflowID)
+    public dynamic GetWorkFlowData(string WorkflowID)
     {
         require("IDataBase", db);
 
@@ -616,7 +627,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="EntityID"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public dynamic getFormData(string WorkflowID, string EntityID)
+    public dynamic GetFormData(string WorkflowID, string EntityID)
     {
         require("IDataBase", db);
 
@@ -661,7 +672,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="EntityID"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public dynamic getFormSelectBox(string oid, string EntityID)
+    public dynamic GetFormSelectBox(string oid, string EntityID)
     {
         require("IDataBase", db);
 
@@ -688,7 +699,16 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     }
 
 
-    public Anexo getFileFromOID(string oid){
+
+
+
+    /// <summary>
+    /// Obter um arquivo de um OID obtível de um campo de anexo do formulário
+    /// </summary>
+    /// <param name="oid"></param>
+    /// <returns></returns>
+    /// <exception cref="SoftExpertException"></exception>
+    public Anexo GetFileFromOID(string oid){
         require("IDataBase", db);
 
         string sql = $@"select EFFILE.CDFILE, seblob.FLDATA, --possui o blod
@@ -760,7 +780,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="WorkflowID"></param>
     /// <param name="ActivityID"></param>
     /// <returns></returns>
-    public int markActivityAsExecuted(string WorkflowID, string ActivityID)
+    public int MarkActivityAsExecuted(string WorkflowID, string ActivityID)
     {
         require("IDataBase", db);
 
@@ -865,7 +885,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="MainEntityID"></param>
     /// <param name="FormField"></param>
     /// <returns></returns>
-    public Anexo getFileFromFormField(string WorkflowID, string MainEntityID, string FormField)
+    public Anexo GetFileFromFormField(string WorkflowID, string MainEntityID, string FormField)
     {
         DataTable list = getFileFromFormField_DetermineOrigin(WorkflowID, MainEntityID, FormField);
 
@@ -940,8 +960,13 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
 
-
-    public int changeWorflowTitle(string workflowID, string title)
+    /// <summary>
+    /// Alterar o título de uma instância de processo
+    /// </summary>
+    /// <param name="workflowID"></param>
+    /// <param name="title"></param>
+    /// <returns></returns>
+    public int ChangeWorflowTitle(string workflowID, string title)
     {
         require("IDataBase", db);
 
@@ -955,13 +980,16 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     }
 
 
-    //TODO: Documentar e escrever testes sobre getWorflowStatus
+
+
+
+
     /// <summary>
     /// Este método verifica o Status de uma instância
     /// </summary>
     /// <param name="workflowID"></param>
     /// <returns>WFStatus</returns>
-    public WFStatus getWorflowStatus(string WorkflowID){
+    public WFStatus GetWorflowStatus(string WorkflowID){
         require("IDataBase", db);
 
         string sql = $@"SELECT fgstatus
@@ -991,13 +1019,17 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     }
 
 
-    //TODO: Documentar e escrever testes sobre getWorflowActualActivities
+
+
+
+
+
     /// <summary>
-    /// Este método verifica a lista de atividades habilitadas de uma instancia
+    /// Este método tráz a lista de atividades habilitadas de uma instancia
     /// </summary>
     /// <param name="workflowID"></param>
     /// <returns>List<string></returns>
-    public List<string> getActualActivities(string WorkflowID){
+    public List<string> GetActualActivities(string WorkflowID){
         require("IDataBase", db);
         
         string sql = $@"SELECT a.idstruct
@@ -1022,6 +1054,10 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                .ToList();
 
     }
+
+
+
+
 
     /// <summary>
     /// Cancela um fluxo de workflow, incidente ou problema
@@ -1112,6 +1148,11 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
 
+
+
+
+
+
     /// <summary>
     /// Adiciona um comentário no histório de uma instancia de WorkFlow
     /// </summary>
@@ -1145,6 +1186,14 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     }
 
     
+
+
+
+    /// <summary>
+    /// Desassocia uma atividade de um usuário e devolve para o papel funcional ou equipe
+    /// </summary>
+    /// <param name="workflowID"></param>
+    /// <param name="ActivityID"></param>
     public void unlinkActivityFromUser(string workflowID, string ActivityID)
     {
         string body = $@"
@@ -1163,6 +1212,15 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
 
+
+
+    /// <summary>
+    /// Reativa uma instância de processo
+    /// </summary>
+    /// <param name="workflowID"></param>
+    /// <param name="ActivityID"></param>
+    /// <param name="explanation"></param>
+    /// <param name="userID"></param>
     public void reactivateWorkflow(string workflowID, string ActivityID, string explanation, string userID)
     {
         try
@@ -1245,6 +1303,17 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     }   
 
 
+
+
+
+
+    /// <summary>
+    /// Retorna uma instância de processo para uma atividade específica
+    /// </summary>
+    /// <param name="workflowID"></param>
+    /// <param name="ActivityID"></param>
+    /// <param name="explanation"></param>
+    /// <param name="userID"></param>
     public void returnWorkflow(string workflowID, string ActivityID, string explanation, string userID)
     {
         try
@@ -1295,6 +1364,18 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     } 
 
 
+
+
+
+
+
+    /// <summary>
+    /// Delega uma atividade
+    /// </summary>
+    /// <param name="workflowID"></param>
+    /// <param name="ActivityID"></param>
+    /// <param name="explanation"></param>
+    /// <param name="userID"></param>
     public void delegateWorkflow(string workflowID, string ActivityID, string explanation, string userID)
     {
         try

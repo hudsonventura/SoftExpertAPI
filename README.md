@@ -27,17 +27,17 @@ dotnet add package SoftExpertAPI
 
 ### Importe os namespaces ...
 ```C#
-using SoftExpert;
-using SoftExpert.Workflow;  //para o módulo de Workflow
-using SoftExpert.Admin;     //para o módulo de Administração
+using SoftExpertAPI;
+using SoftExpertAPI.Workflow;  //para o módulo de Workflow
+using SoftExpertAPI.Admin;     //para o módulo de Administração
 ```  
 
 
 ### Crie uma instancia da API do módulo de Workflow
 
 ```C#
-using SoftExpert;
-using SoftExpert.Workflow; 
+using SoftExpertAPI;
+using SoftExpertAPI.Workflow; 
 
 string authorization = "Basic base64encode(DOMINIO\USUARIO:SENHA)"; //deve ser codificado em base64
 
@@ -52,7 +52,7 @@ IFileDownload _downloader = new ExampleFileDownloadImplementation(appsettings);
 
 //Criar instancia da API para utilizar na injeção de dependecias. Necessário informar a URL completa do SE e o header Authorization ou todos os headers.
 //Se o parâmetro 'db' não for passado, algumas funções não serão corretamente executadas
-SoftExpert.Configurations configs = new Configurations(){
+SoftExpertAPI.Configurations configs = new Configurations(){
 
 	baseUrl = "https://se.dominio.com.br",
 	
@@ -105,33 +105,56 @@ Em caso dos arquivos de formulário, documentos e anexos não estiverem no banco
 
 ## Funções do módulo de Workflow
 
-| Função                         | Banco de dados | Diretório Controlado | Objetivo                                                  |
-| ------------------------------ | -------------- | -------------------- | --------------------------------------------------------- |
-| **NewWorkflow**                |                |                      | Criar uma instância de um processo                        |
-| **CancelWorkflow**             |                |                      | Cancelar uma instância                                    |
-| **ChangeWorflowTitle**         | ❌              |                      | Alterar o título de uma instância                         |
-| **ExecuteActivity**            |                |                      | Executar uma atividade                                    |
-| **NewAttachment**              |                |                      | Anexar um novo arquivo no menu de anexos do lado esquerdo |
-| **listAttachmentFromInstance** | ❌              | ❌                    | Listar os arquivos de uma instância                       |
-| **EditEntityRecord**           |                |                      | Editar os campos de um formulário                         |
-| **getFormData**                | ❌              |                      | Obter os dados (campos e valores) de um formulário        |
-| **getFormSelectBox**           | ❌              |                      | Obter o valor de um selectbox de um formulário            |
-| **getWorkFlowData**            | ❌              |                      | Obter os dados de uma instancia da tabela wfprocess       |
-| **GetFileFromOID**             | ❌              |                      | Obter um arquivo de um formlário                          |
-| **getFileFromFormField**       | ❌              | ❌                    | Obter um arquivo de um campo do formulário                |
-| **NewChildEntityRecord**       |                |                      | Criar um registro de uma grid                             |
-| **EditChildEntityRecord**      |                |                      | Editar um registro de uma grid                            |
-| **ListGridItems**              | ❌              |                      | Listar os registros de uma grid do menu do lado esquerdo  |
+| Função                         | Banco de dados | Diretório Controlado | Exemplo | Objetivo                                                                           |
+| ------------------------------ | :------------: | :------------------: | :-----: | ---------------------------------------------------------------------------------- |
+| **newWorkflow**                |                |                      |    ✔    | Criar uma instância de um processo                                                 |
+| **cancelWorkflow**             |                |                      |    ✔    | Cancelar uma instância                                                             |
+| **ChangeWorflowTitle**         |       ❌        |                      |    ✔    | Alterar o título de uma instância de processo                                      |
+| **executeActivity**            |                |                      |    ✔    | Executar uma atividade                                                             |
+| **newAttachment**              |                |                      |    ✔    | Anexar um novo arquivo no menu de anexos do lado esquerdo                          |
+| **ListAttachmentFromInstance** |       ❌        |          ❌           |    ✔    | Listar os arquivos de uma instância                                                |
+| **editEntityRecord**           |                |                      |    ✔    | Editar os campos de um formulário                                                  |
+| **GetFormData**                |       ❌        |                      |    ✔    | Obter os dados (campos e valores) de um formulário                                 |
+| **GetFormSelectBox**           |       ❌        |                      |    ❌    | Obter o valor de um selectbox de um formulário                                     |
+| **GetWorkFlowData**            |       ❌        |                      |    ❌    | Obter os dados de uma instancia da tabela wfprocess                                |
+| **GetFileFromOID**             |       ❌        |          ❌           |    ✔    | Obter um arquivo de um OID obtível de um campo de anexo do formulário              |
+| **GetFileFromFormField**       |       ❌        |          ❌           |    ✔    | Obter um arquivo de um campo do formulário                                         |
+| **newChildEntityRecord**       |                |                      |    ✔    | Criar um registro de uma grid                                                      |
+| **editChildEntityRecord**      |                |                      |    ✔    | Editar um registro de uma grid                                                     |
+| **ListGridItems**              |       ❌        |                      |    ✔    | Listar os registros de uma grid do menu do lado esquerdo                           |
+| **getFormSelectBox**           |                |                      |    ❌    |                                                                                    |
+| **getWorkFlowData**            |                |                      |    ❌    |                                                                                    |
+| **MarkActivityAsExecuted**     |                |                      |    ❌    | Marcar uma atividade como executada, mas não a executa de fato.                    |
+| **addHistoryComment**          |                |                      |    ✔    | Adiciona um comentário no histórico                                                |
+| **unlinkActivityFromUser**     |                |                      |    ✔    | Desassocia uma atividade de um usuário e devolve para o papel funcional ou equipe. |
+| **reactivateWorkflow**         |                |                      |    ✔    | Reativa uma instância de processo                                                  |
+| **returnWorkflow**             |                |                      |    ✔    | Retorna uma instância de processo para uma atividade específica                    |
+| **delegateWorkflow**           |                |                      |    ✔    | Delega uma atividade                                                               |
+| **GetWorflowStatus**           |       ❌        |                      |    ❌    |                                                                                    |
+| **GetActualActivities**        |       ❌        |                      |    ❌    | Este método tráz a lista de atividades habilitadas de uma instancia                |
 
-
- 
-Obs.:  
-**Coluna Banco de dados** - Itens necessitam de acesso a banco de dados, então precisarão da implementação da interface `IDatabase`.
-
+Obs. Exemplos no arquivo `Examples/WorkflowExamples.cs`.  
 
 ## Funções do módulo de Administração
 
-| Função          | Banco de dados | Objetivo             |
-| --------------- | -------------- | -------------------- |
-| **enableUser**  | ❌              | Ativar um usuário    |
-| **disableUser** | ❌              | Desativar um usuário |
+| Função          | Banco de dados | Diretório Controlado | Exemplo | Objetivo             |
+| --------------- | :------------: | :------------------: | :-----: | -------------------- |
+| **enableUser**  |       ❌        |                      |    ✔    | Ativar um usuário    |
+| **disableUser** |       ❌        |                      |    ✔    | Desativar um usuário |
+
+Obs. Exemplos no arquivo `Examples/AdminExamples.cs`.  
+
+
+Obs. Gerais:  
+Funções iniciadas com letra minúscula como `newWorkflow`, são apenas uma tradução para alguma API original do SE.
+Funções iniciadas com letra maiúscula como `AddHistoryComment`, possuem desenvolvimento próprio e/ou não usam apenas alguma API original do SE.
+❌ **Coluna Banco de dados** - Itens necessitam de acesso a banco de dados, então precisarão da implementação da interface `IDatabase`.
+❌ **Coluna Diretório Controlado** - Itens que caso você possua arquivos de formulário, anexo e documento em um diretório controlado, então precisarão da implementação da interface `IFileDownloader`.
+✔ **Coluna Exemplo** - Itens que já possuem exemplo implementado. Veja no diretório `Examples`.
+
+
+
+Para buildar a lib
+``` bash
+dotnet pack --configuration Debug
+```
