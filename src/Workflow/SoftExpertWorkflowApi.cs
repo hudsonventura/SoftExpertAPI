@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
@@ -691,11 +691,12 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     public Anexo getFileFromOID(string oid){
         require("IDataBase", db);
 
-        string sql = $@"select FLDATA, --possui o blod
-                            NMNAME, --nome e extensão do arquivo
-                            IDEXTENSION, --somente a extensão
-                            NRSIZE -- tamanho do arquivo em bytes
+        string sql = $@"select EFFILE.CDFILE, seblob.FLDATA, --possui o blod
+                            seblob.NMNAME, --nome e extensão do arquivo
+                            seblob.IDEXTENSION, --somente a extensão
+                            seblob.NRSIZE -- tamanho do arquivo em bytes
                             from {db_name}.seblob
+                            JOIN {db_name}.EFFILE ON SEBLOB.CDEFFILE = EFFILE.CDEFFILE
                             where oid = :OID";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
@@ -708,17 +709,47 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             throw new SoftExpertException($"O oid '{oid}' não foi encontrado na tabela 'SEBLOB'");
         }
 
+        try
+        {// metodo de armazenamento em banco de dados
         return list.AsEnumerable()
             .Select(row =>
             {
                 Anexo anexo = new Anexo();
-                
-                // Mapeamento dos campos para as propriedades da classe Anexo
+                anexo.cdfile = int.Parse(row["CDFILE"].ToString());
                 anexo.FileName = row["NMNAME"].ToString();
+                anexo.extension = row["IDEXTENSION"].ToString();
+
                 anexo.Content = (byte[])row["FLDATA"];
                 return anexo;
             })
             .FirstOrDefault();
+    }
+        catch (System.Exception)
+        {
+            //metodo de armazenamento em diretorio controlado
+            try
+            {
+                return list.AsEnumerable()
+            .Select(row =>
+            {
+                Anexo anexo = new Anexo();
+                anexo.cdfile = int.Parse(row["CDFILE"].ToString());
+                anexo.FileName = row["NMNAME"].ToString();
+                anexo.extension = row["IDEXTENSION"].ToString();
+                
+                anexo.Content = downloader.DownloadFileForm($"{anexo.cdfile.ToString($"D{8}")}.{anexo.extension}");
+                return anexo;
+            })
+            .FirstOrDefault();
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
+
+        
+        
     }
 
 
