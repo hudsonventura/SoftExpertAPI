@@ -166,10 +166,12 @@ class WorkflowExamples{
         string WorkflowID = "CQN202400096";
         string Comment = "Téste com acento barras / e especiais $%&¨  e 'aspas simples' e \"aspas duplas\"";
         string IDUser = "sistema.automatico";
+        int cduser = 88;
 
         try
         {
-            wfAPI.addHistoryComment(WorkflowID, Comment, IDUser);
+            //wfAPI.addHistoryComment(WorkflowID, Comment, IDUser);
+            wfAPI.addHistoryComment(WorkflowID, Comment, cduser);
         }
         catch (SoftExpertException erro)
         {
@@ -595,8 +597,10 @@ class WorkflowExamples{
             string WorkflowID = "PRO20240001";
             string Explanation = "Texto de justificativa";
             string UserID = "sistema.automatico";
+            int cduser = 99;
 
-            wfAPI.AlterUserStart(WorkflowID, Explanation, UserID, false);
+            //wfAPI.AlterUserStart(WorkflowID, Explanation, UserID, false);
+            wfAPI.AlterUserStart(WorkflowID, Explanation, cduser, false);
         }
         catch (SoftExpertException erro)
         {

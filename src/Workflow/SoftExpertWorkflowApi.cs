@@ -1151,14 +1151,23 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
 
-
+    /// <summary>
+    /// Adiciona um comentário no histório de uma instancia de WorkFlow
+    /// </summary>
+    /// <param name="workflowID">ID da instancia de workflow, incidente ou problema</param>
+    /// <param name="explanation">Justificativa</param>
+    /// <param name="cduser">Código do usuario </param>
+    public void addHistoryComment(string workflowID, string comment, int cduser){
+        ADUser user = GetUser(cduser);
+        addHistoryComment(workflowID, comment, user.iduser);
+    }
 
     /// <summary>
     /// Adiciona um comentário no histório de uma instancia de WorkFlow
     /// </summary>
     /// <param name="workflowID">ID da instancia de workflow, incidente ou problema</param>
     /// <param name="explanation">Justificativa</param>
-    /// <param name="userID">Matricula do usuario que está cancelando. Ele precisa ter permissão na segurança para cancelar</param>
+    /// <param name="userID">Matricula do usuario</param>
     public void addHistoryComment(string workflowID, string comment, string userID)
     {
         //TODO: Migrar addHistoryComment para API SOAP -> newComment
@@ -1452,11 +1461,36 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             var row = list.Rows[0];
             return ADUser.ConvertDataRowToADUser(row);
         }
-        else
-        {
-            throw new SoftExpertException($"O usuário de matricula '{userID}' não foi encontrado.");
-        }
+        throw new SoftExpertException($"O usuário de matricula '{userID}' não foi encontrado.");
     }
+
+    private ADUser GetUser(int cduser){
+        requireInterfaceImplementation("IDataBase", db);
+
+        string sql = $@"select *
+                            from {db_name}.ADUSER
+                            where cduser = :cduser";
+
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":cduser", cduser);
+
+
+        DataTable list = db.Query(sql, parametros);
+
+        if (list.Rows.Count > 0)
+        {
+            var row = list.Rows[0];
+            return ADUser.ConvertDataRowToADUser(row);
+        }
+        throw new SoftExpertException($"O usuário de código '{cduser}' não foi encontrado.");
+    }
+
+
+
+
+
+
+
 
     /// <summary>
     /// Altera o iniciador de uma instância de processo
@@ -1465,14 +1499,13 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="explanation">Texto de justificativa para ser inserido no histórico</param>
     /// <param name="userID">Matrícula do usuário de destino</param>
     /// <param name="rename">Booleano. true (padrao) altera o campo NMUSERSTART e do CDUSERSTART no banco. false realiza apenas a alteração do CDUSERSTART</param>
-    public void AlterUserStart(string workflowID, string explanation, string userID, bool rename = true)
-    {
+    public void AlterUserStart(string workflowID, string explanation, string userID, bool rename = true){
         requireInterfaceImplementation("IDataBase", db);
         ADUser user = GetUser(userID);
 
         string alterNMUser = string.Empty;
         if(rename){
-            alterNMUser = $"AND nmuserstart = '{user.nmuser}'";
+            alterNMUser = $", nmuserstart = '{user.nmuser}'";
         }
 
         string sql = @$"UPDATE {db_name}.WFPROCESS SET cduserstart = {user.cduser} {alterNMUser} WHERE IDPROCESS = :workflowID";
@@ -1488,6 +1521,21 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         }
         addHistoryComment(workflowID, $"Alteração do iniciador para {user.nmuser}. Justificativa: {explanation}", userID);
         return;
+    }
+
+
+    /// <summary>
+    /// Altera o iniciador de uma instância de processo
+    /// </summary>
+    /// <param name="workflowID">IDPROCES da intância do processo</param>
+    /// <param name="explanation">Texto de justificativa para ser inserido no histórico</param>
+    /// <param name="cduser">Código do usuario da tabela aduser</param>
+    /// <param name="rename">Booleano. true (padrao) altera o campo NMUSERSTART e do CDUSERSTART no banco. false realiza apenas a alteração do CDUSERSTART</param>
+    public void AlterUserStart(string workflowID, string explanation, int cduser, bool rename = true)
+    {
+        requireInterfaceImplementation("IDataBase", db);
+        ADUser user = GetUser(cduser);
+        AlterUserStart(workflowID, explanation, user.iduser, rename);
     }
 
     private void ValidateInstance(string workflowID, WFStatus fgstatus)
