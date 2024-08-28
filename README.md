@@ -32,7 +32,7 @@ using SoftExpertAPI.Workflow;  //para o módulo de Workflow
 using SoftExpertAPI.Admin;     //para o módulo de Administração
 ```  
 
-
+Link para a página do Nuget: [https://www.nuget.org/packages/SoftExpertAPI/](https://www.nuget.org/packages/SoftExpertAPI/)
 ### Crie uma instancia da API do módulo de Workflow
 
 ```C#
@@ -130,6 +130,7 @@ Em caso dos arquivos de formulário, documentos e anexos não estiverem no banco
 | **delegateWorkflow**           |                |                      |    ✔    | Delega uma atividade                                                               |
 | **GetWorflowStatus**           |       ❌        |                      |    ❌    |                                                                                    |
 | **GetActualActivities**        |       ❌        |                      |    ❌    | Este método tráz a lista de atividades habilitadas de uma instancia                |
+| AlterUserStart                 |       ❌        |                      |    ✔    | Altera o usuário iniciador de uma instância de processo.                           |
 
 Obs. Exemplos no arquivo  [Examples/WorkflowExamples.cs](Examples/WorkflowExamples.cs).  
 

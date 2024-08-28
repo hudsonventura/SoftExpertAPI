@@ -410,7 +410,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="SoftExpertException"></exception>
     /// <exception cref="Exception"></exception>
     public List<Anexo> ListAttachmentFromInstance(string WorkflowID, string ActivityID = "") {
-        require("IDataBase", db);
+        requireInterfaceImplementation("IDataBase", db);
 
         //BUG: ao passa uma atividade para a função listAttachmentFromInstance, o SQL não traz resultados. Usar sem informar a atividade.
 
@@ -505,7 +505,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="ChildOID">OID da grid. Pode ser obtida ao inspecionar uma grid dentro do formulário principal. Formato: OIDFBCX6LIPRTHT4H2</param>
     /// <returns></returns>
     public List<dynamic> ListGridItems(string WorkflowID, string MainEntityID, string ChildEntityID, string ChildOID) {
-        require("IDataBase", db);
+        requireInterfaceImplementation("IDataBase", db);
 
         string sql = $@"SELECT grid.*
                         FROM {db_name}.wfprocess p
@@ -554,7 +554,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns></returns>
     public int SetAttachmentSynced(int cdAttachment)
     {
-        require("IDataBase", db);
+        requireInterfaceImplementation("IDataBase", db);
 
         string sql = $@"UPDATE {db_name}.ADATTACHMENT SET NMUSERUPD  = NMUSERUPD||'-synced' WHERE CDATTACHMENT = :cdAttachment";
 
@@ -579,7 +579,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="Exception"></exception>
     public dynamic GetWorkFlowData(string WorkflowID)
     {
-        require("IDataBase", db);
+        requireInterfaceImplementation("IDataBase", db);
 
         string sql = $@"SELECT p.*
                         FROM {db_name}.wfprocess p
@@ -629,7 +629,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="Exception"></exception>
     public dynamic GetFormData(string WorkflowID, string EntityID)
     {
-        require("IDataBase", db);
+        requireInterfaceImplementation("IDataBase", db);
 
         string sql = $@"SELECT formulario.*
                         FROM {db_name}.wfprocess p
@@ -674,7 +674,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="Exception"></exception>
     public dynamic GetFormSelectBox(string oid, string EntityID)
     {
-        require("IDataBase", db);
+        requireInterfaceImplementation("IDataBase", db);
 
         string sql = $@"SELECT * FROM {db_name}.DYN{EntityID} WHERE FGENABLED = 1 AND oid = :oid";
 
@@ -709,7 +709,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns></returns>
     /// <exception cref="SoftExpertException"></exception>
     public Anexo GetFileFromOID(string oid){
-        require("IDataBase", db);
+        requireInterfaceImplementation("IDataBase", db);
 
         string sql = $@"select EFFILE.CDFILE, seblob.FLDATA, --possui o blod
                             seblob.NMNAME, --nome e extensão do arquivo
@@ -782,7 +782,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns></returns>
     public int MarkActivityAsExecuted(string WorkflowID, string ActivityID)
     {
-        require("IDataBase", db);
+        requireInterfaceImplementation("IDataBase", db);
 
         string sql = $@"UPDATE {db_name}.WFSTRUCT SET FGSTATUS = 3 WHERE IDOBJECT = 
                         (SELECT A.IDOBJECT FROM {db_name}.wfprocess p JOIN {db_name}.wfstruct a on a.idprocess = p.idobject WHERE p.idprocess = :WorkflowID AND IDSTRUCT = :ActivityID)";
@@ -847,7 +847,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
     private DataTable getFileFromFormField_DetermineOrigin(string WorkflowID, string MainEntityID, string FormField){
-        require("IDataBase", db);
+        requireInterfaceImplementation("IDataBase", db);
 
         string sql = $@"SELECT EFFILE.cdfile, SEBLOB.*
                             FROM {db_name}.wfprocess p
@@ -870,7 +870,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         return list;
     }
 
-    private void require(string type, dynamic obj)
+    private void requireInterfaceImplementation(string type, dynamic obj)
     {
         if(obj == null){
             throw new SoftExpertException($"Objeto do tipo {type} é nulo ou ausente, não foi implementado ou nao foi iniciado corretamente. Veja a documentação.");
@@ -921,7 +921,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
     private Anexo getFileFromFormFieldDirectory(string WorkflowID, string MainEntityID, string FormField)
     {
-        require("IFileDownloader", downloader);
+        requireInterfaceImplementation("IFileDownloader", downloader);
 
         DataTable list = getFileFromFormField_DetermineOrigin(WorkflowID, MainEntityID, FormField);
 
@@ -968,7 +968,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns></returns>
     public int ChangeWorflowTitle(string workflowID, string title)
     {
-        require("IDataBase", db);
+        requireInterfaceImplementation("IDataBase", db);
 
         string sql = $@"UPDATE {db_name}.WFPROCESS SET NMPROCESS = :title WHERE IDPROCESS= :workflowID";
 
@@ -990,7 +990,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="workflowID"></param>
     /// <returns>WFStatus</returns>
     public WFStatus GetWorflowStatus(string WorkflowID){
-        require("IDataBase", db);
+        requireInterfaceImplementation("IDataBase", db);
 
         string sql = $@"SELECT fgstatus
                             FROM {db_name}.wfprocess p
@@ -1030,7 +1030,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="workflowID"></param>
     /// <returns>List<string></returns>
     public List<string> GetActualActivities(string WorkflowID){
-        require("IDataBase", db);
+        requireInterfaceImplementation("IDataBase", db);
         
         string sql = $@"SELECT a.idstruct
                             FROM {db_name}.wfprocess p
@@ -1159,8 +1159,10 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="workflowID">ID da instancia de workflow, incidente ou problema</param>
     /// <param name="explanation">Justificativa</param>
     /// <param name="userID">Matricula do usuario que está cancelando. Ele precisa ter permissão na segurança para cancelar</param>
-    public void addHistoryComment(string workflowID, string comment, int cduser = 0)
+    public void addHistoryComment(string workflowID, string comment, string userID)
     {
+        //TODO: Migrar addHistoryComment para API SOAP -> newComment
+        ADUser user = GetUser(userID);
         string endpoint = "/apigateway/se/exp/chatbot/api/task/comment.php";
         try
         {
@@ -1169,8 +1171,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 {"cdProduct", 39},
                 {"text", comment.Replace("&", "e").Replace("#", "")},
             };
-            if(cduser > 0){
-                parametros.Add("cdUser", cduser);
+            if(user.cduser > 0){
+                parametros.Add("cdUser", user.cduser);
             }
             string query = string.Join("&", parametros.Select(p => $"{p.Key}={p.Value}"));
 
@@ -1223,6 +1225,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="userID"></param>
     public void reactivateWorkflow(string workflowID, string ActivityID, string explanation, string userID)
     {
+        //TODO: Migrar o reactivateWorkflow para a API SOAP
         try
         {
             var obj = GetIDObjectToManageInstance(workflowID, ActivityID);
@@ -1271,7 +1274,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
     private dynamic GetIDObjectToManageInstance(string workflowID, string ActivityID){
-        require("IDataBase", db);
+        requireInterfaceImplementation("IDataBase", db);
 
         string sql = $@"select p.idprocess, s.IDSTRUCT, s.NMSTRUCT, s.IDOBJECT as s_IDOBJECT, s.DTENABLED, NRORDER, p.IDOBJECT as p_IDOBJECT, P.FGSTATUS
                             from {db_name}.WFPROCESS p
@@ -1432,7 +1435,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
     private ADUser GetUser(string userID){
-        require("IDataBase", db);
+        requireInterfaceImplementation("IDataBase", db);
 
         string sql = $@"select *
                             from {db_name}.ADUSER
@@ -1453,6 +1456,68 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         {
             throw new SoftExpertException($"O usuário de matricula '{userID}' não foi encontrado.");
         }
+    }
+
+    /// <summary>
+    /// Altera o iniciador de uma instância de processo
+    /// </summary>
+    /// <param name="workflowID">IDPROCES da intância do processo</param>
+    /// <param name="explanation">Texto de justificativa para ser inserido no histórico</param>
+    /// <param name="userID">Matrícula do usuário de destino</param>
+    /// <param name="rename">Booleano. true (padrao) altera o campo NMUSERSTART e do CDUSERSTART no banco. false realiza apenas a alteração do CDUSERSTART</param>
+    public void AlterUserStart(string workflowID, string explanation, string userID, bool rename = true)
+    {
+        requireInterfaceImplementation("IDataBase", db);
+        ADUser user = GetUser(userID);
+
+        string alterNMUser = string.Empty;
+        if(rename){
+            alterNMUser = $"AND nmuserstart = '{user.nmuser}'";
+        }
+
+        string sql = @$"UPDATE {db_name}.WFPROCESS SET cduserstart = {user.cduser} {alterNMUser} WHERE IDPROCESS = :workflowID";
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":workflowID", workflowID);
+
+        //valida se a instancia existe e está em andamento
+        ValidateInstance(workflowID, WFStatus.Em_Andamento);
+
+        int affected = db.Execute(sql, parametros);
+        if(affected == 0){
+            throw new SoftExpertException("Era esperado a alteração de um registro no banco de dados, mas nenhum registro foi alterado");
+        }
+        addHistoryComment(workflowID, $"Alteração do iniciador para {user.nmuser}. Justificativa: {explanation}", userID);
+        return;
+    }
+
+    private void ValidateInstance(string workflowID, WFStatus fgstatus)
+    {
+        requireInterfaceImplementation("IDataBase", db);
+
+        string sql = $@"select *
+                            from {db_name}.WFPROCESS
+                            where idprocess = :workflowID";
+
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":workflowID", workflowID);
+
+
+        DataTable list = db.Query(sql, parametros);
+
+        if (list.Rows.Count == 0)
+        {
+            throw new SoftExpertException($"Nenhuma instância com o idprocess '{workflowID}' foi encontrada");
+        }
+
+        var row = list.Rows[0];
+        int got_fgstatus = int.Parse(row["FGSTATUS"].ToString());
+
+        if(got_fgstatus != (int)fgstatus){
+            throw new SoftExpertException($"A instância '{workflowID}' foi encontrada mas o status não é {fgstatus}");
+        }
+
+
+        return;
     }
 }
 

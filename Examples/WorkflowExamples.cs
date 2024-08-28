@@ -72,8 +72,11 @@ class WorkflowExamples{
         unlinkActivityFromUser,
         reactivateWorkflow,
         returnWorkflow,
-        delegateWorkflow
+        delegateWorkflow,
+        AlterUserStart
     }
+    // Funções iniciadas com letra minúscula como `newWorkflow`, são apenas uma tradução para alguma API original do SE.  
+    //Funções iniciadas com letra maiúscula como `AddHistoryComment`, possuem desenvolvimento próprio e/ou não usam apenas alguma API original do SE.  
 
     public void Execute(Teste tipo){
 
@@ -147,6 +150,9 @@ class WorkflowExamples{
             case Teste.delegateWorkflow: delegateWorkflow();
                 break;
 
+            case Teste.AlterUserStart: AlterUserStart();
+                break;
+
             default:
                 throw new Exception("Tipo ainda não implementado");
                 break;
@@ -159,11 +165,11 @@ class WorkflowExamples{
     {
         string WorkflowID = "CQN202400096";
         string Comment = "Téste com acento barras / e especiais $%&¨  e 'aspas simples' e \"aspas duplas\"";
-        int CdUser = 9;
+        string IDUser = "sistema.automatico";
 
         try
         {
-            wfAPI.addHistoryComment(WorkflowID, Comment);
+            wfAPI.addHistoryComment(WorkflowID, Comment, IDUser);
         }
         catch (SoftExpertException erro)
         {
@@ -570,6 +576,27 @@ class WorkflowExamples{
             string UserID = "MATRICULA";
 
             wfAPI.delegateWorkflow(WorkflowID, ActivityID, Explanation, UserID);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
+
+
+    private void AlterUserStart()
+    {
+        try
+        {
+            string WorkflowID = "PRO20240001";
+            string Explanation = "Texto de justificativa";
+            string UserID = "sistema.automatico";
+
+            wfAPI.AlterUserStart(WorkflowID, Explanation, UserID, false);
         }
         catch (SoftExpertException erro)
         {
