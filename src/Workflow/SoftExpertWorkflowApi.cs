@@ -1157,9 +1157,9 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="workflowID">ID da instancia de workflow, incidente ou problema</param>
     /// <param name="explanation">Justificativa</param>
     /// <param name="cduser">Código do usuario </param>
-    public void addHistoryComment(string workflowID, string comment, int cduser){
+    public void addHistoryComment(string workflowID, string comment, int cduser, string idactivity = null, bool is_private = false){
         ADUser user = GetUser(cduser);
-        addHistoryComment(workflowID, comment, user.iduser);
+        addHistoryComment(workflowID, comment, user.iduser, idactivity, is_private);
     }
 
     /// <summary>
@@ -1168,32 +1168,26 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="workflowID">ID da instancia de workflow, incidente ou problema</param>
     /// <param name="explanation">Justificativa</param>
     /// <param name="userID">Matricula do usuario</param>
-    public void addHistoryComment(string workflowID, string comment, string userID)
+    public void addHistoryComment(string workflowID, string comment, string userID, string idactivity = null, bool is_private = false)
     {
-        //TODO: Migrar addHistoryComment para API SOAP -> newComment
-        ADUser user = GetUser(userID);
-        string endpoint = "/apigateway/se/exp/chatbot/api/task/comment.php";
-        try
-        {
-            Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>(){
-                {"idInstance", workflowID},
-                {"cdProduct", 39},
-                {"text", comment.Replace("&", "e").Replace("#", "")},
-            };
-            if(user.cduser > 0){
-                parametros.Add("cdUser", user.cduser);
-            }
-            string query = string.Join("&", parametros.Select(p => $"{p.Key}={p.Value}"));
+        string activity = (idactivity == null) ? "" : $"<urn:ActivityID>{idactivity}</urn:ActivityID>";
 
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{endpoint}?{query}");
 
-            SendRequestRest(request);
-            return;
-        }
-        catch (System.Exception errorWF)
-        {
-            throw;
-        }
+        string body = $@"
+                        <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
+                        <soapenv:Header/>
+                        <soapenv:Body>
+                            <urn:newComment>
+                                <urn:WorkflowID>{workflowID}</urn:WorkflowID>
+                                {activity}
+                                <urn:Text>{comment.Replace("&", "e")}</urn:Text>
+                                <urn:Private>{((is_private) ? 1 : 0)}</urn:Private>
+                                <urn:UserID>{userID}</urn:UserID>
+                            </urn:newComment>
+                        </soapenv:Body>
+                        </soapenv:Envelope>";
+
+        SendRequestSOAP("newComment", body, "/apigateway/se/ws/wf_ws.php");
     }
 
     
