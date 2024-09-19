@@ -160,14 +160,14 @@ public abstract class SoftExpertBaseAPI
             var code = se_response.SelectToken("Code").ToString();
             if(status == "FAILURE"){
                 var error = new SoftExpertException(se_response.SelectToken("Detail").ToString(), int.Parse(code));
-                error.setXMLSoapReceived(body_response);
+                error.setResponseReceived(body_response);
                 throw error;
             }
             return se_response;
         }
         catch (SoftExpertException error)
         {
-            error.setXMLSoapSent(xmlbody);
+            error.setRequestSent(xmlbody);
             throw error;
         }
         catch (Exception)

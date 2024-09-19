@@ -1421,7 +1421,10 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
             string responseBody = response.Content.ReadAsStringAsync().Result;
             if(responseBody.Contains("softexpert/login")){
-                throw new Exception("Houve um problema ao retornar a instancia");
+                var error = new SoftExpertException("Houve um problema ao retornar a instancia");
+                error.setRequestSent(jsonBody);
+                error.setResponseReceived(responseBody);
+                throw error;
             }
 
             if(responseBody.Contains("Ocorreu um erro ao tentar processar informações")){
@@ -1504,10 +1507,10 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
         string sql = @$"UPDATE {db_name}.WFPROCESS SET cduserstart = {user.cduser} {alterNMUser} WHERE IDPROCESS = :workflowID";
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":workflowID", workflowID);
+        parametros.Add(":workflowID", workflowID.Trim());
 
         //valida se a instancia existe e está em andamento
-        ValidateInstance(workflowID, WFStatus.Em_Andamento);
+        ValidateInstance(workflowID.Trim(), WFStatus.Em_Andamento);
 
         int affected = db.Execute(sql, parametros);
         if(affected == 0){
@@ -1541,14 +1544,14 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                             where idprocess = :workflowID";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":workflowID", workflowID);
+        parametros.Add(":workflowID", workflowID.Trim());
 
 
         DataTable list = db.Query(sql, parametros);
 
         if (list.Rows.Count == 0)
         {
-            throw new SoftExpertException($"Nenhuma instância com o idprocess '{workflowID}' foi encontrada");
+            throw new SoftExpertException($"Nenhuma instância com o idprocess '{workflowID.Trim()}' foi encontrada");
         }
 
         var row = list.Rows[0];

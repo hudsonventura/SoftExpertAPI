@@ -7,9 +7,9 @@ public class SoftExpertException : Exception
     public new string Message { get; private set; }
     public new int Code { get; private set; }
     public SoftExpertResponse Response { get; private set; }
-    public new string XMLSoapSent { get; protected set; }
+    public new string RequestSent { get; protected set; }
 
-    public new string XMLSoapReceived { get; protected set; }
+    public new string ResponseReceived { get; protected set; }
     public SoftExpertException(string message, int code = 0, SoftExpertResponse RetornoSE = null) : base(message)
     {
         Message = message;
@@ -17,13 +17,13 @@ public class SoftExpertException : Exception
         Code = code;
     }
 
-    internal void setXMLSoapSent(string xml)
+    internal void setRequestSent(string xml)
     {
-        XMLSoapSent = xml;
+        RequestSent = xml;
     }
 
-    internal void setXMLSoapReceived(string xml)
+    internal void setResponseReceived(string xml)
     {
-        XMLSoapReceived = xml;
+        ResponseReceived = xml;
     }
 }
