@@ -716,7 +716,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                             seblob.IDEXTENSION, --somente a extensão
                             seblob.NRSIZE -- tamanho do arquivo em bytes
                             from {db_name}.seblob
-                            JOIN {db_name}.EFFILE ON SEBLOB.CDEFFILE = EFFILE.CDEFFILE
+                            LEFT JOIN {db_name}.EFFILE ON SEBLOB.CDEFFILE = EFFILE.CDEFFILE
                             where oid = :OID";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
@@ -1349,16 +1349,16 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
             HttpResponseMessage  response = restClient.SendAsync(request).Result;
             if(!response.IsSuccessStatusCode){
-                throw new Exception("Houve um problema ao reativar a instancia");
+                throw new SoftExpertException("Houve um problema ao reativar a instancia");
             }
 
             string responseBody = response.Content.ReadAsStringAsync().Result;
             if(responseBody.Contains("softexpert/login")){
-                throw new Exception("Houve um problema ao retornar a instancia");
+                throw new SoftExpertException("Houve um problema ao retornar a instancia");
             }
 
             if(responseBody.Contains("Ocorreu um erro ao tentar processar informações")){
-                throw new Exception("Houve um problema ao retornar a instancia");
+                throw new SoftExpertException("Houve um problema ao retornar a instancia");
             }
 
             return;
