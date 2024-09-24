@@ -735,7 +735,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             .Select(row =>
             {
                 Anexo anexo = new Anexo();
-                anexo.cdfile = int.Parse(row["CDFILE"].ToString());
+                anexo.cdfile = int.TryParse(row["CDFILE"].ToString(), out var tempValue) ? tempValue : 0;
                 anexo.FileName = row["NMNAME"].ToString();
                 anexo.extension = row["IDEXTENSION"].ToString();
 
