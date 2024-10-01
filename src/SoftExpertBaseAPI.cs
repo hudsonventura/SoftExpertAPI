@@ -38,7 +38,9 @@ public abstract class SoftExpertBaseAPI
     public SoftExpertBaseAPI(Configurations configs)
     {
         restClient = new HttpClient();
-        restClient.BaseAddress = new Uri(configs.baseUrl);
+        var uri = new Uri(configs.baseUrl);
+        restClient.BaseAddress = uri;
+        restClient.DefaultRequestHeaders.Add("Host", uri.Host);
 
         //headers e authorization
         if(configs.headers.Count() > 0){
