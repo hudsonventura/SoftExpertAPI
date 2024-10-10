@@ -1496,7 +1496,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="explanation">Texto de justificativa para ser inserido no histórico</param>
     /// <param name="userID">Matrícula do usuário de destino</param>
     /// <param name="rename">Booleano. true (padrao) altera o campo NMUSERSTART e do CDUSERSTART no banco. false realiza apenas a alteração do CDUSERSTART</param>
-    public void AlterUserStart(string workflowID, string explanation, string userID, bool rename = true){
+    /// <param name="requesterID">Matrícula do solicitante (opcional). Usado para referência no histórico</param>
+    public void AlterUserStart(string workflowID, string explanation, string userID, bool rename = true, string requesterID = null){
         requireInterfaceImplementation("IDataBase", db);
         ADUser user = GetUser(userID);
 
@@ -1516,7 +1517,13 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         if(affected == 0){
             throw new SoftExpertException("Era esperado a alteração de um registro no banco de dados, mas nenhum registro foi alterado");
         }
-        addHistoryComment(workflowID, $"Alteração do iniciador para {user.nmuser}. Justificativa: {explanation}", userID);
+
+        string comment = requesterID != null 
+        ? $"Alteração do iniciador de {requesterID} para {user.nmuser}. Justificativa: {explanation}"
+        : $"Alteração do iniciador para {user.nmuser}. Justificativa: {explanation}";
+
+        addHistoryComment(workflowID, comment, requesterID ?? userID);
+        
         return;
     }
 
@@ -1524,15 +1531,26 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <summary>
     /// Altera o iniciador de uma instância de processo
     /// </summary>
-    /// <param name="workflowID">IDPROCES da intância do processo</param>
-    /// <param name="explanation">Texto de justificativa para ser inserido no histórico</param>
-    /// <param name="cduser">Código do usuario da tabela aduser</param>
-    /// <param name="rename">Booleano. true (padrao) altera o campo NMUSERSTART e do CDUSERSTART no banco. false realiza apenas a alteração do CDUSERSTART</param>
-    public void AlterUserStart(string workflowID, string explanation, int cduser, bool rename = true)
+    /// <param name="workflowID">IDPROCESS da instância do processo</param>
+    /// <param name="explanation">Justificativa para o histórico</param>
+    /// <param name="cduser">Código do novo iniciador (ADUser)</param>
+    /// <param name="rename">Se true (padrão), altera NMUSERSTART e CDUSERSTART no banco. Caso contrário, altera apenas CDUSERSTART</param>
+    /// <param name="cduserFrom">Código do solicitante (opcional). 0 (padrão) não insere o nome do solicitante no histórico</param>
+    public void AlterUserStart(string workflowID, string explanation, int cduser, bool rename = true, int cduserFrom = 0)
     {
         requireInterfaceImplementation("IDataBase", db);
         ADUser user = GetUser(cduser);
-        AlterUserStart(workflowID, explanation, user.iduser, rename);
+
+        if (cduserFrom != 0)
+        {
+            ADUser userFrom = GetUser(cduserFrom);
+            AlterUserStart(workflowID, explanation, user.iduser, rename, userFrom.iduser);
+        }
+        else
+        {
+            AlterUserStart(workflowID, explanation, user.iduser, rename);
+        }
+
     }
 
     private void ValidateInstance(string workflowID, WFStatus fgstatus)
