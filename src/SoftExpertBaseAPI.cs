@@ -227,7 +227,7 @@ public abstract class SoftExpertBaseAPI
     static DateTime token_expires = DateTime.MinValue;
 
     protected string GetToken(){
-        if(token != null && DateTime.Now < token_expires.AddMinutes(-10)){
+        if(token != null && DateTime.Now < token_expires.AddMinutes(-5)){
             return token;
         }
 
@@ -296,8 +296,9 @@ public abstract class SoftExpertBaseAPI
                                         .FirstOrDefault()
                     .Split('=').Last();
 
-                var authExpireStr = plLine.Split(';')[2].Split(",")[1].Trim();
-                DateTime authExpire = DateTime.ParseExact(authExpireStr, "dd-MMM-yyyy HH:mm:ss 'GMT'", System.Globalization.CultureInfo.InvariantCulture);
+                //var authExpireStr = plLine.Split(';')[2].Split(",")[1].Trim();
+                //DateTime authExpire = DateTime.ParseExact(authExpireStr, "dd-MMM-yyyy HH:mm:ss 'GMT'", System.Globalization.CultureInfo.InvariantCulture);
+                DateTime authExpire = DateTime.Now.AddMinutes(60);
                     
                 Console.WriteLine($"Renewal token process has finished. Now: {DateTime.Now}, Token expires: {authExpire}");
 
