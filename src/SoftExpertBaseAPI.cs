@@ -224,10 +224,14 @@ public abstract class SoftExpertBaseAPI
 
 
     static string token = null;
+    static DateTime token_expires = DateTime.MinValue;
+
     protected string GetToken(){
-        if(token != null){
+        if(token != null && DateTime.Now < token_expires.AddMinutes(-10)){
             return token;
         }
+
+        Console.WriteLine($"Renewal token process has started. Now: {DateTime.Now}, Token expires: {token_expires}");
 
         if(this.login == null || this.pass == null || this.domain == null){
             throw new Exception("Adicione o login, pass e domain na injeção de dependendias do objeto SoftExpertWorkflowApi");
@@ -286,14 +290,21 @@ public abstract class SoftExpertBaseAPI
             IEnumerable<string> cookies;
             if (response.Headers.TryGetValues("Set-Cookie", out cookies))
             {
-                var authToken = cookies
-                    .Select(cookie => cookie.Split(';').FirstOrDefault(part => part.Trim().StartsWith("se-authentication-token=")))
-                    .FirstOrDefault(cookie => cookie != null)?
+                var plLine = cookies.FirstOrDefault(part => part.Trim().StartsWith("pl="));
+
+                var authToken = plLine.Split(';')
+                                        .FirstOrDefault()
                     .Split('=').Last();
+
+                var authExpireStr = plLine.Split(';')[2].Split(",")[1].Trim();
+                DateTime authExpire = DateTime.ParseExact(authExpireStr, "dd-MMM-yyyy HH:mm:ss 'GMT'", System.Globalization.CultureInfo.InvariantCulture);
+                    
+                Console.WriteLine($"Renewal token process has finished. Now: {DateTime.Now}, Token expires: {authExpire}");
 
                 if (authToken != null)
                 {
                     token = authToken;
+                    token_expires = authExpire;
                     return token;
                 }
                 else
