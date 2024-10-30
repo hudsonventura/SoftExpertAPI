@@ -228,6 +228,7 @@ public abstract class SoftExpertBaseAPI
 
     protected string GetToken(){
         if(token != null && DateTime.Now < token_expires.AddMinutes(-5)){
+            Console.WriteLine($"Token provided by cache. Expires: {token_expires}");
             return token;
         }
 
