@@ -223,13 +223,31 @@ public abstract class SoftExpertBaseAPI
 
 
 
-    static string token = null;
-    static DateTime token_expires = DateTime.MinValue;
+    protected string se_authentication_token { get; private set; } = null;
+    public string jwt_token { get; private set; } = null;
+    public DateTime token_expires { get; private set; } = DateTime.MinValue;
+
+
 
     protected string GetToken(){
-        if(token != null && DateTime.Now < token_expires.AddMinutes(-5)){
-            Console.WriteLine($"Token provided by cache. Expires: {token_expires}");
-            return token;
+
+        //primeiro valida o token sobre o tempo de expiração
+        if(se_authentication_token != null && DateTime.Now < token_expires.AddMinutes(-5)){
+            
+            //Realiza uma validação do token no backend do SE. Se não for válido, entao gera um novo token
+            HttpRequestMessage validation = new HttpRequestMessage(HttpMethod.Get, "/katana/chartengine/configuration");
+            validation.Headers.Add("Authorization", jwt_token);
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(restClient.BaseAddress.ToString());
+                HttpResponseMessage  response = client.SendAsync(validation).Result;
+                if(response.IsSuccessStatusCode ){
+                    return se_authentication_token; //o token atual ainda é valido em tempo de expiração e no backend do SE
+                }
+            }
+            /* Essa parte foi construída para casos do SE cair e o token ainda estar válido por tempo de expiração nesta API, mas não no backend do SE
+             */
+            
         }
 
         Console.WriteLine($"Renewal token process has started. Now: {DateTime.Now}, Token expires: {token_expires}");
@@ -260,10 +278,10 @@ public abstract class SoftExpertBaseAPI
                 {
                     language = 2,
                     hashGUID = (string)null,
-                    domain = this.domain,
+                    domain = "Amaggi Corporativo",
                     accessType = "DESKTOP",
-                    login = this.login,
-                    password = this.pass,
+                    login = "robo.serverino@amaggi.com.br",
+                    password = "SazV&BzkLZZ@fsr3$PN2PC",
                     externalUser = true,
                     logout = true
                 }
@@ -292,22 +310,26 @@ public abstract class SoftExpertBaseAPI
             if (response.Headers.TryGetValues("Set-Cookie", out cookies))
             {
                 var plLine = cookies.FirstOrDefault(part => part.Trim().StartsWith("pl="));
+                var ktLine = cookies.FirstOrDefault(part => part.Trim().StartsWith("kt="));
 
                 var authToken = plLine.Split(';')
                                         .FirstOrDefault()
-                    .Split('=').Last();
+                                        .Split('=').Last();
+                var jwt = ktLine.Split(';')
+                                        .FirstOrDefault()
+                                        .Split('=').Last();
 
                 //var authExpireStr = plLine.Split(';')[2].Split(",")[1].Trim();
-                //DateTime authExpire = DateTime.ParseExact(authExpireStr, "dd-MMM-yyyy HH:mm:ss 'GMT'", System.Globalization.CultureInfo.InvariantCulture);
-                DateTime authExpire = DateTime.Now.AddMinutes(60);
-                    
+                //DateTime teste = DateTime.ParseExact(authExpireStr, "dd-MMM-yyyy HH:mm:ss 'GMT'", System.Globalization.CultureInfo.InvariantCulture);
+                DateTime authExpire = DateTime.Now.AddMinutes(60); 
                 Console.WriteLine($"Renewal token process has finished. Now: {DateTime.Now}, Token expires: {authExpire}");
 
                 if (authToken != null)
                 {
-                    token = authToken;
+                    se_authentication_token = authToken;
                     token_expires = authExpire;
-                    return token;
+                    jwt_token = jwt;
+                    return se_authentication_token;
                 }
                 else
                 {
@@ -322,8 +344,5 @@ public abstract class SoftExpertBaseAPI
 
     }
 
-    private void RequestNewToken(){
-
-    }
 }
 

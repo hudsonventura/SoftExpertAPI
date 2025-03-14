@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Configuration;
-using SoftExpert;
+using SoftExpertAPI;
 using Examples;
 using System.Text;
 using Xunit.Abstractions;
@@ -10,7 +10,7 @@ public class Testes_Workflow
 {
     ITestOutputHelper console;
     IConfiguration _appsettings;
-    SoftExpert.Workflow.SoftExpertWorkflowApi _softExpertApi;
+    SoftExpertAPI.Workflow.SoftExpertWorkflowApi _softExpertApi;
 
     //parametros ficticios utilizados apenas para os testes
     string ProcessID = "CCF";
@@ -33,11 +33,18 @@ public class Testes_Workflow
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
 
-        ExampleOracleImplementation db = new ExampleOracleImplementation(_appsettings);
+        ExampleOracleImplementation _db = new ExampleOracleImplementation(_appsettings);
 
-        string baseURL = _appsettings["url"];
-        string authorization = _appsettings["Authorization"];
-        _softExpertApi = new SoftExpert.Workflow.SoftExpertWorkflowApi(baseURL, authorization, db);
+        SoftExpertAPI.Configurations configs = new Configurations(){
+            baseUrl = _appsettings["url"],
+            token = _appsettings["authorization"],
+
+            //OPCIONAIS
+            db = _db,                 //Necessário para funções que acessam o banco de dados. Implementar a interface SoftExpert.IDataBase
+            //downloader = _downloader, //Necessário para caso os arquivos do SE fiquem em um diretório controlado. Implementar a interface SoftExpert.IFileDownload
+        };
+
+        _softExpertApi = new SoftExpertAPI.Workflow.SoftExpertWorkflowApi(configs);
         console = output;
     }
 
@@ -67,7 +74,7 @@ public class Testes_Workflow
         {
             var a = _softExpertApi.newWorkflow("XPTOSSS", "Teste de unidade automatizado da biblioteca SoftExpertAPI");
         }
-        catch (SoftExpert.SoftExpertException)
+        catch (SoftExpertAPI.SoftExpertException)
         {
             Assert.True(1==1);
         }
@@ -159,7 +166,7 @@ public class Testes_Workflow
 
         try
         {
-            var anexo =  _softExpertApi.getFileFromFormField(WorkflowID, EntityID, FormField);
+            var anexo =  _softExpertApi.GetFileFromFormField(WorkflowID, EntityID, FormField);
 
             Assert.NotNull(anexo.FileName);
             Assert.NotNull(anexo.Content);
@@ -178,7 +185,7 @@ public class Testes_Workflow
     {
         try
         {
-            var anexo =  _softExpertApi.getFileFromOID(oidFile);
+            var anexo =  _softExpertApi.GetFileFromOID(oidFile);
 
             Assert.NotNull(anexo.FileName);
             Assert.NotNull(anexo.Content);
@@ -199,7 +206,7 @@ public class Testes_Workflow
 
         try
         {
-            var arquivos =  _softExpertApi.listAttachmentFromInstance(WorkflowID);
+            var arquivos =  _softExpertApi.ListAttachmentFromInstance(WorkflowID);
 
 
             Assert.NotNull(arquivos);
@@ -222,7 +229,7 @@ public class Testes_Workflow
 
         try
         {
-            var value =  _softExpertApi.changeWorflowTitle(WorkflowID, title);
+            var value =  _softExpertApi.ChangeWorflowTitle(WorkflowID, title);
 
 
             Assert.NotNull(value);
@@ -240,7 +247,7 @@ public class Testes_Workflow
     {
         int cdattachment = 2153826;
 
-        int number_rows_affected = _softExpertApi.setAttachmentSynced(cdattachment);
+        int number_rows_affected = _softExpertApi.SetAttachmentSynced(cdattachment);
 
         Assert.NotNull(number_rows_affected);
         Assert.IsType<int>(number_rows_affected);

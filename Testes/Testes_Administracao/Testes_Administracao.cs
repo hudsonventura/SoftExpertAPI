@@ -1,6 +1,7 @@
 using Xunit.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Examples;
+using SoftExpertAPI;
 
 namespace Testes_Administracao;
 
@@ -8,25 +9,31 @@ public class Testes_Administracao
 {
     ITestOutputHelper console;
 
-    SoftExpert.Admin.SoftExpertAdminApi api;
+    SoftExpertAPI.Admin.SoftExpertAdminApi api;
 
 
     public Testes_Administracao(ITestOutputHelper output){
         console = output;
 
 
-        var appsettings = new ConfigurationBuilder()
+        var _appsettings = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
 
-        string urlBase = appsettings["url"].ToString();
-        string authorization = appsettings["authorization"].ToString();
 
-        ExampleOracleImplementation db = new ExampleOracleImplementation(appsettings);
+        ExampleOracleImplementation _db = new ExampleOracleImplementation(_appsettings);
 
+        SoftExpertAPI.Configurations configs = new Configurations(){
+            baseUrl = _appsettings["url"],
+            token = _appsettings["authorization"],
 
-        api = new SoftExpert.Admin.SoftExpertAdminApi(urlBase, authorization, db);
+            //OPCIONAIS
+            db = _db,                 //Necessário para funções que acessam o banco de dados. Implementar a interface SoftExpert.IDataBase
+            //downloader = _downloader, //Necessário para caso os arquivos do SE fiquem em um diretório controlado. Implementar a interface SoftExpert.IFileDownload
+        };
+
+        api = new SoftExpertAPI.Admin.SoftExpertAdminApi(configs);
         
     }
 
@@ -41,7 +48,7 @@ public class Testes_Administracao
             api.disableUser("01234567891");
             Assert.True(1==1);
         }
-        catch (SoftExpert.SoftExpertException)
+        catch (SoftExpertAPI.SoftExpertException)
         {
             Assert.Fail("Erro na execução");
             throw;
@@ -56,7 +63,7 @@ public class Testes_Administracao
             api.enableUser("01234567891");
             Assert.True(1==1);
         }
-        catch (SoftExpert.SoftExpertException)
+        catch (SoftExpertAPI.SoftExpertException)
         {
             Assert.Fail("Erro na execução");
             throw;

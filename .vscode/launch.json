@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "dotnet: build",
-            "program": "${workspaceFolder}/Examples/bin/Debug/net6.0/Examples.dll",
+            "program": "${workspaceFolder}/Examples/bin/Debug/net8.0/Examples.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Examples/",
             "stopAtEntry": false,
