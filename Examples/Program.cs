@@ -22,7 +22,7 @@ switch (Args[1])
 		break;
 		
 	case "GenericExample":
-		GenericExample gen = new GenericExample(appsettings);
+		GenericExamples gen = new GenericExamples(appsettings);
 		gen.Execute();
 		break;
 

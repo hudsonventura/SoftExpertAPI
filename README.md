@@ -28,17 +28,12 @@ dotnet add package SoftExpertAPI
 ### Importe os namespaces ...
 ```C#
 using SoftExpertAPI;
-using SoftExpertAPI.Workflow;  //para o módulo de Workflow
-using SoftExpertAPI.Admin;     //para o módulo de Administração
 ```  
 
 Link para a página do Nuget: [https://www.nuget.org/packages/SoftExpertAPI/](https://www.nuget.org/packages/SoftExpertAPI/)
 ### Crie uma instancia da API do módulo de Workflow
 
 ```C#
-using SoftExpertAPI;
-using SoftExpertAPI.Workflow; 
-
 //Implementação OPCIONAL de uma classe para acessar banco de dados. É necessário respeitar a interface SoftExpertAPI.Interfaces.IDataBase
 //Necessário para algumas implementações fora do escopo da API padrão do SoftExpert.
 ExampleOracleImplementation _db = new ExampleOracleImplementation(_appsettings);
@@ -63,7 +58,15 @@ SoftExpertAPI.Configurations configs = new Configurations(){
 	db = _db,                 //Necessário para funções que acessam o banco de dados. Implementar a interface SoftExpert.IDataBase
 	downloader = _downloader, //Necessário para caso os arquivos do SE fiquem em um diretório controlado. Implementar a interface SoftExpert.IFileDownload
 };
+
+//para o módulo de Workflow
 wfAPI = new SoftExpertWorkflowApi(configs);
+
+//para o módulo de Administração
+adAPI = new SoftExpertAdminApi(configs);
+
+//para operações genéricas
+genAPI = new SoftExpertGenericApi(configs);
 ```  
 
 
@@ -140,6 +143,15 @@ Obs. Exemplos no arquivo  [Examples/WorkflowExamples.cs](Examples/WorkflowExampl
 | --------------- | :------------: | :------------------: | :-----: | -------------------- |
 | **enableUser**  |       ❌        |                      |    ✔    | Ativar um usuário    |
 | **disableUser** |       ❌        |                      |    ✔    | Desativar um usuário |
+
+Obs. Exemplos no arquivo [Examples/GenericExamples.cs](Examples/GenericExamples.cs).  
+
+## Funções do módulo de Genérico
+
+| Função          			 | Banco de dados | Diretório Controlado | Exemplo | Objetivo             |
+| ---------------			 | :------------: | :------------------: | :-----: | -------------------- |
+| **addUserToTeam** 		 |               |                      |    ✔    | Adicionar um usuário em uma equipe    |
+| **removeUserFromTeam**	 |               |                      |    ✔    | Remover um usuário de uma equipe |
 
 Obs. Exemplos no arquivo [Examples/AdminExamples.cs](Examples/AdminExamples.cs).  
 

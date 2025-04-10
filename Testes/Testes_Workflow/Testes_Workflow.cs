@@ -10,7 +10,7 @@ public class Testes_Workflow
 {
     ITestOutputHelper console;
     IConfiguration _appsettings;
-    SoftExpertAPI.Workflow.SoftExpertWorkflowApi _softExpertApi;
+    SoftExpertAPI.SoftExpertWorkflowApi _softExpertApi;
 
     //parametros ficticios utilizados apenas para os testes
     string ProcessID = "CCF";
@@ -44,7 +44,7 @@ public class Testes_Workflow
             //downloader = _downloader, //Necessário para caso os arquivos do SE fiquem em um diretório controlado. Implementar a interface SoftExpert.IFileDownload
         };
 
-        _softExpertApi = new SoftExpertAPI.Workflow.SoftExpertWorkflowApi(configs);
+        _softExpertApi = new SoftExpertAPI.SoftExpertWorkflowApi(configs);
         console = output;
     }
 

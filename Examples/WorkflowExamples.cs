@@ -2,7 +2,6 @@ using System.Text;
 using Examples;
 using Microsoft.Extensions.Configuration;
 using SoftExpertAPI;
-using SoftExpertAPI.Workflow;
 
 //TODO: anexar arquivo no form
 //TODO: Criar a checagem de instancia de banco de dados em todas as funções que dela necessitarem.

@@ -9,7 +9,7 @@ public class Testes_Administracao
 {
     ITestOutputHelper console;
 
-    SoftExpertAPI.Admin.SoftExpertAdminApi api;
+    SoftExpertAPI.SoftExpertAdminApi api;
 
 
     public Testes_Administracao(ITestOutputHelper output){
@@ -33,7 +33,7 @@ public class Testes_Administracao
             //downloader = _downloader, //Necessário para caso os arquivos do SE fiquem em um diretório controlado. Implementar a interface SoftExpert.IFileDownload
         };
 
-        api = new SoftExpertAPI.Admin.SoftExpertAdminApi(configs);
+        api = new SoftExpertAPI.SoftExpertAdminApi(configs);
         
     }
 

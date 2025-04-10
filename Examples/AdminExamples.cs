@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using SoftExpertAPI;
-using SoftExpertAPI.Admin;
 
 namespace Examples;
 

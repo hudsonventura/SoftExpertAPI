@@ -3,10 +3,10 @@ using SoftExpertAPI;
 
 namespace Examples;
 
-public class GenericExample
+public class GenericExamples
 {
     IConfiguration _appsettings;
-    public GenericExample(IConfiguration appsettings)
+    public GenericExamples(IConfiguration appsettings)
     {
         _appsettings = appsettings;
     }
