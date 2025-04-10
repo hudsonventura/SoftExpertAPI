@@ -158,6 +158,8 @@ public abstract class SoftExpertBaseAPI
             var se_response = json.SelectToken("SOAP-ENV:Envelope")
                                 .SelectToken("SOAP-ENV:Body")
                                 .SelectToken($"{function}Response");
+            try
+            {
             var status = se_response.SelectToken("Status").ToString();
             var code = se_response.SelectToken("Code").ToString();
             if(status == "FAILURE"){
@@ -166,6 +168,18 @@ public abstract class SoftExpertBaseAPI
                 throw error;
             }
             return se_response;
+            }
+            catch (System.Exception)
+            {
+                var returno = se_response.SelectToken("return").ToString();
+                if(returno != "1"){
+                    var error = new SoftExpertException(returno);
+                    error.setResponseReceived(body_response);
+                    throw error;
+                }
+                return se_response;
+            }
+            
         }
         catch (SoftExpertException error)
         {

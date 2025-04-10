@@ -8,8 +8,26 @@ IConfiguration appsettings = new ConfigurationBuilder()
 	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
 	.Build();
 
-WorkflowExamples wf = new WorkflowExamples(appsettings);
-wf.Execute(WorkflowExamples.Teste.NewWorkflow);
+var Args = Environment.GetCommandLineArgs();
+switch (Args[1])
+{
+	case "WorkflowExamples":
+		WorkflowExamples wf = new WorkflowExamples(appsettings);
+		wf.Execute(WorkflowExamples.Teste.delegateWorkflow);
+		break;
 
-AdminExamples admin = new AdminExamples(appsettings);
-admin.Execute();
+	case "AdminExamples":
+		AdminExamples admin = new AdminExamples(appsettings);
+		admin.Execute();
+		break;
+		
+	case "GenericExample":
+		GenericExample gen = new GenericExample(appsettings);
+		gen.Execute();
+		break;
+
+	default:
+		Console.WriteLine("Invalid argument. Use 1 for WorkflowExamples or 2 for AdminExamples.");
+		return;
+}
+

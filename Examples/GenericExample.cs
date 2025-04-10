@@ -1,14 +1,12 @@
 using Microsoft.Extensions.Configuration;
 using SoftExpertAPI;
-using SoftExpertAPI.Admin;
 
 namespace Examples;
 
-public class AdminExamples
+public class GenericExample
 {
-
     IConfiguration _appsettings;
-    public AdminExamples(IConfiguration appsettings)
+    public GenericExample(IConfiguration appsettings)
     {
         _appsettings = appsettings;
     }
@@ -35,18 +33,23 @@ public class AdminExamples
             //domain = _appsettings["domain"].ToString(),
             //token = _appsettings["authorization"].ToString()
         };
-        SoftExpertAdminApi api = new SoftExpertAdminApi(configs);
+        SoftExpertGenericApi api = new SoftExpertGenericApi(configs);
 
         
 
         #endregion
 
 
-        #region Habilitar / Desabilitar usuário
+
+
+        #region Adicinar e remover usuario de equipe
         try
         {
-            api.enableUser("01234567891");
-            api.disableUser("01234567891");
+            api.addUserToTeam("GESTAOPROCESSOS-excecoes", "123456789");
+            api.removeUserFromTeam("GESTAOPROCESSOS-excecoes*", "123456789");
+        }
+        catch(SoftExpertException error){
+            throw;
         }
         catch (System.Exception error)
         {
@@ -54,5 +57,4 @@ public class AdminExamples
         }
         #endregion
     }
-    
 }

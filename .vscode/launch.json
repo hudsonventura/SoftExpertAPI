@@ -5,16 +5,37 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": "WorkflowExamples",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "dotnet: build",
             "program": "${workspaceFolder}/Examples/bin/Debug/net8.0/Examples.dll",
-            "args": [],
+            "args": ["WorkflowExamples"],
+            "cwd": "${workspaceFolder}/Examples/",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+        {
+            "name": "AdminExamples",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "dotnet: build",
+            "program": "${workspaceFolder}/Examples/bin/Debug/net8.0/Examples.dll",
+            "args": ["AdminExamples"],
+            "cwd": "${workspaceFolder}/Examples/",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+        {
+            "name": "GenericExample",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "dotnet: build",
+            "program": "${workspaceFolder}/Examples/bin/Debug/net8.0/Examples.dll",
+            "args": ["GenericExample"],
             "cwd": "${workspaceFolder}/Examples/",
             "stopAtEntry": false,
             "console": "internalConsole"
         }
-
     ]
 }
