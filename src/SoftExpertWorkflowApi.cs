@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Dynamic;
 using System.Linq;
 using System.Net.Http;
@@ -1022,6 +1023,47 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
 
+    /// <summary>
+    /// Este método verifica o Status de uma instância
+    /// </summary>
+    /// <param name="workflowID"></param>
+    /// <returns>WFStatus</returns>
+    public List<WFStruct> GetCurrentActivities(string WorkflowID){
+        requireInterfaceImplementation("IDataBase", db);
+
+        string sql = $@"SELECT a.*
+                            FROM {db_name}.wfprocess p
+                            LEFT JOIN softexpert.wfstruct a on a.idprocess = p.idobject AND A.FGSTATUS = 2
+                            WHERE p.idprocess = :WorkflowID";
+
+        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        parametros.Add(":WorkflowID", WorkflowID);
+
+
+        
+        DataTable list = db.Query(sql, parametros);
+        if (list == null || list.Rows.Count == 0){
+            throw new SoftExpertException($"Não foi encontrado um workflow com o id '{WorkflowID}'");
+        }
+
+        return list.AsEnumerable()
+            .Select(row =>
+            {
+                WFStruct wfStruct = new WFStruct();
+                wfStruct.idstruct = row["idstruct"].ToString();
+                wfStruct.nmstruct = row["nmstruct"].ToString();
+                wfStruct.fgstatus = (WFStruct.WFStatus)Convert.ToInt32(row["fgstatus"]);
+                // Map other properties as needed
+                return wfStruct;
+            })
+            .ToList();
+
+    }
+
+
+
+
+
 
 
     /// <summary>
@@ -1157,7 +1199,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="workflowID">ID da instancia de workflow, incidente ou problema</param>
     /// <param name="explanation">Justificativa</param>
     /// <param name="cduser">Código do usuario </param>
-    public void addHistoryComment(string workflowID, string comment, int cduser, string idactivity = null, bool is_private = false){
+    public void addHistoryComment(string workflowID, string comment, int cduser, string idactivity, bool is_private = false){
         ADUser user = GetUser(cduser);
         addHistoryComment(workflowID, comment, user.iduser, idactivity, is_private);
     }
@@ -1168,9 +1210,9 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="workflowID">ID da instancia de workflow, incidente ou problema</param>
     /// <param name="explanation">Justificativa</param>
     /// <param name="userID">Matricula do usuario</param>
-    public void addHistoryComment(string workflowID, string comment, string userID, string idactivity = null, bool is_private = false)
+    public void addHistoryComment(string workflowID, string comment, string userID, string idactivity, bool is_private = false)
     {
-        string activity = (idactivity == null) ? "" : $"<urn:ActivityID>{idactivity}</urn:ActivityID>";
+        string activity = $"<urn:ActivityID>{idactivity}</urn:ActivityID>";
 
 
         string body = $@"
@@ -1510,6 +1552,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
         parametros.Add(":workflowID", workflowID.Trim());
 
+        
+
         //valida se a instancia existe e está em andamento
         ValidateInstance(workflowID.Trim(), WFStatus.Em_Andamento);
 
@@ -1522,7 +1566,13 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         ? $"Alteração do iniciador de {requesterID} para {user.nmuser}. Justificativa: {explanation}"
         : $"Alteração do iniciador para {user.nmuser}. Justificativa: {explanation}";
 
-        addHistoryComment(workflowID, comment, requesterID ?? userID);
+        List<WFStruct> activities = GetCurrentActivities(workflowID);
+        if(activities.Count > 0){
+            //addHistoryComment(workflowID, comment, requesterID ?? userID, activities[0].idstruct);
+            //Este endpoint está com bug na 2.2.3.150 até o momento
+        }
+
+        
         
         return;
     }

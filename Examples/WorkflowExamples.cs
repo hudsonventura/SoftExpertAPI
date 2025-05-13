@@ -166,11 +166,12 @@ class WorkflowExamples{
         string Comment = "Téste com acento barras / e especiais $%&¨  e 'aspas simples' e \"aspas duplas\"";
         string IDUser = "sistema.automatico";
         int cduser = 88;
+        string ActivityID = "AnalisarDemanda";
 
         try
         {
             //wfAPI.addHistoryComment(WorkflowID, Comment, IDUser);
-            wfAPI.addHistoryComment(WorkflowID, Comment, cduser);
+            wfAPI.addHistoryComment(WorkflowID, Comment, cduser, ActivityID);
         }
         catch (SoftExpertException erro)
         {

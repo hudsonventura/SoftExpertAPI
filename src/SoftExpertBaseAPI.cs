@@ -152,6 +152,10 @@ public abstract class SoftExpertBaseAPI
                 throw new Exception($"Falha ao conectar ao servidor {restClient.BaseAddress.AbsoluteUri}");
             }
             var body_response = response.Content.ReadAsStringAsync().Result;
+            if(body_response == null || body_response == ""){
+                var error = new SoftExpertException("Resposta vazia do servidor");
+                throw error;
+            }
 
             var json = Parse(body_response);
             
