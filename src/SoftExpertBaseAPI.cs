@@ -175,6 +175,8 @@ public abstract class SoftExpertBaseAPI
             }
             catch (System.Exception)
             {
+                try
+                {
                 var returno = se_response.SelectToken("return").ToString();
                 if(returno != "1"){
                     var error = new SoftExpertException(returno);
@@ -182,6 +184,14 @@ public abstract class SoftExpertBaseAPI
                     throw error;
                 }
                 return se_response;
+                }
+                catch (System.Exception)
+                {
+                    var returno = se_response.SelectToken("Detail").ToString();
+                    var error = new SoftExpertException(returno);
+                    error.setResponseReceived(body_response);
+                    throw error;
+                }
             }
             
         }
