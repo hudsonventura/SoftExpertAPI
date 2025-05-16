@@ -32,6 +32,7 @@ jobs:
         with:
           nuget-api-key: ${{ secrets.NUGET_API_KEY }}
           nuget-source: 'https://api.nuget.org/v3/index.json'
+          nuget-version: '6.4.1'
           
       - name: Push package
         run: dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source 'https://api.nuget.org/v3/index.json'
