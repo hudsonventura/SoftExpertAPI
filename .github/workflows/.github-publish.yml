@@ -26,13 +26,6 @@ jobs:
 
       - name: Pack
         run: dotnet pack src/SoftExpertAPI.csproj --configuration Debug --output ./nupkgs
-
-      - name: Publish to NuGet
-        uses: NuGet/setup-nuget@v1
-        with:
-          nuget-api-key: ${{ secrets.NUGET_API_KEY }}
-          nuget-version: '6.3.0'
-          nuget-source: 'https://api.nuget.org/v3/index.json'
-          
+         
       - name: Push package
         run: dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source 'https://api.nuget.org/v3/index.json'
