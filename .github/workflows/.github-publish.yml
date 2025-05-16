@@ -1,0 +1,37 @@
+name: NuGet Package Publish
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags like v1.0.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore src/SoftExpertAPI.csproj
+
+      - name: Build
+        run: dotnet build src/SoftExpertAPI.csproj --configuration Debug
+
+      - name: Pack
+        run: dotnet pack src/SoftExpertAPI.csproj --configuration Debug --output ./nupkgs
+
+      - name: Publish to NuGet
+        uses: NuGet/setup-nuget@v1
+        with:
+          nuget-api-key: ${{ secrets.NUGET_API_KEY }}
+          nuget-source: 'https://api.nuget.org/v3/index.json'
+          
+      - name: Push package
+        run: dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source 'https://api.nuget.org/v3/index.json'
