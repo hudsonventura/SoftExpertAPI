@@ -557,7 +557,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     {
         requireInterfaceImplementation("IDataBase", db);
 
-        string sql = $@"UPDATE {db_name}.ADATTACHMENT SET NMUSERUPD  = substr(NMUSERUPD, 0, 230)||'-synced' WHERE CDATTACHMENT = :cdAttachment";
+        string sql = $@"UPDATE {db_name}.ADATTACHMENT SET NMUSERUPD = substr(NMUSERUPD, 0, 250)||'-synced' WHERE CDATTACHMENT = :cdAttachment";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
         parametros.Add(":cdAttachment", cdAttachment);
