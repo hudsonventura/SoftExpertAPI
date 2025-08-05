@@ -83,7 +83,7 @@ public class ExampleFileDownloadImplementation : IFileDownload
             }
             catch (Exception ex)
             {
-                throw new Exception($"Não foi possível realizar o download do arquivo de diretório via SSH. Erro: {ex.Message}");
+                throw new Exception($"Não foi possível realizar o download do arquivo de diretório via SSH do host {RemoteHost} e caminho {remoteFilePath} pelo usuário {RemoteUsername}. Erro: {ex.Message}");
             }
         }
     }
