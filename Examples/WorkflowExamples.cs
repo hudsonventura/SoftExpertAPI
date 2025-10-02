@@ -611,4 +611,26 @@ class WorkflowExamples{
             throw;
         }
     }
+
+
+
+    private void finishWorkflow()
+    {
+        try
+        {
+            string WorkflowID = "PRO20250183";
+            string Explanation = "Just a test";
+            string UserID = "MATRICULA";
+
+            wfAPI.finishWorkflow(WorkflowID, Explanation, UserID);
+        }
+        catch (SoftExpertException erro)
+        {
+            throw;
+        }
+        catch (Exception erro)
+        {
+            throw;
+        }
+    }
 }

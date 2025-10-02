@@ -948,7 +948,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
         try
         {
-            anexo.Content = downloader.DownloadFileForm($"{anexo.cdfile.ToString($"D{8}")}.{anexo.extension}");
+            anexo.Content = _downloader.DownloadFileForm($"{anexo.cdfile.ToString($"D{8}")}.{anexo.extension}");
             return anexo;
         }
         catch (System.Exception)
@@ -1033,9 +1033,12 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     public List<WFStruct> GetCurrentActivities(string WorkflowID){
         requireInterfaceImplementation("IDataBase", _db);
 
-        string sql = $@"SELECT a.*
-                            FROM {db_name}.wfprocess p
-                            LEFT JOIN softexpert.wfstruct a on a.idprocess = p.idobject AND A.FGSTATUS = 2
+        string sql = $@"SELECT a.idprocess, a.idobject, a.idstruct, a.nmstruct, a.fgstatus
+                                , A.DHENABLED AS DTENABLED
+                                , a.DTESTIMATEDFINISH + ( A.NRTIMEESTFINISH/24/60) AS DTESTIMATEDFINISH
+                                , TO_DATE(to_char(a.DTEXECUTION, 'dd/mm/yyyy') || a.TMEXECUTION, 'dd/mm/yyyyHH24:MI:SS') AS DTEXECUTION
+                            FROM {_db_name}.wfprocess p
+                            JOIN softexpert.wfstruct a on a.idprocess = p.idobject AND A.FGSTATUS = 2
                             WHERE p.idprocess = :WorkflowID";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
@@ -1053,9 +1056,15 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             {
                 WFStruct wfStruct = new WFStruct();
                 wfStruct.idstruct = row["idstruct"].ToString();
+                wfStruct.idprocess = row["idprocess"].ToString();
+                wfStruct.idobject = row["idobject"].ToString();
                 wfStruct.nmstruct = row["nmstruct"].ToString();
                 wfStruct.fgstatus = (WFStruct.WFStatus)Convert.ToInt32(row["fgstatus"]);
-                // Map other properties as needed
+                
+                wfStruct.dhenabled = Convert.ToDateTime(row["DTENABLED"]);
+                wfStruct.dtestimatedfinish = row["DTESTIMATEDFINISH"] != DBNull.Value ? Convert.ToDateTime(row["DTESTIMATEDFINISH"]) : DateTime.MinValue;
+                wfStruct.dtexecution = row["DTEXECUTION"] != DBNull.Value ? Convert.ToDateTime(row["DTEXECUTION"]) : DateTime.MinValue;
+
                 return wfStruct;
             })
             .ToList();
@@ -1301,6 +1310,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             string jsonBody = JsonConvert.SerializeObject(payload);
 
             request.Content = new FormUrlEncodedContent(payload);
+            request.Content.Headers.ContentType.CharSet = "UTF-8";
+            //request.Headers.Add("Content-Type", "text/xml; charset=iso-8859-1");
 
 
             HttpResponseMessage  response = _restClient.SendAsync(request).Result;
@@ -1393,7 +1404,90 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             request.Content = new FormUrlEncodedContent(payload);
 
 
-            HttpResponseMessage  response = restClient.SendAsync(request).Result;
+            HttpResponseMessage  response = _restClient.SendAsync(request).Result;
+            if(!response.IsSuccessStatusCode){
+                throw new SoftExpertException("Houve um problema ao reativar a instancia");
+            }
+
+            string responseBody = response.Content.ReadAsStringAsync().Result;
+            if(responseBody.Contains("softexpert/login")){
+                throw new SoftExpertException("Houve um problema ao retornar a instancia");
+            }
+
+            if(responseBody.Contains("Ocorreu um erro ao tentar processar informações")){
+                throw new SoftExpertException("Houve um problema ao retornar a instancia");
+            }
+
+            return;
+        }
+        catch (System.Exception errorWF)
+        {
+            throw;
+        }
+    } 
+
+
+
+
+
+
+
+    /// <summary>
+    /// Encerra uma instância de processo mesmo sem chegar ao final do processo
+    /// </summary>
+    /// <param name="workflowID"></param>
+    /// <param name="ActivityID"></param>
+    /// <param name="explanation"></param>
+    /// <param name="userID"></param>
+    public void finishWorkflow(string workflowID, string explanation, string userID)
+    {
+        try
+        {
+            var activity = GetCurrentActivities(workflowID).FirstOrDefault();
+            if(activity == null){
+                throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}' e que possua ao menos uma atividade");
+            }
+            Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>(){
+                {"oid", activity.idprocess},
+                {"caption", "Gest%25E3o%2Bde%2Bworkflow"},
+                {"action", 2},
+                {"type", 3}
+            };
+            string query = string.Join("&", parametros.Select(p => $"{p.Key}={p.Value}"));
+
+            IEnumerable<KeyValuePair<string, string>> formdata = new Dictionary<string, dynamic>(){
+                {"oid_proc", activity.idprocess},
+                {"cdProd", 39},
+                {"idprocess", workflowID},
+                {"sit", "Andamento"},
+                {"idrevisionstatus", string.Empty},
+                {"hidden_field_to_reset_name_nmrevisionstatus", string.Empty},
+                {"cdrevisionstatus", string.Empty},
+                {"nmrevisionstatus", string.Empty},
+                {"justify", explanation},
+                {"elms_filters", string.Empty},
+                {"elms_allfilters", "{\"100528\":{\"id\":\"idprocess\",\"value\":\"\",\"tokens\":[],\"type\":\"text\"},\"100532\":{\"id\":\"sit\",\"value\":\"\",\"tokens\":[],\"type\":\"text\"},\"100609\":{\"id\":\"fgfinish\",\"value\":\"\",\"tokens\":[],\"type\":\"checkbox\"},\"106951\":{\"id\":\"fgsusp\",\"value\":\"\",\"tokens\":[],\"type\":\"checkbox\"},\"100095\":{\"id\":\"fgcancel\",\"value\":\"\",\"tokens\":[],\"type\":\"checkbox\"},\"105933\":{\"id\":\"fgreativa\",\"value\":\"\",\"tokens\":[],\"type\":\"checkbox\"},\"100072\":{\"id\":\"hidden_field_to_reset_name_nmrevisionstatus\",\"value\":\"\",\"tokens\":[],\"type\":\"text\"},\"101072\":{\"id\":\"justify\",\"value\":\"\",\"tokens\":[],\"type\":\"text\"},\"207026\":{\"id\":\"bc_quick_filter\",\"value\":\"\",\"tokens\":[],\"type\":\"text\"},\"100366\":{\"id\":\"selectedTypeInput\",\"value\":\"\",\"tokens\":[],\"type\":\"text\"},\"100549\":{\"id\":\"selectedAttributesInput_json\",\"value\":\"\",\"tokens\":[],\"type\":\"text\"}}"}
+            }.Select(p => new KeyValuePair<string, string>(p.Key, p.Value.ToString()));
+
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"/se/v34445/workflow/wf_management/management_action.php?{query}")
+            {
+                Content = new FormUrlEncodedContent(formdata)
+            };
+
+            string token = GetToken();
+            request.Headers.Add("Cookie", $"se-authentication-token={token}");
+
+        
+            //request.Headers.Add("content-type", $"application/x-www-form-urlencoded");
+            //request.Headers.Add("Referer", "https://seqas.amaggi.com.br/se/v58859/workflow/wf_management/management_data.php");
+            request.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");	
+            request.Headers.Add("cookie", "se-authentication-token=065ba7e059b1c54c785ac4a5e5f69683d300; redirectDomain=IEFNQUdHSQ==");
+
+
+
+
+
+            HttpResponseMessage  response = _restClient.SendAsync(request).Result;
             if(!response.IsSuccessStatusCode){
                 throw new SoftExpertException("Houve um problema ao reativar a instancia");
             }
