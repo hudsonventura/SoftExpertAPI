@@ -26,14 +26,14 @@ public class SoftExpertAdminApi : SoftExpertBaseAPI
     public void enableUser(string UserID){
         ValidateDB();
         
-        string sql = $"update {db_name}.aduser set fguserenabled = 1 where iduser = :UserID";
+        string sql = $"update {_db_name}.aduser set fguserenabled = 1 where iduser = :UserID";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
         parametros.Add(":UserID", UserID);
 
         try
         {
-            db.Execute(sql, parametros);
+            _db.Execute(sql, parametros);
             return;
         }
         catch (Exception erro)
@@ -51,14 +51,14 @@ public class SoftExpertAdminApi : SoftExpertBaseAPI
     public void disableUser(string UserID){
         ValidateDB();
         
-        string sql = $"update {db_name}.aduser set fguserenabled = 0 where iduser = :UserID";
+        string sql = $"update {_db_name}.aduser set fguserenabled = 0 where iduser = :UserID";
 
         Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
         parametros.Add(":UserID", UserID);
 
         try
         {
-            db.Execute(sql, parametros);
+            _db.Execute(sql, parametros);
             return;
         }
         catch (Exception erro)
