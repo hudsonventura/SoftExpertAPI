@@ -7,6 +7,12 @@
 			"group": "build",
 			"problemMatcher": [],
 			"label": "dotnet: build"
+		},
+		{
+			"type": "dotrush.task",
+			"project": "${command:dotrush.activeProjectPath}",
+			"problemMatcher": [],
+			"label": "dotrush: Build"
 		}
 	]
 }
