@@ -479,7 +479,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 {
                     anexo.Content = _downloader.DownloadFileAttach($"{anexo.cdfile.ToString($"D{8}")}.{arquivo["EXT"].ToString()}");;
                     retorno.Add(anexo);
-                    throw new Exception("teste");
                 }
                 catch (System.Exception erro2)
                 {
