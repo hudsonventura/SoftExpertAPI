@@ -466,26 +466,24 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 anexo.cdfile = Int64.Parse(arquivo["CDFILE"].ToString());
                 anexo.cdattachment = Int64.Parse(arquivo["CDATTACHMENT"].ToString());
                 anexo.nmuserupd = arquivo["NMUSERUPD"].ToString();
+
                 anexo.extension = arquivo["EXT"].ToString();
                 var contentZip = (byte[])stream;
                 var content = Utils.Zip.UnzipFile(contentZip);
                 anexo.Content = content;
                 retorno.Add(anexo);
             }
-            catch (Exception erro)
+            catch (Exception erro1)
             {
                 try
                 {
-                    anexo.FileName = arquivo["NMFILE"].ToString();
-                    anexo.cdfile = Int64.Parse(arquivo["CDFILE"].ToString());
-                    anexo.cdattachment = Int64.Parse(arquivo["CDATTACHMENT"].ToString());
-                    anexo.nmuserupd = arquivo["NMUSERUPD"].ToString();
                     anexo.Content = _downloader.DownloadFileAttach($"{anexo.cdfile.ToString($"D{8}")}.{arquivo["EXT"].ToString()}");;
                     retorno.Add(anexo);
+                    throw new Exception("teste");
                 }
                 catch (System.Exception erro2)
                 {
-                    throw new Exception($"Falha ao descompactar o arquivo '{arquivo["NMFILE"]}'. Erro: {erro.Message}");
+                    throw new Exception($"Falha ao descompactar o arquivo '{anexo.FileName}'. Erro1: {erro1.Message}. Erro2: {erro2.Message}. Arquivo: {JsonConvert.SerializeObject(arquivo)}");
                 }
                 
             }
