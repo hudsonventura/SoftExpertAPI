@@ -1568,6 +1568,31 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 throw new Exception("Houve um problema ao retornar a instancia");
             }
 
+            /* se chegou até aqui, então houve sucesso. Sendo assim ...
+             * as vezes a tabela wftask fica com o campo FGEXECUTEACTION não nulo.
+             * isso faz com que a atividade, mesmo que a atividade esteja ativa, não apareça para o usuário
+             * então fazemos um UPDATE wftask SET FGEXECUTEACTION=null forçando que volte a aparecer para o usuário executor
+             */
+
+            try{
+                string sql = @$"UPDATE {_db_name}.wftask SET FGEXECUTEACTION=null 
+                                WHERE idobject = (
+                                    SELECT c.idobject
+                                    FROM softexpert.wfprocess p
+                                    LEFT JOIN softexpert.wfstruct a on a.idprocess = p.idobject AND A.FGSTATUS = 2
+                                    LEFT JOIN softexpert.wftask c on c.IDACTIVITY = a.idobject
+                                    WHERE p.idprocess = :workflowID
+                                )";
+                Dictionary<string, dynamic> params2 = new Dictionary<string, dynamic>();
+                params2.Add(":workflowID", workflowID.Trim());
+
+                int affected = _db.Execute(sql, params2);
+            }
+            catch (System.Exception errorWF)
+            {
+                
+            }
+
             return;
         }
         catch (System.Exception errorWF)
