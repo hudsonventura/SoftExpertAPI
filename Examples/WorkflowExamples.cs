@@ -72,7 +72,8 @@ class WorkflowExamples{
         reactivateWorkflow,
         returnWorkflow,
         delegateWorkflow,
-        AlterUserStart
+        AlterUserStart,
+        finishWorkflow
     }
     // Funções iniciadas com letra minúscula como `newWorkflow`, são apenas uma tradução para alguma API original do SE.  
     //Funções iniciadas com letra maiúscula como `AddHistoryComment`, possuem desenvolvimento próprio e/ou não usam apenas alguma API original do SE.  
@@ -150,6 +151,9 @@ class WorkflowExamples{
                 break;
 
             case Teste.AlterUserStart: AlterUserStart();
+                break;
+
+            case Teste.finishWorkflow: finishWorkflow();
                 break;
 
             default:

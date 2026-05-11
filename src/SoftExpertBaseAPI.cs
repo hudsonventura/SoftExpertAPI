@@ -39,7 +39,13 @@ public abstract class SoftExpertBaseAPI
     /// <param name="db">Classe concreta que implemente a inteface SoftExpertAPI.Interfaces.IDataBase</param>
     public SoftExpertBaseAPI(Configurations configs)
     {
-        _restClient = new HttpClient();
+        var handler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback =
+            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
+
+        _restClient = new HttpClient(handler);
         var uri = new Uri(configs.baseUrl);
         _restClient.BaseAddress = uri;
         _restClient.DefaultRequestHeaders.Add("Host", uri.Host);

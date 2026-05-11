@@ -1457,6 +1457,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 {"cdProd", 39},
                 {"idprocess", workflowID},
                 {"sit", "Andamento"},
+                {"fgstatus", "4"},
                 {"idrevisionstatus", string.Empty},
                 {"hidden_field_to_reset_name_nmrevisionstatus", string.Empty},
                 {"cdrevisionstatus", string.Empty},
