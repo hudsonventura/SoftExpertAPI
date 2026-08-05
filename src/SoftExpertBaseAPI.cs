@@ -152,12 +152,12 @@ public abstract class SoftExpertBaseAPI
     }
 
 
-    protected JToken SendRequestSOAP(string function, string xmlbody, string urimodule = null)
+    protected JToken SendRequestSOAP(string function, string xmlbody, string urimodule = null, string soapUrn = "workflow")
     {
         try
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, (urimodule is null) ? _uriModule : urimodule);
-            request.Headers.Add("SOAPAction", $"urn:workflow#{function}");
+            request.Headers.Add("SOAPAction", $"urn:{soapUrn}#{function}");
             request.Content = new StringContent(xmlbody.Trim(), Encoding.UTF8, "text/xml");
 
             HttpResponseMessage response = _restClient.SendAsync(request).Result;
