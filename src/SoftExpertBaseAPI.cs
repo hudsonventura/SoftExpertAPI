@@ -18,11 +18,9 @@ public abstract class SoftExpertBaseAPI
     protected string _uriModule = null;
     protected readonly HttpClient _restClient;
 
-    protected IDataBase _db = null;
     protected IFileDownload _downloader = null;
 
 
-    public string _db_name = null;
 
     //usado para gestão de instancias não implementadas na API original do SE, como reativar e retornar instâncias de workflow
     public string _login { get; private set; } = string.Empty;
@@ -81,12 +79,7 @@ public abstract class SoftExpertBaseAPI
             _downloader = configs.downloader;
         }
 
-        if (configs.db != null)
-        {
-            _db = configs.db;
-        }
 
-        _db_name = configs.db.db_name;
         _login = configs.login;
         _pass = configs.pass;
         _domain = configs.domain;
@@ -94,30 +87,7 @@ public abstract class SoftExpertBaseAPI
 
     }
 
-    /// <summary>
-    /// Construtor. Necessário passar a URL completa do ambiente do SE e a string to Authorization incluindo o 'Basic ....'
-    /// </summary>
-    /// <param name="url">URL completa do ambiente. Ex.: https://se.example.com.br</param>
-    /// <param name="authorization">Basic no formato base64("dominio\usuario:senha") Ex.: Basic dmMgPyB1bSBjdXJpb3Nv</param>
-    public SoftExpertBaseAPI(string baseUrl, string authorization, SoftExpertAPI.IDataBase db = null, string login = null, string pass = null, string domain = null)
-    {
-        _restClient = new HttpClient();
-        _restClient.BaseAddress = new Uri(baseUrl);
-        _restClient.DefaultRequestHeaders.Add("Authorization", authorization);
-        //_restClient.AddDefaultHeader("Host", url.Split("://")[1].Split(":")[0]);
 
-        _login = login;
-        _pass = pass;
-        _domain = domain;
-
-        if (db != null)
-        {
-            _db = db;
-            _db_name = db.db_name;
-        }
-
-        SetUriModule();
-    }
 
     protected virtual void SetUriModule()
     {
@@ -126,19 +96,6 @@ public abstract class SoftExpertBaseAPI
 
 
 
-
-    protected void ValidateDB()
-    {
-        if (_db is null)
-        {
-            throw new SoftExpertException("Uma instancia de banco de dados não foi informada na criação deste objeto. Crie forneça uma conexão com seu banco de dados implementando a interface SoftExpertAPI.Interfaces.IDataBase");
-        }
-
-        if (_db_name is null)
-        {
-            throw new SoftExpertException("Uma instancia de banco de dados foi informada mas o nome do seu banco precisa ser informado na propriedade db_name");
-        }
-    }
 
     protected JToken Parse(string xml)
     {

@@ -413,82 +413,82 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="SoftExpertException"></exception>
     /// <exception cref="Exception"></exception>
     public List<Anexo> ListAttachmentFromInstance(string WorkflowID, string ActivityID = "") {
-        requireInterfaceImplementation("IDataBase", _db);
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
         //BUG: ao passa uma atividade para a função listAttachmentFromInstance, o SQL não traz resultados. Usar sem informar a atividade.
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        if (ActivityID != "") {
-            parametros.Add(":ActivityID", ActivityID);
-            ActivityID = "and a.idstruct = :ActivityID";
-        }
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // if (ActivityID != "") {
+        //     parametros.Add(":ActivityID", ActivityID);
+        //     ActivityID = "and a.idstruct = :ActivityID";
+        // }
 
-        string sql = @$"SELECT g.NMFILE, g.CDFILE, ANEXO.CDATTACHMENT, anexo.NMUSERUPD,
-				        substr(g.NMFILE, 0, INSTR(g.NMFILE, '.', -1)-1) AS NOME,
-				        substr(g.NMFILE, INSTR(g.NMFILE, '.', -1)+1) AS EXT,
-				        g.NRSIZE, g.FLFILE
-                        --
-                        from {_db_name}.wfprocess p
-                        JOIN {_db_name}.WFSTRUCT A ON A.IDPROCESS = P.IDOBJECT
-                        JOIN {_db_name}.WFPROCATTACHMENT ATAASSOC ON A.IDOBJECT = ATAASSOC.IDSTRUCT
-                        JOIN {_db_name}.ADATTACHMENT ANEXO ON ATAASSOC.CDATTACHMENT = ANEXO.CDATTACHMENT
-                        join {_db_name}.ADATTACHFILE a on ANEXO.CDATTACHMENT = a.CDATTACHMENT
-                        join {_db_name}.GNCOMPFILECONTCOPY c on a.CDCOMPLEXFILECONT = c.CDCOMPLEXFILECONT
-                        join {_db_name}.gnfile g on c.CDCOMPLEXFILECONT = g.CDCOMPLEXFILECONT
-                        --
-                        where ANEXO.CDATTACHMENT IS NOT NULL AND p.idprocess = :WorkflowID {ActivityID}
-                        order by P.idprocess DESC";
+        // string sql = @$"SELECT g.NMFILE, g.CDFILE, ANEXO.CDATTACHMENT, anexo.NMUSERUPD,
+		// 		        substr(g.NMFILE, 0, INSTR(g.NMFILE, '.', -1)-1) AS NOME,
+		// 		        substr(g.NMFILE, INSTR(g.NMFILE, '.', -1)+1) AS EXT,
+		// 		        g.NRSIZE, g.FLFILE
+        //                 --
+        //                 from {_db_name}.wfprocess p
+        //                 JOIN {_db_name}.WFSTRUCT A ON A.IDPROCESS = P.IDOBJECT
+        //                 JOIN {_db_name}.WFPROCATTACHMENT ATAASSOC ON A.IDOBJECT = ATAASSOC.IDSTRUCT
+        //                 JOIN {_db_name}.ADATTACHMENT ANEXO ON ATAASSOC.CDATTACHMENT = ANEXO.CDATTACHMENT
+        //                 join {_db_name}.ADATTACHFILE a on ANEXO.CDATTACHMENT = a.CDATTACHMENT
+        //                 join {_db_name}.GNCOMPFILECONTCOPY c on a.CDCOMPLEXFILECONT = c.CDCOMPLEXFILECONT
+        //                 join {_db_name}.gnfile g on c.CDCOMPLEXFILECONT = g.CDCOMPLEXFILECONT
+        //                 --
+        //                 where ANEXO.CDATTACHMENT IS NOT NULL AND p.idprocess = :WorkflowID {ActivityID}
+        //                 order by P.idprocess DESC";
 
-        parametros.Add(":WorkflowID", WorkflowID);
+        // parametros.Add(":WorkflowID", WorkflowID);
 
-        DataTable list = null;
-        try
-        {
-            list = _db.Query(sql, parametros);
-        }
-        catch (Exception erro)
-        {
-            throw new Exception($"Falha ao buscar os arquivo no bando de dados. Erro: {erro.Message}");
-        }
+        // DataTable list = null;
+        // try
+        // {
+        //     list = _db.Query(sql, parametros);
+        // }
+        // catch (Exception erro)
+        // {
+        //     throw new Exception($"Falha ao buscar os arquivo no bando de dados. Erro: {erro.Message}");
+        // }
         
 
-        List<Anexo> retorno = new List<Anexo>();
-        foreach (DataRow arquivo in list.Rows) {
-            Int64 cdfile = Int64.Parse(arquivo["CDFILE"].ToString());
-            Anexo anexo = new Anexo();
+        // List<Anexo> retorno = new List<Anexo>();
+        // foreach (DataRow arquivo in list.Rows) {
+        //     Int64 cdfile = Int64.Parse(arquivo["CDFILE"].ToString());
+        //     Anexo anexo = new Anexo();
 
-            try
-            {
+        //     try
+        //     {
                 
-                var stream = arquivo["FLFILE"];
+        //         var stream = arquivo["FLFILE"];
                 
-                anexo.FileName = arquivo["NMFILE"].ToString();
-                anexo.cdfile = Int64.Parse(arquivo["CDFILE"].ToString());
-                anexo.cdattachment = Int64.Parse(arquivo["CDATTACHMENT"].ToString());
-                anexo.nmuserupd = arquivo["NMUSERUPD"].ToString();
+        //         anexo.FileName = arquivo["NMFILE"].ToString();
+        //         anexo.cdfile = Int64.Parse(arquivo["CDFILE"].ToString());
+        //         anexo.cdattachment = Int64.Parse(arquivo["CDATTACHMENT"].ToString());
+        //         anexo.nmuserupd = arquivo["NMUSERUPD"].ToString();
 
-                anexo.extension = arquivo["EXT"].ToString();
-                var contentZip = (byte[])stream;
-                var content = Utils.Zip.UnzipFile(contentZip);
-                anexo.Content = content;
-                retorno.Add(anexo);
-            }
-            catch (Exception erro1)
-            {
-                try
-                {
-                    anexo.Content = _downloader.DownloadFileAttach($"{anexo.cdfile.ToString($"D{8}")}.{arquivo["EXT"].ToString()}");;
-                    retorno.Add(anexo);
-                }
-                catch (System.Exception erro2)
-                {
-                    throw new Exception($"Falha ao descompactar o arquivo '{anexo.FileName}'. Erro1: {erro1.Message}. Erro2: {erro2.Message}. Arquivo: {JsonConvert.SerializeObject(arquivo)}");
-                }
+        //         anexo.extension = arquivo["EXT"].ToString();
+        //         var contentZip = (byte[])stream;
+        //         var content = Utils.Zip.UnzipFile(contentZip);
+        //         anexo.Content = content;
+        //         retorno.Add(anexo);
+        //     }
+        //     catch (Exception erro1)
+        //     {
+        //         try
+        //         {
+        //             anexo.Content = _downloader.DownloadFileAttach($"{anexo.cdfile.ToString($"D{8}")}.{arquivo["EXT"].ToString()}");;
+        //             retorno.Add(anexo);
+        //         }
+        //         catch (System.Exception erro2)
+        //         {
+        //             throw new Exception($"Falha ao descompactar o arquivo '{anexo.FileName}'. Erro1: {erro1.Message}. Erro2: {erro2.Message}. Arquivo: {JsonConvert.SerializeObject(arquivo)}");
+        //         }
                 
-            }
+        //     }
             
-        }
-        return retorno;
+        // }
+        // return retorno;
     }
 
 
@@ -505,42 +505,42 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="ChildOID">OID da grid. Pode ser obtida ao inspecionar uma grid dentro do formulário principal. Formato: OIDFBCX6LIPRTHT4H2</param>
     /// <returns></returns>
     public List<dynamic> ListGridItems(string WorkflowID, string MainEntityID, string ChildEntityID, string ChildOID) {
-        requireInterfaceImplementation("IDataBase", _db);
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        string sql = $@"SELECT grid.*
-                        FROM {_db_name}.wfprocess p
-                        --
-                        JOIN {_db_name}.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
-                        JOIN {_db_name}.DYN{MainEntityID} formulario on formulario.oid = GNF.OIDENTITYREG
-                        JOIN {_db_name}.DYN{ChildEntityID} grid ON grid.{ChildOID} = formulario.oid
-                        --
-                        WHERE p.idprocess = :WorkflowID";
+        // string sql = $@"SELECT grid.*
+        //                 FROM {_db_name}.wfprocess p
+        //                 --
+        //                 JOIN {_db_name}.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
+        //                 JOIN {_db_name}.DYN{MainEntityID} formulario on formulario.oid = GNF.OIDENTITYREG
+        //                 JOIN {_db_name}.DYN{ChildEntityID} grid ON grid.{ChildOID} = formulario.oid
+        //                 --
+        //                 WHERE p.idprocess = :WorkflowID";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":WorkflowID", WorkflowID);
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":WorkflowID", WorkflowID);
 
-        DataTable list = null;
-        try
-        {
-            list = _db.Query(sql, parametros);
+        // DataTable list = null;
+        // try
+        // {
+        //     list = _db.Query(sql, parametros);
 
-            return list.AsEnumerable()
-            .Select(row =>
-            {
-                dynamic obj = new ExpandoObject();
-                var objDictionary = (IDictionary<string, object>)obj;
-                foreach (var column in list.Columns.Cast<DataColumn>())
-                {
-                    objDictionary[column.ColumnName.ToLower()] = row[column];
-                }
-                return obj;
-            })
-            .ToList();
-        }
-        catch (Exception erro)
-        {
-            throw new Exception($"Falha ao buscar os arquivo no bando de dados. Erro: {erro.Message}");
-        }
+        //     return list.AsEnumerable()
+        //     .Select(row =>
+        //     {
+        //         dynamic obj = new ExpandoObject();
+        //         var objDictionary = (IDictionary<string, object>)obj;
+        //         foreach (var column in list.Columns.Cast<DataColumn>())
+        //         {
+        //             objDictionary[column.ColumnName.ToLower()] = row[column];
+        //         }
+        //         return obj;
+        //     })
+        //     .ToList();
+        // }
+        // catch (Exception erro)
+        // {
+        //     throw new Exception($"Falha ao buscar os arquivo no bando de dados. Erro: {erro.Message}");
+        // }
 
     }
 
@@ -554,14 +554,14 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns></returns>
     public int SetAttachmentSynced(int cdAttachment)
     {
-        requireInterfaceImplementation("IDataBase", _db);
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        string sql = $@"UPDATE {_db_name}.ADATTACHMENT SET NMUSERUPD = substr(NMUSERUPD, 0, 240)||'-synced' WHERE CDATTACHMENT = :cdAttachment";
+        // string sql = $@"UPDATE {_db_name}.ADATTACHMENT SET NMUSERUPD = substr(NMUSERUPD, 0, 240)||'-synced' WHERE CDATTACHMENT = :cdAttachment";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":cdAttachment", cdAttachment);
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":cdAttachment", cdAttachment);
 
-        return _db.Execute(sql, parametros);
+        // return _db.Execute(sql, parametros);
     }
 
 
@@ -579,39 +579,39 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="Exception"></exception>
     public dynamic GetWorkFlowData(string WorkflowID)
     {
-        requireInterfaceImplementation("IDataBase", _db);
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        string sql = $@"SELECT p.*
-                        FROM {_db_name}.wfprocess p
-                        WHERE p.idprocess = :WorkflowID";
+        // string sql = $@"SELECT p.*
+        //                 FROM {_db_name}.wfprocess p
+        //                 WHERE p.idprocess = :WorkflowID";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":WorkflowID", WorkflowID);
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":WorkflowID", WorkflowID);
 
-        DataTable list = null;
-        try
-        {
-            list = _db.Query(sql, parametros);
+        // DataTable list = null;
+        // try
+        // {
+        //     list = _db.Query(sql, parametros);
 
-            return list.AsEnumerable()
-            .Select(row =>
-            {
-                dynamic obj = new ExpandoObject();
-                var objDictionary = (IDictionary<string, object>)obj;
-                foreach (var column in list.Columns.Cast<DataColumn>())
-                {
-                    objDictionary[column.ColumnName.ToLower()] = row[column];
-                }
-                return obj;
-            })
-            .FirstOrDefault();
+        //     return list.AsEnumerable()
+        //     .Select(row =>
+        //     {
+        //         dynamic obj = new ExpandoObject();
+        //         var objDictionary = (IDictionary<string, object>)obj;
+        //         foreach (var column in list.Columns.Cast<DataColumn>())
+        //         {
+        //             objDictionary[column.ColumnName.ToLower()] = row[column];
+        //         }
+        //         return obj;
+        //     })
+        //     .FirstOrDefault();
 
 
-        }
-        catch (Exception erro)
-        {
-            throw new Exception($"Falha ao buscar os arquivo no bando de dados. Erro: {erro.Message}");
-        }
+        // }
+        // catch (Exception erro)
+        // {
+        //     throw new Exception($"Falha ao buscar os arquivo no bando de dados. Erro: {erro.Message}");
+        // }
 
     }
 
@@ -629,36 +629,36 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="Exception"></exception>
     public dynamic GetFormData(string WorkflowID, string EntityID)
     {
-        requireInterfaceImplementation("IDataBase", _db);
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        string sql = $@"SELECT formulario.*
-                        FROM {_db_name}.wfprocess p
-                        --
-                        JOIN {_db_name}.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
-                        JOIN {_db_name}.DYN{EntityID} formulario on formulario.oid = GNF.OIDENTITYREG
-                        WHERE p.idprocess = :WorkflowID";
+        // string sql = $@"SELECT formulario.*
+        //                 FROM {_db_name}.wfprocess p
+        //                 --
+        //                 JOIN {_db_name}.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
+        //                 JOIN {_db_name}.DYN{EntityID} formulario on formulario.oid = GNF.OIDENTITYREG
+        //                 WHERE p.idprocess = :WorkflowID";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":WorkflowID", WorkflowID);
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":WorkflowID", WorkflowID);
 
 
-        DataTable list = _db.Query(sql, parametros);
-        if (list == null || list.Rows.Count == 0){
-            throw new SoftExpertException($"A instancia de workflow '{WorkflowID}' não foi encontrada com a tabela '{EntityID}'");
-        }
+        // DataTable list = _db.Query(sql, parametros);
+        // if (list == null || list.Rows.Count == 0){
+        //     throw new SoftExpertException($"A instancia de workflow '{WorkflowID}' não foi encontrada com a tabela '{EntityID}'");
+        // }
 
-        return list.AsEnumerable()
-        .Select(row =>
-        {
-            dynamic obj = new ExpandoObject();
-            var objDictionary = (IDictionary<string, object>)obj;
-            foreach (var column in list.Columns.Cast<DataColumn>())
-            {
-                objDictionary[column.ColumnName.ToLower()] = row[column];
-            }
-            return obj;
-        })
-        .FirstOrDefault();
+        // return list.AsEnumerable()
+        // .Select(row =>
+        // {
+        //     dynamic obj = new ExpandoObject();
+        //     var objDictionary = (IDictionary<string, object>)obj;
+        //     foreach (var column in list.Columns.Cast<DataColumn>())
+        //     {
+        //         objDictionary[column.ColumnName.ToLower()] = row[column];
+        //     }
+        //     return obj;
+        // })
+        // .FirstOrDefault();
     }
 
 
@@ -674,28 +674,28 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <exception cref="Exception"></exception>
     public dynamic GetFormSelectBox(string oid, string EntityID)
     {
-        requireInterfaceImplementation("IDataBase", _db);
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        string sql = $@"SELECT * FROM {_db_name}.DYN{EntityID} WHERE FGENABLED = 1 AND oid = :oid";
+        // string sql = $@"SELECT * FROM {_db_name}.DYN{EntityID} WHERE FGENABLED = 1 AND oid = :oid";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":oid", oid);
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":oid", oid);
 
 
-        DataTable list = _db.Query(sql, parametros);
+        // DataTable list = _db.Query(sql, parametros);
 
-        return list.AsEnumerable()
-        .Select(row =>
-        {
-            dynamic obj = new ExpandoObject();
-            var objDictionary = (IDictionary<string, object>)obj;
-            foreach (var column in list.Columns.Cast<DataColumn>())
-            {
-                objDictionary[column.ColumnName.ToLower()] = row[column];
-            }
-            return obj;
-        })
-        .FirstOrDefault();
+        // return list.AsEnumerable()
+        // .Select(row =>
+        // {
+        //     dynamic obj = new ExpandoObject();
+        //     var objDictionary = (IDictionary<string, object>)obj;
+        //     foreach (var column in list.Columns.Cast<DataColumn>())
+        //     {
+        //         objDictionary[column.ColumnName.ToLower()] = row[column];
+        //     }
+        //     return obj;
+        // })
+        // .FirstOrDefault();
     }
 
 
@@ -709,64 +709,64 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns></returns>
     /// <exception cref="SoftExpertException"></exception>
     public Anexo GetFileFromOID(string oid){
-        requireInterfaceImplementation("IDataBase", _db);
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        string sql = $@"select EFFILE.CDFILE, seblob.FLDATA, --possui o blod
-                            seblob.NMNAME, --nome e extensão do arquivo
-                            seblob.IDEXTENSION, --somente a extensão
-                            seblob.NRSIZE -- tamanho do arquivo em bytes
-                            from {_db_name}.seblob
-                            LEFT JOIN {_db_name}.EFFILE ON SEBLOB.CDEFFILE = EFFILE.CDEFFILE
-                            where oid = :OID";
+    //     string sql = $@"select EFFILE.CDFILE, seblob.FLDATA, --possui o blod
+    //                         seblob.NMNAME, --nome e extensão do arquivo
+    //                         seblob.IDEXTENSION, --somente a extensão
+    //                         seblob.NRSIZE -- tamanho do arquivo em bytes
+    //                         from {_db_name}.seblob
+    //                         LEFT JOIN {_db_name}.EFFILE ON SEBLOB.CDEFFILE = EFFILE.CDEFFILE
+    //                         where oid = :OID";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":OID", oid);
+    //     Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+    //     parametros.Add(":OID", oid);
 
 
         
-        DataTable list = _db.Query(sql, parametros);
-        if (list == null || list.Rows.Count == 0){
-            throw new SoftExpertException($"O oid '{oid}' não foi encontrado na tabela 'SEBLOB'");
-        }
+    //     DataTable list = _db.Query(sql, parametros);
+    //     if (list == null || list.Rows.Count == 0){
+    //         throw new SoftExpertException($"O oid '{oid}' não foi encontrado na tabela 'SEBLOB'");
+    //     }
 
-        try
-        {// metodo de armazenamento em banco de dados
-        return list.AsEnumerable()
-            .Select(row =>
-            {
-                Anexo anexo = new Anexo();
-                anexo.cdfile = int.TryParse(row["CDFILE"].ToString(), out var tempValue) ? tempValue : 0;
-                anexo.FileName = row["NMNAME"].ToString();
-                anexo.extension = row["IDEXTENSION"].ToString();
+    //     try
+    //     {// metodo de armazenamento em banco de dados
+    //     return list.AsEnumerable()
+    //         .Select(row =>
+    //         {
+    //             Anexo anexo = new Anexo();
+    //             anexo.cdfile = int.TryParse(row["CDFILE"].ToString(), out var tempValue) ? tempValue : 0;
+    //             anexo.FileName = row["NMNAME"].ToString();
+    //             anexo.extension = row["IDEXTENSION"].ToString();
 
-                anexo.Content = (byte[])row["FLDATA"];
-                return anexo;
-            })
-            .FirstOrDefault();
-    }
-        catch (System.Exception)
-        {
-            //metodo de armazenamento em diretorio controlado
-            try
-            {
-                return list.AsEnumerable()
-            .Select(row =>
-            {
-                Anexo anexo = new Anexo();
-                anexo.cdfile = int.Parse(row["CDFILE"].ToString());
-                anexo.FileName = row["NMNAME"].ToString();
-                anexo.extension = row["IDEXTENSION"].ToString();
+    //             anexo.Content = (byte[])row["FLDATA"];
+    //             return anexo;
+    //         })
+    //         .FirstOrDefault();
+    // }
+    //     catch (System.Exception)
+    //     {
+    //         //metodo de armazenamento em diretorio controlado
+    //         try
+    //         {
+    //             return list.AsEnumerable()
+    //         .Select(row =>
+    //         {
+    //             Anexo anexo = new Anexo();
+    //             anexo.cdfile = int.Parse(row["CDFILE"].ToString());
+    //             anexo.FileName = row["NMNAME"].ToString();
+    //             anexo.extension = row["IDEXTENSION"].ToString();
                 
-                anexo.Content = _downloader.DownloadFileForm($"{anexo.cdfile.ToString($"D{8}")}.{anexo.extension}");
-                return anexo;
-            })
-            .FirstOrDefault();
-            }
-            catch (System.Exception)
-            {
-                throw;
-            }
-        }
+    //             anexo.Content = _downloader.DownloadFileForm($"{anexo.cdfile.ToString($"D{8}")}.{anexo.extension}");
+    //             return anexo;
+    //         })
+    //         .FirstOrDefault();
+    //         }
+    //         catch (System.Exception)
+    //         {
+    //             throw;
+    //         }
+    //     }
 
         
         
@@ -782,24 +782,24 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns></returns>
     public int MarkActivityAsExecuted(string WorkflowID, string ActivityID)
     {
-        requireInterfaceImplementation("IDataBase", _db);
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        string sql = $@"UPDATE {_db_name}.WFSTRUCT SET FGSTATUS = 3 WHERE IDOBJECT = 
-                        (SELECT A.IDOBJECT FROM {_db_name}.wfprocess p JOIN {_db_name}.wfstruct a on a.idprocess = p.idobject WHERE p.idprocess = :WorkflowID AND IDSTRUCT = :ActivityID)";
+        // string sql = $@"UPDATE {_db_name}.WFSTRUCT SET FGSTATUS = 3 WHERE IDOBJECT = 
+        //                 (SELECT A.IDOBJECT FROM {_db_name}.wfprocess p JOIN {_db_name}.wfstruct a on a.idprocess = p.idobject WHERE p.idprocess = :WorkflowID AND IDSTRUCT = :ActivityID)";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":WorkflowID", WorkflowID);
-        parametros.Add(":ActivityID", ActivityID);
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":WorkflowID", WorkflowID);
+        // parametros.Add(":ActivityID", ActivityID);
 
-        int result = _db.Execute(sql, parametros);
-        if (result == 0) {
-            return 0;
-        }
+        // int result = _db.Execute(sql, parametros);
+        // if (result == 0) {
+        //     return 0;
+        // }
 
-        sql = $@"DELETE FROM {_db_name}.wftask WHERE IDACTIVITY = 
-                    (SELECT A.IDOBJECT FROM {_db_name}.wfprocess p JOIN {_db_name}.wfstruct a on a.idprocess = p.idobject WHERE p.idprocess = :WorkflowID AND IDSTRUCT = :ActivityID)";
+        // sql = $@"DELETE FROM {_db_name}.wftask WHERE IDACTIVITY = 
+        //             (SELECT A.IDOBJECT FROM {_db_name}.wfprocess p JOIN {_db_name}.wfstruct a on a.idprocess = p.idobject WHERE p.idprocess = :WorkflowID AND IDSTRUCT = :ActivityID)";
 
-        return _db.Execute(sql, parametros);
+        // return _db.Execute(sql, parametros);
     }
 
 
@@ -847,27 +847,27 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
     private DataTable getFileFromFormField_DetermineOrigin(string WorkflowID, string MainEntityID, string FormField){
-        requireInterfaceImplementation("IDataBase", _db);
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        string sql = $@"SELECT EFFILE.cdfile, SEBLOB.*
-                            FROM {_db_name}.wfprocess p
-                            JOIN {_db_name}.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
-                            JOIN {_db_name}.dyn{MainEntityID} formulario on formulario.oid = GNF.OIDENTITYREG
-                            JOIN {_db_name}.SEBLOB ON SEBLOB.OID = formulario.oid{FormField}
-                            JOIN {_db_name}.EFFILE ON SEBLOB.CDEFFILE = EFFILE.CDEFFILE
-                            --
-                            WHERE p.idprocess = :WorkflowID";
+        // string sql = $@"SELECT EFFILE.cdfile, SEBLOB.*
+        //                     FROM {_db_name}.wfprocess p
+        //                     JOIN {_db_name}.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
+        //                     JOIN {_db_name}.dyn{MainEntityID} formulario on formulario.oid = GNF.OIDENTITYREG
+        //                     JOIN {_db_name}.SEBLOB ON SEBLOB.OID = formulario.oid{FormField}
+        //                     JOIN {_db_name}.EFFILE ON SEBLOB.CDEFFILE = EFFILE.CDEFFILE
+        //                     --
+        //                     WHERE p.idprocess = :WorkflowID";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":WorkflowID", WorkflowID);
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":WorkflowID", WorkflowID);
 
 
         
-        DataTable list = _db.Query(sql, parametros);
-        if (list == null || list.Rows.Count == 0){
-            throw new SoftExpertException($"Não foi encontrado na tabela 'SEBLOB' um OID do campo '{FormField}' da tabela '{MainEntityID}' ou o arquivo não foi anexado na instancia '{WorkflowID}'");
-        }
-        return list;
+        // DataTable list = _db.Query(sql, parametros);
+        // if (list == null || list.Rows.Count == 0){
+        //     throw new SoftExpertException($"Não foi encontrado na tabela 'SEBLOB' um OID do campo '{FormField}' da tabela '{MainEntityID}' ou o arquivo não foi anexado na instancia '{WorkflowID}'");
+        // }
+        // return list;
     }
 
     private void requireInterfaceImplementation(string type, dynamic obj)
@@ -968,15 +968,15 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns></returns>
     public int ChangeWorflowTitle(string workflowID, string title)
     {
-        requireInterfaceImplementation("IDataBase", _db);
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        string sql = $@"UPDATE {_db_name}.WFPROCESS SET NMPROCESS = :title WHERE IDPROCESS= :workflowID";
+        // string sql = $@"UPDATE {_db_name}.WFPROCESS SET NMPROCESS = :title WHERE IDPROCESS= :workflowID";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":title", title);
-        parametros.Add(":workflowID", workflowID);
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":title", title);
+        // parametros.Add(":workflowID", workflowID);
 
-        return _db.Execute(sql, parametros);
+        // return _db.Execute(sql, parametros);
     }
 
 
@@ -990,32 +990,32 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="workflowID"></param>
     /// <returns>WFStatus</returns>
     public WFStatus GetWorflowStatus(string WorkflowID){
-        requireInterfaceImplementation("IDataBase", _db);
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        string sql = $@"SELECT fgstatus
-                            FROM {_db_name}.wfprocess p
-                            WHERE p.idprocess = :WorkflowID";
+        // string sql = $@"SELECT fgstatus
+        //                     FROM {_db_name}.wfprocess p
+        //                     WHERE p.idprocess = :WorkflowID";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":WorkflowID", WorkflowID);
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":WorkflowID", WorkflowID);
 
 
         
-        DataTable list = _db.Query(sql, parametros);
-        if (list == null || list.Rows.Count == 0){
-            throw new SoftExpertException($"Não foi encontrado um workflow com o id '{WorkflowID}'");
-        }
+        // DataTable list = _db.Query(sql, parametros);
+        // if (list == null || list.Rows.Count == 0){
+        //     throw new SoftExpertException($"Não foi encontrado um workflow com o id '{WorkflowID}'");
+        // }
 
-        int fgStatusValue = Convert.ToInt32(list.Rows[0]["fgstatus"]);
+        // int fgStatusValue = Convert.ToInt32(list.Rows[0]["fgstatus"]);
 
-        if (Enum.IsDefined(typeof(WFStatus), fgStatusValue))
-        {
-            return (WFStatus)fgStatusValue;
-        }
-        else
-        {
-            throw new SoftExpertException($"Valor desconhecido para fgstatus: {fgStatusValue}");
-        }
+        // if (Enum.IsDefined(typeof(WFStatus), fgStatusValue))
+        // {
+        //     return (WFStatus)fgStatusValue;
+        // }
+        // else
+        // {
+        //     throw new SoftExpertException($"Valor desconhecido para fgstatus: {fgStatusValue}");
+        // }
     }
 
 
@@ -1028,43 +1028,44 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="workflowID"></param>
     /// <returns>WFStatus</returns>
     public List<WFStruct> GetCurrentActivities(string WorkflowID){
-        requireInterfaceImplementation("IDataBase", _db);
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
+        
 
-        string sql = $@"SELECT a.idprocess, a.idobject, a.idstruct, a.nmstruct, a.fgstatus
-                                , A.DHENABLED AS DTENABLED
-                                , a.DTESTIMATEDFINISH + ( A.NRTIMEESTFINISH/24/60) AS DTESTIMATEDFINISH
-                                , TO_DATE(to_char(a.DTEXECUTION, 'dd/mm/yyyy') || a.TMEXECUTION, 'dd/mm/yyyyHH24:MI:SS') AS DTEXECUTION
-                            FROM {_db_name}.wfprocess p
-                            JOIN softexpert.wfstruct a on a.idprocess = p.idobject AND A.FGSTATUS = 2
-                            WHERE p.idprocess = :WorkflowID";
+        // string sql = $@"SELECT a.idprocess, a.idobject, a.idstruct, a.nmstruct, a.fgstatus
+        //                         , A.DHENABLED AS DTENABLED
+        //                         , a.DTESTIMATEDFINISH + ( A.NRTIMEESTFINISH/24/60) AS DTESTIMATEDFINISH
+        //                         , TO_DATE(to_char(a.DTEXECUTION, 'dd/mm/yyyy') || a.TMEXECUTION, 'dd/mm/yyyyHH24:MI:SS') AS DTEXECUTION
+        //                     FROM {_db_name}.wfprocess p
+        //                     JOIN softexpert.wfstruct a on a.idprocess = p.idobject AND A.FGSTATUS = 2
+        //                     WHERE p.idprocess = :WorkflowID";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":WorkflowID", WorkflowID);
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":WorkflowID", WorkflowID);
 
 
         
-        DataTable list = _db.Query(sql, parametros);
-        if (list == null || list.Rows.Count == 0){
-            throw new SoftExpertException($"Não foi encontrado um workflow com o id '{WorkflowID}'");
-        }
+        // DataTable list = _db.Query(sql, parametros);
+        // if (list == null || list.Rows.Count == 0){
+        //     throw new SoftExpertException($"Não foi encontrado um workflow com o id '{WorkflowID}'");
+        // }
 
-        return list.AsEnumerable()
-            .Select(row =>
-            {
-                WFStruct wfStruct = new WFStruct();
-                wfStruct.idstruct = row["idstruct"].ToString();
-                wfStruct.idprocess = row["idprocess"].ToString();
-                wfStruct.idobject = row["idobject"].ToString();
-                wfStruct.nmstruct = row["nmstruct"].ToString();
-                wfStruct.fgstatus = (WFStruct.WFStatus)Convert.ToInt32(row["fgstatus"]);
+        // return list.AsEnumerable()
+        //     .Select(row =>
+        //     {
+        //         WFStruct wfStruct = new WFStruct();
+        //         wfStruct.idstruct = row["idstruct"].ToString();
+        //         wfStruct.idprocess = row["idprocess"].ToString();
+        //         wfStruct.idobject = row["idobject"].ToString();
+        //         wfStruct.nmstruct = row["nmstruct"].ToString();
+        //         wfStruct.fgstatus = (WFStruct.WFStatus)Convert.ToInt32(row["fgstatus"]);
                 
-                wfStruct.dhenabled = Convert.ToDateTime(row["DTENABLED"]);
-                wfStruct.dtestimatedfinish = row["DTESTIMATEDFINISH"] != DBNull.Value ? Convert.ToDateTime(row["DTESTIMATEDFINISH"]) : DateTime.MinValue;
-                wfStruct.dtexecution = row["DTEXECUTION"] != DBNull.Value ? Convert.ToDateTime(row["DTEXECUTION"]) : DateTime.MinValue;
+        //         wfStruct.dhenabled = Convert.ToDateTime(row["DTENABLED"]);
+        //         wfStruct.dtestimatedfinish = row["DTESTIMATEDFINISH"] != DBNull.Value ? Convert.ToDateTime(row["DTESTIMATEDFINISH"]) : DateTime.MinValue;
+        //         wfStruct.dtexecution = row["DTEXECUTION"] != DBNull.Value ? Convert.ToDateTime(row["DTEXECUTION"]) : DateTime.MinValue;
 
-                return wfStruct;
-            })
-            .ToList();
+        //         return wfStruct;
+        //     })
+        //     .ToList();
 
     }
 
@@ -1080,28 +1081,29 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="workflowID"></param>
     /// <returns>List<string></returns>
     public List<string> GetActualActivities(string WorkflowID){
-        requireInterfaceImplementation("IDataBase", _db);
         
-        string sql = $@"SELECT a.idstruct
-                            FROM {_db_name}.wfprocess p
-                            --
-                            JOIN {_db_name}.wfstruct a on a.idprocess = p.idobject
-                            JOIN {_db_name}.wftask c on c.IDACTIVITY = a.idobject
-                            --
-                            WHERE p.idprocess = :WorkflowID";
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
+        
+        // string sql = $@"SELECT a.idstruct
+        //                     FROM {_db_name}.wfprocess p
+        //                     --
+        //                     JOIN {_db_name}.wfstruct a on a.idprocess = p.idobject
+        //                     JOIN {_db_name}.wftask c on c.IDACTIVITY = a.idobject
+        //                     --
+        //                     WHERE p.idprocess = :WorkflowID";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":WorkflowID", WorkflowID);
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":WorkflowID", WorkflowID);
 
 
-        DataTable list = _db.Query(sql, parametros);
-        if (list == null || list.Rows.Count == 0){
-            throw new SoftExpertException($"Não foi encontrado um workflow em andamento com o id '{WorkflowID}'. Verifique se ele realmente está em andamento");
-        }
+        // DataTable list = _db.Query(sql, parametros);
+        // if (list == null || list.Rows.Count == 0){
+        //     throw new SoftExpertException($"Não foi encontrado um workflow em andamento com o id '{WorkflowID}'. Verifique se ele realmente está em andamento");
+        // }
 
-        return list.AsEnumerable()
-               .Select(row => row["idstruct"].ToString())
-               .ToList();
+        // return list.AsEnumerable()
+        //        .Select(row => row["idstruct"].ToString())
+        //        .ToList();
 
     }
 
@@ -1331,35 +1333,36 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
     private dynamic GetIDObjectToManageInstance(string workflowID, string ActivityID){
-        requireInterfaceImplementation("IDataBase", _db);
+        
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        string sql = $@"select p.idprocess, s.IDSTRUCT, s.NMSTRUCT, s.IDOBJECT as s_IDOBJECT, s.DTENABLED, NRORDER, p.IDOBJECT as p_IDOBJECT, P.FGSTATUS
-                            from {_db_name}.WFPROCESS p
-                            LEFT join {_db_name}.WFSTRUCT s on p.IDOBJECT = s.IDPROCESS
-                            where p.IDPROCESS = :workflowID and s.IDSTRUCT = :ActivityID
-                            and s.DTENABLED is not null
-                            order by s.DTENABLED DESC, s.TMENABLED DESC";
+        // string sql = $@"select p.idprocess, s.IDSTRUCT, s.NMSTRUCT, s.IDOBJECT as s_IDOBJECT, s.DTENABLED, NRORDER, p.IDOBJECT as p_IDOBJECT, P.FGSTATUS
+        //                     from {_db_name}.WFPROCESS p
+        //                     LEFT join {_db_name}.WFSTRUCT s on p.IDOBJECT = s.IDPROCESS
+        //                     where p.IDPROCESS = :workflowID and s.IDSTRUCT = :ActivityID
+        //                     and s.DTENABLED is not null
+        //                     order by s.DTENABLED DESC, s.TMENABLED DESC";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":workflowID", workflowID);
-        parametros.Add(":ActivityID", ActivityID);
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":workflowID", workflowID);
+        // parametros.Add(":ActivityID", ActivityID);
 
 
-        DataTable list = _db.Query(sql, parametros);
+        // DataTable list = _db.Query(sql, parametros);
 
-        if (list.Rows.Count > 0)
-        {
-            var row = list.Rows[0];
-            return new 
-            {
-                s_idobject = row["s_IDOBJECT"].ToString(),
-                p_idobject = row["p_IDOBJECT"].ToString()
-            };
-        }
-        else
-        {
-            return null; // Ou retorne um objeto anônimo com valores padrão, se preferir
-        }
+        // if (list.Rows.Count > 0)
+        // {
+        //     var row = list.Rows[0];
+        //     return new 
+        //     {
+        //         s_idobject = row["s_IDOBJECT"].ToString(),
+        //         p_idobject = row["p_IDOBJECT"].ToString()
+        //     };
+        // }
+        // else
+        // {
+        //     return null; // Ou retorne um objeto anônimo com valores padrão, se preferir
+        // }
     }   
 
 
@@ -1522,127 +1525,130 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="userID"></param>
     public void delegateWorkflow(string workflowID, string ActivityID, string explanation, string userID)
     {
-        try
-        {
-            var obj = GetIDObjectToManageInstance(workflowID, ActivityID);
-            if(obj == null){
-                throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}' e que possua a atividade '{ActivityID}'");
-            }
-            Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>(){
-                {"savetype", "activityExecutor"},
-                {"idobject", obj.s_idobject},
-                {"idprocess", obj.p_idobject}
-            };
-            string query = string.Join("&", parametros.Select(p => $"{p.Key}={p.Value}"));
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
+        // try
+        // {
+        //     var obj = GetIDObjectToManageInstance(workflowID, ActivityID);
+        //     if(obj == null){
+        //         throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}' e que possua a atividade '{ActivityID}'");
+        //     }
+        //     Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>(){
+        //         {"savetype", "activityExecutor"},
+        //         {"idobject", obj.s_idobject},
+        //         {"idprocess", obj.p_idobject}
+        //     };
+        //     string query = string.Join("&", parametros.Select(p => $"{p.Key}={p.Value}"));
 
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"/se/v16780/workflow/wf_gen_instance/wf_gen_instance_executor_action.php?{query}");
+        //     HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"/se/v16780/workflow/wf_gen_instance/wf_gen_instance_executor_action.php?{query}");
 
-            string token = GetToken();
-            request.Headers.Add("Cookie", $"se-authentication-token={token}");
-
-
-            var payload = new Dictionary<string, string>
-            {
-                { "typeexecutor", "3" },
-                { "fgtypeexecutor", "3" },
-                { "cduser", GetUser(userID).cduser.ToString() },
-                { "justifActivityExecutor", explanation }
-            };
-            string jsonBody = JsonConvert.SerializeObject(payload);
-            request.Content = new FormUrlEncodedContent(payload);
+        //     string token = GetToken();
+        //     request.Headers.Add("Cookie", $"se-authentication-token={token}");
 
 
-            HttpResponseMessage  response = _restClient.SendAsync(request).Result;
-            if(!response.IsSuccessStatusCode){
-                throw new Exception("Houve um problema ao reativar a instancia");
-            }
+        //     var payload = new Dictionary<string, string>
+        //     {
+        //         { "typeexecutor", "3" },
+        //         { "fgtypeexecutor", "3" },
+        //         { "cduser", GetUser(userID).cduser.ToString() },
+        //         { "justifActivityExecutor", explanation }
+        //     };
+        //     string jsonBody = JsonConvert.SerializeObject(payload);
+        //     request.Content = new FormUrlEncodedContent(payload);
 
-            string responseBody = response.Content.ReadAsStringAsync().Result;
-            if(responseBody.Contains("softexpert/login")){
-                var error = new SoftExpertException("Houve um problema ao retornar a instancia");
-                error.setRequestSent(jsonBody);
-                error.setResponseReceived(responseBody);
-                throw error;
-            }
 
-            if(responseBody.Contains("Ocorreu um erro ao tentar processar informações")){
-                throw new Exception("Houve um problema ao retornar a instancia");
-            }
+        //     HttpResponseMessage  response = _restClient.SendAsync(request).Result;
+        //     if(!response.IsSuccessStatusCode){
+        //         throw new Exception("Houve um problema ao reativar a instancia");
+        //     }
 
-            /* se chegou até aqui, então houve sucesso. Sendo assim ...
-             * as vezes a tabela wftask fica com o campo FGEXECUTEACTION não nulo.
-             * isso faz com que a atividade, mesmo que a atividade esteja ativa, não apareça para o usuário
-             * então fazemos um UPDATE wftask SET FGEXECUTEACTION=null forçando que volte a aparecer para o usuário executor
-             */
+        //     string responseBody = response.Content.ReadAsStringAsync().Result;
+        //     if(responseBody.Contains("softexpert/login")){
+        //         var error = new SoftExpertException("Houve um problema ao retornar a instancia");
+        //         error.setRequestSent(jsonBody);
+        //         error.setResponseReceived(responseBody);
+        //         throw error;
+        //     }
 
-            try{
-                string sql = @$"UPDATE {_db_name}.wftask SET FGEXECUTEACTION=null 
-                                WHERE idobject = (
-                                    SELECT c.idobject
-                                    FROM softexpert.wfprocess p
-                                    LEFT JOIN softexpert.wfstruct a on a.idprocess = p.idobject AND A.FGSTATUS = 2
-                                    LEFT JOIN softexpert.wftask c on c.IDACTIVITY = a.idobject
-                                    WHERE p.idprocess = :workflowID
-                                )";
-                Dictionary<string, dynamic> params2 = new Dictionary<string, dynamic>();
-                params2.Add(":workflowID", workflowID.Trim());
+        //     if(responseBody.Contains("Ocorreu um erro ao tentar processar informações")){
+        //         throw new Exception("Houve um problema ao retornar a instancia");
+        //     }
 
-                int affected = _db.Execute(sql, params2);
-            }
-            catch (System.Exception errorWF)
-            {
+        //     /* se chegou até aqui, então houve sucesso. Sendo assim ...
+        //      * as vezes a tabela wftask fica com o campo FGEXECUTEACTION não nulo.
+        //      * isso faz com que a atividade, mesmo que a atividade esteja ativa, não apareça para o usuário
+        //      * então fazemos um UPDATE wftask SET FGEXECUTEACTION=null forçando que volte a aparecer para o usuário executor
+        //      */
+
+        //     try{
+        //         string sql = @$"UPDATE {_db_name}.wftask SET FGEXECUTEACTION=null 
+        //                         WHERE idobject = (
+        //                             SELECT c.idobject
+        //                             FROM softexpert.wfprocess p
+        //                             LEFT JOIN softexpert.wfstruct a on a.idprocess = p.idobject AND A.FGSTATUS = 2
+        //                             LEFT JOIN softexpert.wftask c on c.IDACTIVITY = a.idobject
+        //                             WHERE p.idprocess = :workflowID
+        //                         )";
+        //         Dictionary<string, dynamic> params2 = new Dictionary<string, dynamic>();
+        //         params2.Add(":workflowID", workflowID.Trim());
+
+        //         int affected = _db.Execute(sql, params2);
+        //     }
+        //     catch (System.Exception errorWF)
+        //     {
                 
-            }
+        //     }
 
-            return;
-        }
-        catch (System.Exception errorWF)
-        {
-            throw;
-        }
+        //     return;
+        // }
+        // catch (System.Exception errorWF)
+        // {
+        //     throw;
+        // }
     }
 
 
     private ADUser GetUser(string userID){
-        requireInterfaceImplementation("IDataBase", _db);
+        
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        string sql = $@"select *
-                            from {_db_name}.ADUSER
-                            where iduser = :userID";
+        // string sql = $@"select *
+        //                     from {_db_name}.ADUSER
+        //                     where iduser = :userID";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":userID", userID);
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":userID", userID);
 
 
-        DataTable list = _db.Query(sql, parametros);
+        // DataTable list = _db.Query(sql, parametros);
 
-        if (list.Rows.Count > 0)
-        {
-            var row = list.Rows[0];
-            return ADUser.ConvertDataRowToADUser(row);
-        }
-        throw new SoftExpertException($"O usuário de matricula '{userID}' não foi encontrado.");
+        // if (list.Rows.Count > 0)
+        // {
+        //     var row = list.Rows[0];
+        //     return ADUser.ConvertDataRowToADUser(row);
+        // }
+        // throw new SoftExpertException($"O usuário de matricula '{userID}' não foi encontrado.");
     }
 
     private ADUser GetUser(int cduser){
-        requireInterfaceImplementation("IDataBase", _db);
+        
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        string sql = $@"select *
-                            from {_db_name}.ADUSER
-                            where cduser = :cduser";
+        // string sql = $@"select *
+        //                     from {_db_name}.ADUSER
+        //                     where cduser = :cduser";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":cduser", cduser);
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":cduser", cduser);
 
 
-        DataTable list = _db.Query(sql, parametros);
+        // DataTable list = _db.Query(sql, parametros);
 
-        if (list.Rows.Count > 0)
-        {
-            var row = list.Rows[0];
-            return ADUser.ConvertDataRowToADUser(row);
-        }
-        throw new SoftExpertException($"O usuário de código '{cduser}' não foi encontrado.");
+        // if (list.Rows.Count > 0)
+        // {
+        //     var row = list.Rows[0];
+        //     return ADUser.ConvertDataRowToADUser(row);
+        // }
+        // throw new SoftExpertException($"O usuário de código '{cduser}' não foi encontrado.");
     }
 
 
@@ -1661,41 +1667,43 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="rename">Booleano. true (padrao) altera o campo NMUSERSTART e do CDUSERSTART no banco. false realiza apenas a alteração do CDUSERSTART</param>
     /// <param name="requesterID">Matrícula do solicitante (opcional). Usado para referência no histórico</param>
     public void AlterUserStart(string workflowID, string explanation, string userID, bool rename = true, string requesterID = null){
-        requireInterfaceImplementation("IDataBase", _db);
-        ADUser user = GetUser(userID);
+        
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        string alterNMUser = string.Empty;
-        if(rename){
-            alterNMUser = $", nmuserstart = '{user.nmuser}'";
-        }
+        // ADUser user = GetUser(userID);
 
-        string sql = @$"UPDATE {_db_name}.WFPROCESS SET cduserstart = {user.cduser} {alterNMUser} WHERE IDPROCESS = :workflowID";
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":workflowID", workflowID.Trim());
+        // string alterNMUser = string.Empty;
+        // if(rename){
+        //     alterNMUser = $", nmuserstart = '{user.nmuser}'";
+        // }
+
+        // string sql = @$"UPDATE {_db_name}.WFPROCESS SET cduserstart = {user.cduser} {alterNMUser} WHERE IDPROCESS = :workflowID";
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":workflowID", workflowID.Trim());
 
         
 
-        //valida se a instancia existe e está em andamento
-        ValidateInstance(workflowID.Trim(), WFStatus.Em_Andamento);
+        // //valida se a instancia existe e está em andamento
+        // ValidateInstance(workflowID.Trim(), WFStatus.Em_Andamento);
 
-        int affected = _db.Execute(sql, parametros);
-        if(affected == 0){
-            throw new SoftExpertException("Era esperado a alteração de um registro no banco de dados, mas nenhum registro foi alterado");
-        }
+        // int affected = _db.Execute(sql, parametros);
+        // if(affected == 0){
+        //     throw new SoftExpertException("Era esperado a alteração de um registro no banco de dados, mas nenhum registro foi alterado");
+        // }
 
-        string comment = requesterID != null 
-        ? $"Alteração do iniciador de {requesterID} para {user.nmuser}. Justificativa: {explanation}"
-        : $"Alteração do iniciador para {user.nmuser}. Justificativa: {explanation}";
+        // string comment = requesterID != null 
+        // ? $"Alteração do iniciador de {requesterID} para {user.nmuser}. Justificativa: {explanation}"
+        // : $"Alteração do iniciador para {user.nmuser}. Justificativa: {explanation}";
 
-        List<WFStruct> activities = GetCurrentActivities(workflowID);
-        if(activities.Count > 0){
-            //addHistoryComment(workflowID, comment, requesterID ?? userID, activities[0].idstruct);
-            //Este endpoint está com bug na 2.2.3.150 até o momento
-        }
+        // List<WFStruct> activities = GetCurrentActivities(workflowID);
+        // if(activities.Count > 0){
+        //     //addHistoryComment(workflowID, comment, requesterID ?? userID, activities[0].idstruct);
+        //     //Este endpoint está com bug na 2.2.3.150 até o momento
+        // }
 
         
         
-        return;
+        // return;
     }
 
 
@@ -1709,49 +1717,53 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="cduserFrom">Código do solicitante (opcional). 0 (padrão) não insere o nome do solicitante no histórico</param>
     public void AlterUserStart(string workflowID, string explanation, int cduser, bool rename = true, int cduserFrom = 0)
     {
-        requireInterfaceImplementation("IDataBase", _db);
-        ADUser user = GetUser(cduser);
+        
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
+        
+        // ADUser user = GetUser(cduser);
 
-        if (cduserFrom != 0)
-        {
-            ADUser userFrom = GetUser(cduserFrom);
-            AlterUserStart(workflowID, explanation, user.iduser, rename, userFrom.iduser);
-        }
-        else
-        {
-            AlterUserStart(workflowID, explanation, user.iduser, rename);
-        }
+        // if (cduserFrom != 0)
+        // {
+        //     ADUser userFrom = GetUser(cduserFrom);
+        //     AlterUserStart(workflowID, explanation, user.iduser, rename, userFrom.iduser);
+        // }
+        // else
+        // {
+        //     AlterUserStart(workflowID, explanation, user.iduser, rename);
+        // }
 
     }
 
     private void ValidateInstance(string workflowID, WFStatus fgstatus)
     {
-        requireInterfaceImplementation("IDataBase", _db);
+        
+        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
+        
 
-        string sql = $@"select *
-                            from {_db_name}.WFPROCESS
-                            where idprocess = :workflowID";
+        // string sql = $@"select *
+        //                     from {_db_name}.WFPROCESS
+        //                     where idprocess = :workflowID";
 
-        Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        parametros.Add(":workflowID", workflowID.Trim());
-
-
-        DataTable list = _db.Query(sql, parametros);
-
-        if (list.Rows.Count == 0)
-        {
-            throw new SoftExpertException($"Nenhuma instância com o idprocess '{workflowID.Trim()}' foi encontrada");
-        }
-
-        var row = list.Rows[0];
-        int got_fgstatus = int.Parse(row["FGSTATUS"].ToString());
-
-        if(got_fgstatus != (int)fgstatus){
-            throw new SoftExpertException($"A instância '{workflowID}' foi encontrada mas o status não é {fgstatus}");
-        }
+        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
+        // parametros.Add(":workflowID", workflowID.Trim());
 
 
-        return;
+        // DataTable list = _db.Query(sql, parametros);
+
+        // if (list.Rows.Count == 0)
+        // {
+        //     throw new SoftExpertException($"Nenhuma instância com o idprocess '{workflowID.Trim()}' foi encontrada");
+        // }
+
+        // var row = list.Rows[0];
+        // int got_fgstatus = int.Parse(row["FGSTATUS"].ToString());
+
+        // if(got_fgstatus != (int)fgstatus){
+        //     throw new SoftExpertException($"A instância '{workflowID}' foi encontrada mas o status não é {fgstatus}");
+        // }
+
+
+        // return;
     }
 }
 
