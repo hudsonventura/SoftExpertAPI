@@ -1668,7 +1668,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="requesterID">Mantido por compatibilidade; não utilizado pelo SOAP</param>
     public void AlterUserStart(string workflowID, string requesterID, string explanation = null)
     {
-        //throw new NotImplementedException("Este método não funciona no SE. Ref.: https://developer.softexpert.com/docs/2.2.4/data-integration/reference/web-service-soap/workflow/editWorkflowData");    
+        throw new NotImplementedException("Este método não funciona no SE. Ref.: https://developer.softexpert.com/docs/2.2.4/data-integration/reference/web-service-soap/workflow/editWorkflowData");    
         ValidateInstance(workflowID.Trim(), WFStatus.Em_Andamento);
 
         string body = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
@@ -1711,6 +1711,27 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
         return;
+    }
+
+    /// <summary>
+    /// Edita um registro de uma tabela qualquer do SE desde que se tenha o OID do registro
+    /// </summary>
+    /// <param name="UserID">Matrícula do usuário que está editando o registro</param>
+    /// <param name="EntityID">ID da tabela que contém o registro</param>
+    /// <param name="oid">OID do registro a ser editado</param>
+    public void editEntityRecord(string UserID, string EntityID, string oid)
+    {
+        throw new NotImplementedException("Este método ainda não foi implementado");
+    }
+
+    /// <summary>
+    /// Edita um registro de uma tabela principal de uma instância no SE
+    /// </summary>
+    /// <param name="WorkflowID">IDPROCESS da instância do processo</param>
+    /// <param name="EntityID">ID da tabela principal da instância</param>
+    public void editTableRecord(string WorkflowID, string EntityID)
+    {
+        throw new NotImplementedException("Este método ainda não foi implementado");
     }
 }
 

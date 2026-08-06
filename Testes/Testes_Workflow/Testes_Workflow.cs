@@ -14,16 +14,16 @@ public class Testes_Workflow
 
     //parametros ficticios utilizados apenas para os testes
     string ProcessID = "CCF";
-    string WorkflowID = "CCF202600001";
+    string WorkflowID = "CCF202614358";
     string EntityID = "SOLCLIENTEFORNE";
-    string ActivityID = "ATIV-SOLCCF";
+    string ActivityID = "ATIV-centralCadastro";
 
     string ChieldEntityID = "invoices";
 
     int ActionSequence_Error = 1;
     int ActionSequence_Success = 2;
 
-    int cduser = 9;
+    string iduser = "sistema.teste";
 
     string oidFile = "ca0d26bcb6d294c48933e719f1959b86";
 
@@ -96,11 +96,34 @@ public class Testes_Workflow
         try
         {
             _softExpertApi.editEntityRecord(WorkflowID, EntityID, EntityAttributeList);
-            Assert.True(1==1);
+            Assert.True(true);
         }
-        catch (System.Exception error)
+        catch (Exception error)
         {
+            console.WriteLine($"Erro: {error.Message}");
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Tenta editar formulário de instância inexistente e espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void WF_02_editEntityRecord_Error()
+    {
+        Dictionary<string, string> EntityAttributeList = new Dictionary<string, string>() {
+            { "observacoes", "Teste de unidade SoftExpertAPI"},
+        };
+
+        try
+        {
+            _softExpertApi.editEntityRecord("INSTANCIA_INEXISTENTE_XYZ", EntityID, EntityAttributeList);
+            Assert.Fail("Era esperado SoftExpertException para instância inexistente");
+        }
+        catch (SoftExpertException error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
         }
     }
 
@@ -132,10 +155,11 @@ public class Testes_Workflow
         try
         {
             _softExpertApi.editEntityRecord(WorkflowID, EntityID, EntityAttributeList, relacionamentos);
-            Assert.True(1==1);
+            Assert.True(true);
         }
-        catch (System.Exception error)
+        catch (Exception error)
         {
+            console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -152,11 +176,12 @@ public class Testes_Workflow
 
         try
         {
-            _softExpertApi.editEntityRecord(WorkflowID, EntityID, EntityAttributeList, null, arquivos);
-            Assert.True(1==1);
+            _softExpertApi.editEntityRecord("CCF202314173", EntityID, EntityAttributeList, null, arquivos);
+            Assert.True(true);
         }
-        catch (System.Exception error)
+        catch (Exception error)
         {
+            console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -304,7 +329,7 @@ public class Testes_Workflow
     {
         try
         {
-            _softExpertApi.addHistoryComment(WorkflowID, "Comentário de testes com $%@ caractestes especiais, 'aspas simples' e \"aspas duplas\"", cduser, ActivityID);
+            _softExpertApi.addHistoryComment(WorkflowID, "Comentário de testes com $%@ caractestes especiais, 'aspas simples' e \"aspas duplas\"", iduser, ActivityID);
             Assert.True(1==1);
         }
         catch (System.Exception error)
@@ -399,6 +424,44 @@ public class Testes_Workflow
         {
             _softExpertApi.AlterUserStart(workflowID, userID, explanation: null);
             Assert.Fail("Era esperado SoftExpertException para usuário inexistente");
+        }
+        catch (SoftExpertException error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+
+
+    /// <summary>
+    /// Edita registro da tabela principal da instância via editTableRecord
+    /// </summary>
+    [Fact]
+    public void WF_14_editTableRecord_Success()
+    {
+        try
+        {
+            _softExpertApi.editTableRecord(WorkflowID, EntityID);
+            Assert.True(true);
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// editTableRecord com instância inexistente — espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void WF_14_editTableRecord_Error()
+    {
+        try
+        {
+            _softExpertApi.editTableRecord("INSTANCIA_INEXISTENTE_XYZ", EntityID);
+            Assert.Fail("Era esperado SoftExpertException");
         }
         catch (SoftExpertException error)
         {
