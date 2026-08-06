@@ -497,4 +497,50 @@ public class Testes_Workflow
             Assert.True(true);
         }
     }
+
+    /// <summary>
+    /// Delega a atividade de uma instância para outro usuário
+    /// </summary>
+    [Fact]
+    public void WF_16_delegateWorkflow_Success()
+    {
+        string workflowID = "SM2026108124";
+        string activityID = "atvsolicitarmiro";
+        string explanation = "Teste unitário SoftExpertAPI - delegateWorkflow";
+        int cduser = 9;
+
+        try
+        {
+            _softExpertApi.delegateWorkflow(workflowID, activityID, explanation, cduser);
+            Assert.True(true);
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Tenta delegar instância inexistente — espera Exception
+    /// </summary>
+    [Fact]
+    public void WF_16_delegateWorkflow_Error()
+    {
+        string workflowID = "INSTANCIA_INEXISTENTE_XYZ";
+        string activityID = "ATIVIDADE_INEXISTENTE";
+        string explanation = "Teste unitário SoftExpertAPI - delegateWorkflow";
+        int cduser = 9;
+
+        try
+        {
+            _softExpertApi.delegateWorkflow(workflowID, activityID, explanation, cduser);
+            Assert.Fail("Era esperado Exception para instância inexistente");
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
 }

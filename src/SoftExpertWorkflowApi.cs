@@ -1482,87 +1482,87 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="ActivityID"></param>
     /// <param name="explanation"></param>
     /// <param name="userID"></param>
-    public void delegateWorkflow(string workflowID, string ActivityID, string explanation, string userID)
+    public void delegateWorkflow(string workflowID, string ActivityID, string explanation, int cduser)
     {
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
-        // try
-        // {
-        //     var obj = GetIDObjectToManageInstance(workflowID, ActivityID);
-        //     if(obj == null){
-        //         throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}' e que possua a atividade '{ActivityID}'");
-        //     }
-        //     Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>(){
-        //         {"savetype", "activityExecutor"},
-        //         {"idobject", obj.s_idobject},
-        //         {"idprocess", obj.p_idobject}
-        //     };
-        //     string query = string.Join("&", parametros.Select(p => $"{p.Key}={p.Value}"));
+        try
+        {
+            var obj = GetIDObjectToManageInstance(workflowID, ActivityID);
+            if(obj == null){
+                throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}' e que possua a atividade '{ActivityID}'");
+            }
+            Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>(){
+                {"savetype", "activityExecutor"},
+                {"idobject", obj.s_idobject},
+                {"idprocess", obj.p_idobject}
+            };
+            string query = string.Join("&", parametros.Select(p => $"{p.Key}={p.Value}"));
 
-        //     HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"/se/v16780/workflow/wf_gen_instance/wf_gen_instance_executor_action.php?{query}");
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"/se/v16780/workflow/wf_gen_instance/wf_gen_instance_executor_action.php?{query}");
 
-        //     string token = GetToken();
-        //     request.Headers.Add("Cookie", $"se-authentication-token={token}");
-
-
-        //     var payload = new Dictionary<string, string>
-        //     {
-        //         { "typeexecutor", "3" },
-        //         { "fgtypeexecutor", "3" },
-        //         { "cduser", GetUser(userID).cduser.ToString() },
-        //         { "justifActivityExecutor", explanation }
-        //     };
-        //     string jsonBody = JsonConvert.SerializeObject(payload);
-        //     request.Content = new FormUrlEncodedContent(payload);
+            string token = GetToken();
+            request.Headers.Add("Cookie", $"se-authentication-token={token}");
 
 
-        //     HttpResponseMessage  response = _restClient.SendAsync(request).Result;
-        //     if(!response.IsSuccessStatusCode){
-        //         throw new Exception("Houve um problema ao reativar a instancia");
-        //     }
+            var payload = new Dictionary<string, string>
+            {
+                { "typeexecutor", "3" },
+                { "fgtypeexecutor", "3" },
+                { "cduser", cduser.ToString() },
+                { "justifActivityExecutor", explanation }
+            };
+            string jsonBody = JsonConvert.SerializeObject(payload);
+            request.Content = new FormUrlEncodedContent(payload);
 
-        //     string responseBody = response.Content.ReadAsStringAsync().Result;
-        //     if(responseBody.Contains("softexpert/login")){
-        //         var error = new SoftExpertException("Houve um problema ao retornar a instancia");
-        //         error.setRequestSent(jsonBody);
-        //         error.setResponseReceived(responseBody);
-        //         throw error;
-        //     }
 
-        //     if(responseBody.Contains("Ocorreu um erro ao tentar processar informações")){
-        //         throw new Exception("Houve um problema ao retornar a instancia");
-        //     }
+            HttpResponseMessage  response = _restClient.SendAsync(request).Result;
+            if(!response.IsSuccessStatusCode){
+                throw new Exception("Houve um problema ao reativar a instancia");
+            }
 
-        //     /* se chegou até aqui, então houve sucesso. Sendo assim ...
-        //      * as vezes a tabela wftask fica com o campo FGEXECUTEACTION não nulo.
-        //      * isso faz com que a atividade, mesmo que a atividade esteja ativa, não apareça para o usuário
-        //      * então fazemos um UPDATE wftask SET FGEXECUTEACTION=null forçando que volte a aparecer para o usuário executor
-        //      */
+            string responseBody = response.Content.ReadAsStringAsync().Result;
+            if(responseBody.Contains("softexpert/login")){
+                var error = new SoftExpertException("Houve um problema ao retornar a instancia");
+                error.setRequestSent(jsonBody);
+                error.setResponseReceived(responseBody);
+                throw error;
+            }
 
-        //     try{
-        //         string sql = @$"UPDATE {_db_name}.wftask SET FGEXECUTEACTION=null 
-        //                         WHERE idobject = (
-        //                             SELECT c.idobject
-        //                             FROM softexpert.wfprocess p
-        //                             LEFT JOIN softexpert.wfstruct a on a.idprocess = p.idobject AND A.FGSTATUS = 2
-        //                             LEFT JOIN softexpert.wftask c on c.IDACTIVITY = a.idobject
-        //                             WHERE p.idprocess = :workflowID
-        //                         )";
-        //         Dictionary<string, dynamic> params2 = new Dictionary<string, dynamic>();
-        //         params2.Add(":workflowID", workflowID.Trim());
+            if(responseBody.Contains("Ocorreu um erro ao tentar processar informações")){
+                throw new Exception("Houve um problema ao retornar a instancia");
+            }
 
-        //         int affected = _db.Execute(sql, params2);
-        //     }
-        //     catch (System.Exception errorWF)
-        //     {
+            /* se chegou até aqui, então houve sucesso. Sendo assim ...
+             * as vezes a tabela wftask fica com o campo FGEXECUTEACTION não nulo.
+             * isso faz com que a atividade, mesmo que a atividade esteja ativa, não apareça para o usuário
+             * então fazemos um UPDATE wftask SET FGEXECUTEACTION=null forçando que volte a aparecer para o usuário executor
+             */
+
+            try{
+                string sql = @$"UPDATE softexpert.wftask SET FGEXECUTEACTION=null 
+                                WHERE idobject = (
+                                    SELECT c.idobject
+                                    FROM softexpert.wfprocess p
+                                    LEFT JOIN softexpert.wfstruct a on a.idprocess = p.idobject AND A.FGSTATUS = 2
+                                    LEFT JOIN softexpert.wftask c on c.IDACTIVITY = a.idobject
+                                    WHERE p.idprocess = :workflowID
+                                )";
+                Dictionary<string, dynamic> params2 = new Dictionary<string, dynamic>();
+                params2.Add(":workflowID", workflowID.Trim());
+
+                //int affected = _db.Execute(sql, params2);
+                //Desativado para migração para a Cloud
+            }
+            catch (System.Exception errorWF)
+            {
                 
-        //     }
+            }
 
-        //     return;
-        // }
-        // catch (System.Exception errorWF)
-        // {
-        //     throw;
-        // }
+            return;
+        }
+        catch (System.Exception errorWF)
+        {
+            throw;
+        }
     }
 
 
