@@ -774,33 +774,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
 
-    /// <summary>
-    /// Marca uma atividade como executada, mas não a executa de fato. Serve para desativar uma atividade.
-    /// </summary>
-    /// <param name="WorkflowID"></param>
-    /// <param name="ActivityID"></param>
-    /// <returns></returns>
-    public int MarkActivityAsExecuted(string WorkflowID, string ActivityID)
-    {
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
-
-        // string sql = $@"UPDATE {_db_name}.WFSTRUCT SET FGSTATUS = 3 WHERE IDOBJECT = 
-        //                 (SELECT A.IDOBJECT FROM {_db_name}.wfprocess p JOIN {_db_name}.wfstruct a on a.idprocess = p.idobject WHERE p.idprocess = :WorkflowID AND IDSTRUCT = :ActivityID)";
-
-        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        // parametros.Add(":WorkflowID", WorkflowID);
-        // parametros.Add(":ActivityID", ActivityID);
-
-        // int result = _db.Execute(sql, parametros);
-        // if (result == 0) {
-        //     return 0;
-        // }
-
-        // sql = $@"DELETE FROM {_db_name}.wftask WHERE IDACTIVITY = 
-        //             (SELECT A.IDOBJECT FROM {_db_name}.wfprocess p JOIN {_db_name}.wfstruct a on a.idprocess = p.idobject WHERE p.idprocess = :WorkflowID AND IDSTRUCT = :ActivityID)";
-
-        // return _db.Execute(sql, parametros);
-    }
 
 
 
@@ -958,26 +931,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
 
-
-
-    /// <summary>
-    /// Alterar o título de uma instância de processo
-    /// </summary>
-    /// <param name="workflowID"></param>
-    /// <param name="title"></param>
-    /// <returns></returns>
-    public int ChangeWorflowTitle(string workflowID, string title)
-    {
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
-
-        // string sql = $@"UPDATE {_db_name}.WFPROCESS SET NMPROCESS = :title WHERE IDPROCESS= :workflowID";
-
-        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        // parametros.Add(":title", title);
-        // parametros.Add(":workflowID", workflowID);
-
-        // return _db.Execute(sql, parametros);
-    }
 
 
 
@@ -1208,10 +1161,9 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// </summary>
     /// <param name="workflowID">ID da instancia de workflow, incidente ou problema</param>
     /// <param name="explanation">Justificativa</param>
-    /// <param name="cduser">Código do usuario </param>
-    public void addHistoryComment(string workflowID, string comment, int cduser, string idactivity, bool is_private = false){
-        ADUser user = GetUser(cduser);
-        addHistoryComment(workflowID, comment, user.iduser, idactivity, is_private);
+    /// <param name="iduser">Matricula do usuario </param>
+    public void addHistoryComment(string workflowID, string comment, int iduser, string idactivity, bool is_private = false){
+        addHistoryComment(workflowID, comment, iduser, idactivity, is_private);
     }
 
     /// <summary>
@@ -1280,7 +1232,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="userID"></param>
     public void reactivateWorkflow(string workflowID, string ActivityID, string explanation, string userID)
     {
-        //TODO: Migrar o reactivateWorkflow para a API SOAP
+        //Obs.: reactivateWorkflow original nõa permite reativar instancia cancelada. Então pq existe?
         try
         {
             var obj = GetIDObjectToManageInstance(workflowID, ActivityID);
@@ -1336,12 +1288,12 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         
         throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        // string sql = $@"select p.idprocess, s.IDSTRUCT, s.NMSTRUCT, s.IDOBJECT as s_IDOBJECT, s.DTENABLED, NRORDER, p.IDOBJECT as p_IDOBJECT, P.FGSTATUS
-        //                     from {_db_name}.WFPROCESS p
-        //                     LEFT join {_db_name}.WFSTRUCT s on p.IDOBJECT = s.IDPROCESS
-        //                     where p.IDPROCESS = :workflowID and s.IDSTRUCT = :ActivityID
-        //                     and s.DTENABLED is not null
-        //                     order by s.DTENABLED DESC, s.TMENABLED DESC";
+        string sql = $@"select p.idprocess, s.IDSTRUCT, s.NMSTRUCT, s.IDOBJECT as s_IDOBJECT, s.DTENABLED, NRORDER, p.IDOBJECT as p_IDOBJECT, P.FGSTATUS
+                            from softexpert.WFPROCESS p
+                            LEFT join softexpert.WFSTRUCT s on p.IDOBJECT = s.IDPROCESS
+                            where p.IDPROCESS = :workflowID and s.IDSTRUCT = :ActivityID
+                            and s.DTENABLED is not null
+                            order by s.DTENABLED DESC, s.TMENABLED DESC";
 
         // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
         // parametros.Add(":workflowID", workflowID);
@@ -1668,7 +1620,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="requesterID">Mantido por compatibilidade; não utilizado pelo SOAP</param>
     public void AlterUserStart(string workflowID, string requesterID, string explanation = null)
     {
-        throw new NotImplementedException("Este método não funciona no SE. Ref.: https://developer.softexpert.com/docs/2.2.4/data-integration/reference/web-service-soap/workflow/editWorkflowData");    
         ValidateInstance(workflowID.Trim(), WFStatus.Em_Andamento);
 
         string body = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
@@ -1713,19 +1664,10 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         return;
     }
 
-    /// <summary>
-    /// Edita um registro de uma tabela qualquer do SE desde que se tenha o OID do registro
-    /// </summary>
-    /// <param name="UserID">Matrícula do usuário que está editando o registro</param>
-    /// <param name="EntityID">ID da tabela que contém o registro</param>
-    /// <param name="oid">OID do registro a ser editado</param>
-    public void editEntityRecord(string UserID, string EntityID, string oid)
-    {
-        throw new NotImplementedException("Este método ainda não foi implementado");
-    }
+
 
     /// <summary>
-    /// Edita um registro de uma tabela principal de uma instância no SE
+    /// Edita um registro de uma tabela qualquer do SE desde que se tenha o OID do registro
     /// </summary>
     /// <param name="WorkflowID">IDPROCESS da instância do processo</param>
     /// <param name="EntityID">ID da tabela principal da instância</param>
