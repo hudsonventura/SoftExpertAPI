@@ -1659,111 +1659,58 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
     /// <summary>
-    /// Altera o iniciador de uma instância de processo
-    /// </summary>
-    /// <param name="workflowID">IDPROCES da intância do processo</param>
-    /// <param name="explanation">Texto de justificativa para ser inserido no histórico</param>
-    /// <param name="userID">Matrícula do usuário de destino</param>
-    /// <param name="rename">Booleano. true (padrao) altera o campo NMUSERSTART e do CDUSERSTART no banco. false realiza apenas a alteração do CDUSERSTART</param>
-    /// <param name="requesterID">Matrícula do solicitante (opcional). Usado para referência no histórico</param>
-    public void AlterUserStart(string workflowID, string explanation, string userID, bool rename = true, string requesterID = null){
-        
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
-
-        // ADUser user = GetUser(userID);
-
-        // string alterNMUser = string.Empty;
-        // if(rename){
-        //     alterNMUser = $", nmuserstart = '{user.nmuser}'";
-        // }
-
-        // string sql = @$"UPDATE {_db_name}.WFPROCESS SET cduserstart = {user.cduser} {alterNMUser} WHERE IDPROCESS = :workflowID";
-        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        // parametros.Add(":workflowID", workflowID.Trim());
-
-        
-
-        // //valida se a instancia existe e está em andamento
-        // ValidateInstance(workflowID.Trim(), WFStatus.Em_Andamento);
-
-        // int affected = _db.Execute(sql, parametros);
-        // if(affected == 0){
-        //     throw new SoftExpertException("Era esperado a alteração de um registro no banco de dados, mas nenhum registro foi alterado");
-        // }
-
-        // string comment = requesterID != null 
-        // ? $"Alteração do iniciador de {requesterID} para {user.nmuser}. Justificativa: {explanation}"
-        // : $"Alteração do iniciador para {user.nmuser}. Justificativa: {explanation}";
-
-        // List<WFStruct> activities = GetCurrentActivities(workflowID);
-        // if(activities.Count > 0){
-        //     //addHistoryComment(workflowID, comment, requesterID ?? userID, activities[0].idstruct);
-        //     //Este endpoint está com bug na 2.2.3.150 até o momento
-        // }
-
-        
-        
-        // return;
-    }
-
-
-    /// <summary>
-    /// Altera o iniciador de uma instância de processo
+    /// Altera o iniciador de uma instância de processo via SOAP editWorkflowData
     /// </summary>
     /// <param name="workflowID">IDPROCESS da instância do processo</param>
-    /// <param name="explanation">Justificativa para o histórico</param>
-    /// <param name="cduser">Código do novo iniciador (ADUser)</param>
-    /// <param name="rename">Se true (padrão), altera NMUSERSTART e CDUSERSTART no banco. Caso contrário, altera apenas CDUSERSTART</param>
-    /// <param name="cduserFrom">Código do solicitante (opcional). 0 (padrão) não insere o nome do solicitante no histórico</param>
-    public void AlterUserStart(string workflowID, string explanation, int cduser, bool rename = true, int cduserFrom = 0)
+    /// <param name="explanation">Texto de justificativa (mantido por compatibilidade; não utilizado pelo SOAP)</param>
+    /// <param name="userID">Matrícula do novo iniciador</param>
+    /// <param name="rename">Mantido por compatibilidade; não utilizado pelo SOAP</param>
+    /// <param name="requesterID">Mantido por compatibilidade; não utilizado pelo SOAP</param>
+    public void AlterUserStart(string workflowID, string requesterID, string explanation = null)
     {
-        
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
-        
-        // ADUser user = GetUser(cduser);
+        //throw new NotImplementedException("Este método não funciona no SE. Ref.: https://developer.softexpert.com/docs/2.2.4/data-integration/reference/web-service-soap/workflow/editWorkflowData");    
+        ValidateInstance(workflowID.Trim(), WFStatus.Em_Andamento);
 
-        // if (cduserFrom != 0)
-        // {
-        //     ADUser userFrom = GetUser(cduserFrom);
-        //     AlterUserStart(workflowID, explanation, user.iduser, rename, userFrom.iduser);
-        // }
-        // else
-        // {
-        //     AlterUserStart(workflowID, explanation, user.iduser, rename);
-        // }
+        string body = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
+                            <soapenv:Header/>
+                            <soapenv:Body>
+                                <urn:editWorkflowData>
+                                    <urn:WorkflowID>{workflowID.Trim()}</urn:WorkflowID>
+                                    <urn:Requester>
+                                        <urn:User>
+                                            <urn:UserID>{requesterID}</urn:UserID>
+                                        </urn:User>
+                                    </urn:Requester>
+                                </urn:editWorkflowData>
+                            </soapenv:Body>
+                        </soapenv:Envelope>";
 
+        SendRequestSOAP("editWorkflowData", body);
     }
+
+
+
 
     private void ValidateInstance(string workflowID, WFStatus fgstatus)
     {
-        
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
-        
+        string body = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
+                            <soapenv:Header/>
+                            <soapenv:Body>
+                                <urn:getWorkflow>
+                                    <urn:WorkflowID>{workflowID.Trim()}</urn:WorkflowID>
+                                </urn:getWorkflow>
+                            </soapenv:Body>
+                        </soapenv:Envelope>";
 
-        // string sql = $@"select *
-        //                     from {_db_name}.WFPROCESS
-        //                     where idprocess = :workflowID";
+        var se_response = SendRequestSOAP("getWorkflow", body);
+        int got_fgstatus = int.Parse(se_response.SelectToken("InstanceStatus").ToString());
 
-        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        // parametros.Add(":workflowID", workflowID.Trim());
-
-
-        // DataTable list = _db.Query(sql, parametros);
-
-        // if (list.Rows.Count == 0)
-        // {
-        //     throw new SoftExpertException($"Nenhuma instância com o idprocess '{workflowID.Trim()}' foi encontrada");
-        // }
-
-        // var row = list.Rows[0];
-        // int got_fgstatus = int.Parse(row["FGSTATUS"].ToString());
-
-        // if(got_fgstatus != (int)fgstatus){
-        //     throw new SoftExpertException($"A instância '{workflowID}' foi encontrada mas o status não é {fgstatus}");
-        // }
+        if(got_fgstatus != (int)fgstatus){
+             throw new SoftExpertException($"A instância '{workflowID}' foi encontrada mas o status não é {fgstatus}");
+        }
 
 
-        // return;
+        return;
     }
 }
 

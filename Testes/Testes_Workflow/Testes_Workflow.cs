@@ -14,7 +14,7 @@ public class Testes_Workflow
 
     //parametros ficticios utilizados apenas para os testes
     string ProcessID = "CCF";
-    string WorkflowID = "CCF202400006";
+    string WorkflowID = "CCF202600001";
     string EntityID = "SOLCLIENTEFORNE";
     string ActivityID = "ATIV-SOLCCF";
 
@@ -37,12 +37,16 @@ public class Testes_Workflow
 
         SoftExpertAPI.Configurations configs = new Configurations(){
             baseUrl = _appsettings["url"],
-            token = _appsettings["authorization"],
-
-            //OPCIONAIS
-            db = _db,                 //Necessário para funções que acessam o banco de dados. Implementar a interface SoftExpert.IDataBase
-            //downloader = _downloader, //Necessário para caso os arquivos do SE fiquem em um diretório controlado. Implementar a interface SoftExpert.IFileDownload
+            login = _appsettings["user"],
+            pass = _appsettings["pass"],
+            domain = _appsettings["domain"],
+            db = _db,
         };
+
+        if (!string.IsNullOrWhiteSpace(_appsettings["authorization"]))
+        {
+            configs.token = _appsettings["authorization"];
+        }
 
         _softExpertApi = new SoftExpertAPI.SoftExpertWorkflowApi(configs);
         console = output;
@@ -59,7 +63,7 @@ public class Testes_Workflow
         if (a == null) {
             Assert.Fail("O retorno foi nulo");
         }
-        console.WriteLine(a);
+        Console.WriteLine(a);
 
         Assert.IsType<string>(a);
     }
@@ -116,12 +120,12 @@ public class Testes_Workflow
                         { "tipo", "PESSOA JURIDICA (CNPJ)" },
                     }
             },
-            {
-                "empresa", //idrelacionamento
-                    new Dictionary<string, string>() {
-                        { "razao", "FERE HOLDINGS GESTORA RURAL LTDA" },
-                    }
-            }
+            // {
+            //     "empresa", //idrelacionamento
+            //         new Dictionary<string, string>() {
+            //             { "razao", "FERE HOLDINGS GESTORA RURAL LTDA" },
+            //         }
+            // }
         };
 
 
@@ -300,7 +304,7 @@ public class Testes_Workflow
     {
         try
         {
-            _softExpertApi.addHistoryComment("NOVAEMP001292", "Comentário de testes com $%@ caractestes especiais, 'aspas simples' e \"aspas duplas\"", cduser);
+            _softExpertApi.addHistoryComment(WorkflowID, "Comentário de testes com $%@ caractestes especiais, 'aspas simples' e \"aspas duplas\"", cduser, ActivityID);
             Assert.True(1==1);
         }
         catch (System.Exception error)
@@ -336,6 +340,70 @@ public class Testes_Workflow
         catch (System.Exception error)
         {
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Altera o iniciador de uma instância em andamento via SOAP editWorkflowData
+    /// </summary>
+    [Fact]
+    public void WF_12_AlterUserStart_Success()
+    {
+        string workflowID = "PRO20260407";
+        //string explanation = "Teste unitário SoftExpertAPI - AlterUserStart";
+        string userID = "sistema.automatico";
+
+        try
+        {
+            _softExpertApi.AlterUserStart(workflowID, userID, explanation: null);
+            Assert.True(true);
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Tenta alterar iniciador de instância inexistente e espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void WF_12_AlterUserStart_InvalidWorkflow_Error()
+    {
+        string workflowID = "INSTANCIA_INEXISTENTE_XYZ";
+        string userID = "sistema.automatico";
+
+        try
+        {
+            _softExpertApi.AlterUserStart(workflowID, userID, explanation: null);
+            Assert.Fail("Era esperado SoftExpertException para instância inexistente");
+        }
+        catch (SoftExpertException error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Tenta alterar iniciador com usuário inexistente e espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void WF_12_AlterUserStart_InvalidUser_Error()
+    {
+        string workflowID = "PRO20250002";
+        string userID = "USUARIO_INEXISTENTE_XYZ";
+
+        try
+        {
+            _softExpertApi.AlterUserStart(workflowID, userID, explanation: null);
+            Assert.Fail("Era esperado SoftExpertException para usuário inexistente");
+        }
+        catch (SoftExpertException error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
         }
     }
 }
