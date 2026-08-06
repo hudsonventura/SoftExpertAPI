@@ -17,6 +17,7 @@ public abstract class SoftExpertBaseAPI
 {
     protected string _uriModule = null;
     protected readonly HttpClient _restClient;
+    protected readonly HttpClient _dataSetClient;
 
     protected IFileDownload _downloader = null;
 
@@ -84,6 +85,15 @@ public abstract class SoftExpertBaseAPI
         _pass = configs.pass;
         _domain = configs.domain;
         SetUriModule();
+
+
+        if (configs.token == string.Empty)
+        {
+            throw new Exception("Necessário informar o 'token' para esta API. Gere o token nas configurações do seu usuário no SE");
+        }
+        _dataSetClient = new HttpClient(handler);
+        _dataSetClient.BaseAddress = uri;
+        _dataSetClient.DefaultRequestHeaders.Add("Authorization", configs.token);
 
     }
 

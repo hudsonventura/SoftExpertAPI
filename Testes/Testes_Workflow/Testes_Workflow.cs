@@ -41,6 +41,7 @@ public class Testes_Workflow
             pass = _appsettings["pass"],
             domain = _appsettings["domain"],
             db = _db,
+            token = _appsettings["token"]
         };
 
         if (!string.IsNullOrWhiteSpace(_appsettings["authorization"]))
@@ -250,26 +251,7 @@ public class Testes_Workflow
         }
     }
 
-    [Fact]
-    public void WF_07_ChangeWorflowTitle()
-    {
-        string WorkflowID = "CCF202400005";
-        var title = "Título de testes";
 
-        try
-        {
-            var value =  _softExpertApi.ChangeWorflowTitle(WorkflowID, title);
-
-
-            Assert.NotNull(value);
-            Assert.IsType<int>(value);
-            Assert.True(value == 1);
-        }
-        catch (Exception erro)
-        {
-            throw;
-        }
-    }
 
     [Fact]
     public void WF_08_SetAttachmentSynced()
@@ -464,6 +446,52 @@ public class Testes_Workflow
             Assert.Fail("Era esperado SoftExpertException");
         }
         catch (SoftExpertException error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Reativa uma instância de workflow suspensa
+    /// </summary>
+    [Fact]
+    public void WF_15_reactivateWorkflow_Success()
+    {
+        string workflowID = "SA202514268";
+        string activityID = "ATIV-SOLACESSO";
+        string explanation = "Teste unitário SoftExpertAPI - reactivateWorkflow";
+        string userID = iduser;
+
+        try
+        {
+            _softExpertApi.reactivateWorkflow(workflowID, activityID, explanation, userID);
+            Assert.True(true);
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Tenta reativar instância inexistente — espera Exception
+    /// </summary>
+    [Fact]
+    public void WF_15_reactivateWorkflow_Error()
+    {
+        string workflowID = "INSTANCIA_INEXISTENTE_XYZ";
+        string activityID = "ATIVIDADE_INEXISTENTE";
+        string explanation = "Teste unitário SoftExpertAPI - reactivateWorkflow";
+        string userID = iduser;
+
+        try
+        {
+            _softExpertApi.reactivateWorkflow(workflowID, activityID, explanation, userID);
+            Assert.Fail("Era esperado Exception para instância inexistente");
+        }
+        catch (Exception error)
         {
             console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);

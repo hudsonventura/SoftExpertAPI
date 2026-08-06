@@ -1284,37 +1284,44 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     }
 
 
-    private dynamic GetIDObjectToManageInstance(string workflowID, string ActivityID){
-        
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
+    private ManageInstanceObject GetIDObjectToManageInstance(string workflowID, string ActivityID)
+    {
+        /*
+            Criar um conjunto de dados com o ID 'queryGetIDObjectToManageInstance' no SE com o SQL abaixo
 
-        string sql = $@"select p.idprocess, s.IDSTRUCT, s.NMSTRUCT, s.IDOBJECT as s_IDOBJECT, s.DTENABLED, NRORDER, p.IDOBJECT as p_IDOBJECT, P.FGSTATUS
-                            from softexpert.WFPROCESS p
-                            LEFT join softexpert.WFSTRUCT s on p.IDOBJECT = s.IDPROCESS
-                            where p.IDPROCESS = :workflowID and s.IDSTRUCT = :ActivityID
-                            and s.DTENABLED is not null
-                            order by s.DTENABLED DESC, s.TMENABLED DESC";
+            select p.idprocess, s.IDSTRUCT, s.NMSTRUCT, s.IDOBJECT as s_IDOBJECT, s.DTENABLED, NRORDER, p.IDOBJECT as p_IDOBJECT, P.FGSTATUS
+            from softexpert.WFPROCESS p
+            LEFT join softexpert.WFSTRUCT s on p.IDOBJECT = s.IDPROCESS
+            where p.IDPROCESS = :workflowID and s.IDSTRUCT = :ActivityID
+            and s.DTENABLED is not null
+            order by s.DTENABLED DESC, s.TMENABLED DESC
+        */
 
-        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        // parametros.Add(":workflowID", workflowID);
-        // parametros.Add(":ActivityID", ActivityID);
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"/apigateway/v1/dataset-integration/querygetidobjecttomanageinstance");
+
+        var payload = new Dictionary<string, string>
+        {
+            { "workflowID", workflowID },
+            { "ActivityID", ActivityID }
+        };
+        string jsonBody = JsonConvert.SerializeObject(payload);
+        request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
 
-        // DataTable list = _db.Query(sql, parametros);
+        HttpResponseMessage  response = _dataSetClient.SendAsync(request).Result;
+        if(!response.IsSuccessStatusCode){
+            throw new SoftExpertException("Houve um problema ao reativar a instancia");
+        }
 
-        // if (list.Rows.Count > 0)
-        // {
-        //     var row = list.Rows[0];
-        //     return new 
-        //     {
-        //         s_idobject = row["s_IDOBJECT"].ToString(),
-        //         p_idobject = row["p_IDOBJECT"].ToString()
-        //     };
-        // }
-        // else
-        // {
-        //     return null; // Ou retorne um objeto anônimo com valores padrão, se preferir
-        // }
+        string responseBody = response.Content.ReadAsStringAsync().Result;
+        var list = JsonConvert.DeserializeObject<List<ManageInstanceObject>>(responseBody);
+
+        if (list == null || list.Count == 0)
+        {
+            return null;
+        }
+
+        return list[0];
     }   
 
 

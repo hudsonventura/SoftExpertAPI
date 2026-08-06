@@ -223,26 +223,9 @@ class WorkflowExamples{
         }
     }
 
-    private void ChangeWorflowTitle()
-    {
-        string WorkflowID = "CCF202400005";
-        var title = "Título de testes";
-        try
-        {
-            wfAPI.ChangeWorflowTitle(WorkflowID, title);
-        }
-        catch (SoftExpertException erro)
-        {
-            throw;
-        }
-        catch (Exception erro)
-        {
-            throw;
-        }
-    }
 
     private void listAttachmentFromInstance(){
-        string WorkflowID = "NOVAEMP001295";
+        string WorkflowID = "IR254771";
 
         try
         {
