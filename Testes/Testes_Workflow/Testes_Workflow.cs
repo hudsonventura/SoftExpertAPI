@@ -584,4 +584,50 @@ public class Testes_Workflow
             Assert.True(true);
         }
     }
+
+    /// <summary>
+    /// Retorna uma instância de workflow para uma atividade anterior
+    /// </summary>
+    [Fact]
+    public void WF_18_returnWorkflow_Success()
+    {
+        string workflowID = "PRO20240564";
+        string activityID = "CriarSolicitacao";
+        string explanation = "Teste unitário SoftExpertAPI - returnWorkflow";
+        string userID = iduser;
+
+        try
+        {
+            _softExpertApi.returnWorkflow(workflowID, activityID, explanation, userID);
+            Assert.True(true);
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Tenta retornar instância inexistente — espera Exception
+    /// </summary>
+    [Fact]
+    public void WF_18_returnWorkflow_Error()
+    {
+        string workflowID = "INSTANCIA_INEXISTENTE_XYZ";
+        string activityID = "ATIVIDADE_INEXISTENTE";
+        string explanation = "Teste unitário SoftExpertAPI - returnWorkflow";
+        string userID = iduser;
+
+        try
+        {
+            _softExpertApi.returnWorkflow(workflowID, activityID, explanation, userID);
+            Assert.Fail("Era esperado Exception para instância inexistente");
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
 }

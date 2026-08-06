@@ -1014,37 +1014,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
 
-    /// <summary>
-    /// Este método tráz a lista de atividades habilitadas de uma instancia
-    /// </summary>
-    /// <param name="workflowID"></param>
-    /// <returns>List<string></returns>
-    public List<string> GetActualActivities(string WorkflowID){
-        
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
-        
-        // string sql = $@"SELECT a.idstruct
-        //                     FROM {_db_name}.wfprocess p
-        //                     --
-        //                     JOIN {_db_name}.wfstruct a on a.idprocess = p.idobject
-        //                     JOIN {_db_name}.wftask c on c.IDACTIVITY = a.idobject
-        //                     --
-        //                     WHERE p.idprocess = :WorkflowID";
-
-        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        // parametros.Add(":WorkflowID", WorkflowID);
-
-
-        // DataTable list = _db.Query(sql, parametros);
-        // if (list == null || list.Rows.Count == 0){
-        //     throw new SoftExpertException($"Não foi encontrado um workflow em andamento com o id '{WorkflowID}'. Verifique se ele realmente está em andamento");
-        // }
-
-        // return list.AsEnumerable()
-        //        .Select(row => row["idstruct"].ToString())
-        //        .ToList();
-
-    }
 
 
 
