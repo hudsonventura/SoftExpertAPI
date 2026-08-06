@@ -55,14 +55,12 @@ public class WFStruct
 
     public enum WFStatus
     {
-        Atividade_Nao_Iniciada = 1,
-        Em_Execucao = 2,
-        Executada = 3,
-        Suspenso = 4,
-        Cancelado = 5,
-        Recusado = 6,
-        AprovaçãoRetorno = 7,
+        Em_Andamento = 1,
+        Cancelado = 3,
+        Encerrado = 4,
+        Suspenso = 2
     }
+
 
     public enum StatusPrazo
     {

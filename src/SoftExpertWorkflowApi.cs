@@ -942,7 +942,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// </summary>
     /// <param name="WorkflowID">IDPROCESS da instância</param>
     /// <returns>ManageInstanceObject com os dados da instância</returns>
-    public WFStatus GetWorflowStatus(string WorkflowID)
+    public WFStruct.WFStatus GetWorflowStatus(string WorkflowID)
     {
         var obj = GetWorkflowInstanceData(WorkflowID);
         if (obj == null)
@@ -950,7 +950,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             throw new SoftExpertException($"Não foi encontrado um workflow com o id '{WorkflowID}'");
         }
 
-        if (!Enum.IsDefined(typeof(WFStatus), obj.p_fgstatus))
+        if (!Enum.IsDefined(typeof(WFStruct.WFStatus), obj.p_fgstatus))
         {
             throw new SoftExpertException($"Valor desconhecido para fgstatus: {obj.p_fgstatus}");
         }
@@ -969,6 +969,18 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="WorkflowID">IDPROCESS da instância</param>
     /// <returns>Lista de WFStruct das atividades atuais</returns>
     public List<WFStruct> GetCurrentActivities(string WorkflowID)
+    {
+        return GetActivitiesFromWorkflow(WorkflowID).Where(item => item.fgstatus == WFStruct.WFStatus.Em_Andamento).ToList();
+    }
+
+
+
+    /// <summary>
+    /// Retorna a lista de atividades de uma instancia, não importando o status
+    /// </summary>
+    /// <param name="WorkflowID">IDPROCESS da instância</param>
+    /// <returns>Lista de WFStruct das atividades atuais</returns>
+    public List<WFStruct> GetActivitiesFromWorkflow(string WorkflowID)
     {
         /*
             Criar um conjunto de dados com o ID 'queryGetCurrentActivities' no SE com o SQL abaixo
@@ -1007,8 +1019,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
         return list.Select(item => item.ToWFStruct()).ToList();
     }
-
-
 
 
 
@@ -1190,10 +1200,17 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         //Obs.: reactivateWorkflow original nõa permite reativar instancia cancelada. Então pq existe?
         try
         {
-            var obj = GetWorkflowInstanceData(workflowID, ActivityID);
+            var obj = GetWorkflowInstanceData(workflowID);
             if(obj == null){
-                throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}' e que possua a atividade '{ActivityID}'");
+                throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}'");
             }
+
+            var activities = GetActivitiesFromWorkflow(workflowID);
+            var activity = activities.FirstOrDefault(a => a.idstruct == ActivityID) ?? activities.FirstOrDefault();
+            if(activity == null){
+                throw new Exception($"Não foi encontrada nenhuma atividade na instância '{workflowID}'");
+            }
+
             Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>(){
                 {"oid", obj.p_idobject},
                 {"action", 2},
@@ -1210,7 +1227,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             var payload = new Dictionary<string, string>
             {
                 { "fgstatus", "1" },
-                { "cditemreturn", obj.s_idobject },
+                { "cditemreturn", activity.idobject },
                 { "justify", SanitizeString(explanation) }
             };
             string jsonBody = JsonConvert.SerializeObject(payload);
@@ -1239,18 +1256,19 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     }
 
 
-    private ManageInstanceObject GetWorkflowInstanceData(string workflowID, string ActivityID = null)
+    //Verificar a substituição para GetWorkFlowData
+    private ManageInstanceObject GetWorkflowInstanceData(string workflowID)
     {
         /*
             Criar um conjunto de dados com o ID 'queryGetWorkflowInstanceData' no SE com o SQL abaixo
 
-            select p.idprocess, s.IDSTRUCT, s.NMSTRUCT, s.IDOBJECT as s_IDOBJECT, s.DTENABLED, NRORDER, p.IDOBJECT as p_IDOBJECT, P.FGSTATUS as p_fgstatus
+            select p.idprocess
+            , p.IDOBJECT
+            , P.FGSTATUS
+            , gnf.OIDENTITYREG
             from softexpert.WFPROCESS p
-            LEFT join softexpert.WFSTRUCT s on p.IDOBJECT = s.IDPROCESS
+            JOIN softexpert.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
             where p.IDPROCESS = :workflowID
-              and (:ActivityID is null or s.IDSTRUCT = :ActivityID)
-            and s.DTENABLED is not null
-            order by s.DTENABLED DESC, s.TMENABLED DESC
         */
 
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"/apigateway/v1/dataset-integration/queryGetWorkflowInstanceData");
@@ -1259,10 +1277,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         {
             { "workflowID", workflowID }
         };
-        if (!string.IsNullOrWhiteSpace(ActivityID))
-        {
-            payload.Add("ActivityID", ActivityID);
-        }
 
         string jsonBody = JsonConvert.SerializeObject(payload);
         request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
@@ -1300,12 +1314,19 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     {
         try
         {
-            var obj = GetWorkflowInstanceData(workflowID, ActivityID);
+            var obj = GetWorkflowInstanceData(workflowID);
             if(obj == null){
-                throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}' e que possua a atividade '{ActivityID}'");
+                throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}'");
             }
+
+            var activities = GetCurrentActivities(workflowID);
+            var activity = activities.FirstOrDefault(a => a.idstruct == ActivityID) ?? activities.FirstOrDefault();
+            if(activity == null){
+                throw new Exception($"Não foi encontrada nenhuma atividade na instância '{workflowID}'");
+            }
+
             Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>(){
-                {"idobject", obj.s_idobject},
+                {"idobject", activity.idobject},
                 {"idprocess", obj.p_idobject}
             };
             string query = string.Join("&", parametros.Select(p => $"{p.Key}={p.Value}"));
@@ -1446,13 +1467,20 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     {
         try
         {
-            var obj = GetWorkflowInstanceData(workflowID, ActivityID);
+            var obj = GetWorkflowInstanceData(workflowID);
             if(obj == null){
-                throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}' e que possua a atividade '{ActivityID}'");
+                throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}'");
             }
+
+            var activities = GetCurrentActivities(workflowID);
+            var activity = activities.FirstOrDefault(a => a.idstruct == ActivityID) ?? activities.FirstOrDefault();
+            if(activity == null){
+                throw new Exception($"Não foi encontrada nenhuma atividade na instância '{workflowID}'");
+            }
+
             Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>(){
                 {"savetype", "activityExecutor"},
-                {"idobject", obj.s_idobject},
+                {"idobject", activity.idobject},
                 {"idprocess", obj.p_idobject}
             };
             string query = string.Join("&", parametros.Select(p => $"{p.Key}={p.Value}"));
@@ -1545,7 +1573,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="requesterID">Mantido por compatibilidade; não utilizado pelo SOAP</param>
     public void AlterUserStart(string workflowID, string requesterID, string explanation = null)
     {
-        ValidateInstance(workflowID.Trim(), WFStatus.Em_Andamento);
+        ValidateInstance(workflowID.Trim(), WFStruct.WFStatus.Em_Andamento);
 
         string body = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
                             <soapenv:Header/>
@@ -1567,7 +1595,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
 
-    private void ValidateInstance(string workflowID, WFStatus fgstatus)
+    private void ValidateInstance(string workflowID, WFStruct.WFStatus fgstatus)
     {
         string body = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
                             <soapenv:Header/>
