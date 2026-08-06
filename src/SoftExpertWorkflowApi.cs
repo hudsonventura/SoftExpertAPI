@@ -1566,49 +1566,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     }
 
 
-    private ADUser GetUser(string userID){
-        
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        // string sql = $@"select *
-        //                     from {_db_name}.ADUSER
-        //                     where iduser = :userID";
-
-        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        // parametros.Add(":userID", userID);
-
-
-        // DataTable list = _db.Query(sql, parametros);
-
-        // if (list.Rows.Count > 0)
-        // {
-        //     var row = list.Rows[0];
-        //     return ADUser.ConvertDataRowToADUser(row);
-        // }
-        // throw new SoftExpertException($"O usuário de matricula '{userID}' não foi encontrado.");
-    }
-
-    private ADUser GetUser(int cduser){
-        
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
-
-        // string sql = $@"select *
-        //                     from {_db_name}.ADUSER
-        //                     where cduser = :cduser";
-
-        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        // parametros.Add(":cduser", cduser);
-
-
-        // DataTable list = _db.Query(sql, parametros);
-
-        // if (list.Rows.Count > 0)
-        // {
-        //     var row = list.Rows[0];
-        //     return ADUser.ConvertDataRowToADUser(row);
-        // }
-        // throw new SoftExpertException($"O usuário de código '{cduser}' não foi encontrado.");
-    }
 
 
 
