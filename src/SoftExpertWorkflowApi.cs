@@ -938,88 +938,74 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
     /// <summary>
-    /// Este método verifica o Status de uma instância
+    /// Retorna os dados da instância de workflow (incluindo status) via dataset SoftExpert
     /// </summary>
-    /// <param name="workflowID"></param>
-    /// <returns>WFStatus</returns>
-    public WFStatus GetWorflowStatus(string WorkflowID){
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
+    /// <param name="WorkflowID">IDPROCESS da instância</param>
+    /// <returns>ManageInstanceObject com os dados da instância</returns>
+    public WFStatus GetWorflowStatus(string WorkflowID)
+    {
+        var obj = GetWorkflowInstanceData(WorkflowID);
+        if (obj == null)
+        {
+            throw new SoftExpertException($"Não foi encontrado um workflow com o id '{WorkflowID}'");
+        }
 
-        // string sql = $@"SELECT fgstatus
-        //                     FROM {_db_name}.wfprocess p
-        //                     WHERE p.idprocess = :WorkflowID";
+        if (!Enum.IsDefined(typeof(WFStatus), obj.p_fgstatus))
+        {
+            throw new SoftExpertException($"Valor desconhecido para fgstatus: {obj.p_fgstatus}");
+        }
 
-        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        // parametros.Add(":WorkflowID", WorkflowID);
-
-
-        
-        // DataTable list = _db.Query(sql, parametros);
-        // if (list == null || list.Rows.Count == 0){
-        //     throw new SoftExpertException($"Não foi encontrado um workflow com o id '{WorkflowID}'");
-        // }
-
-        // int fgStatusValue = Convert.ToInt32(list.Rows[0]["fgstatus"]);
-
-        // if (Enum.IsDefined(typeof(WFStatus), fgStatusValue))
-        // {
-        //     return (WFStatus)fgStatusValue;
-        // }
-        // else
-        // {
-        //     throw new SoftExpertException($"Valor desconhecido para fgstatus: {fgStatusValue}");
-        // }
+        return obj.Status;
     }
 
 
 
 
 
+
     /// <summary>
-    /// Este método verifica o Status de uma instância
+    /// Retorna a lista de atividades em execução de uma instância via dataset SoftExpert
     /// </summary>
-    /// <param name="workflowID"></param>
-    /// <returns>WFStatus</returns>
-    public List<WFStruct> GetCurrentActivities(string WorkflowID){
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
-        
+    /// <param name="WorkflowID">IDPROCESS da instância</param>
+    /// <returns>Lista de WFStruct das atividades atuais</returns>
+    public List<WFStruct> GetCurrentActivities(string WorkflowID)
+    {
+        /*
+            Criar um conjunto de dados com o ID 'queryGetCurrentActivities' no SE com o SQL abaixo
 
-        // string sql = $@"SELECT a.idprocess, a.idobject, a.idstruct, a.nmstruct, a.fgstatus
-        //                         , A.DHENABLED AS DTENABLED
-        //                         , a.DTESTIMATEDFINISH + ( A.NRTIMEESTFINISH/24/60) AS DTESTIMATEDFINISH
-        //                         , TO_DATE(to_char(a.DTEXECUTION, 'dd/mm/yyyy') || a.TMEXECUTION, 'dd/mm/yyyyHH24:MI:SS') AS DTEXECUTION
-        //                     FROM {_db_name}.wfprocess p
-        //                     JOIN softexpert.wfstruct a on a.idprocess = p.idobject AND A.FGSTATUS = 2
-        //                     WHERE p.idprocess = :WorkflowID";
+            SELECT a.idprocess, a.idobject, a.idstruct, a.nmstruct, a.fgstatus
+                    , A.DHENABLED AS DTENABLED
+                    , a.DTESTIMATEDFINISH + ( A.NRTIMEESTFINISH/24/60) AS DTESTIMATEDFINISH
+                    , TO_DATE(to_char(a.DTEXECUTION, 'dd/mm/yyyy') || a.TMEXECUTION, 'dd/mm/yyyyHH24:MI:SS') AS DTEXECUTION
+                FROM softexpert.wfprocess p
+                JOIN softexpert.wfstruct a on a.idprocess = p.idobject AND A.FGSTATUS = 2
+                WHERE p.idprocess = :WorkflowID
+        */
 
-        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        // parametros.Add(":WorkflowID", WorkflowID);
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/apigateway/v1/dataset-integration/queryGetCurrentActivities");
 
+        var payload = new Dictionary<string, string>
+        {
+            { "WorkflowID", WorkflowID }
+        };
+        string jsonBody = JsonConvert.SerializeObject(payload);
+        request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
-        
-        // DataTable list = _db.Query(sql, parametros);
-        // if (list == null || list.Rows.Count == 0){
-        //     throw new SoftExpertException($"Não foi encontrado um workflow com o id '{WorkflowID}'");
-        // }
+        HttpResponseMessage response = _dataSetClient.SendAsync(request).Result;
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new SoftExpertException($"Houve um problema ao consultar as atividades da instância '{WorkflowID}'");
+        }
 
-        // return list.AsEnumerable()
-        //     .Select(row =>
-        //     {
-        //         WFStruct wfStruct = new WFStruct();
-        //         wfStruct.idstruct = row["idstruct"].ToString();
-        //         wfStruct.idprocess = row["idprocess"].ToString();
-        //         wfStruct.idobject = row["idobject"].ToString();
-        //         wfStruct.nmstruct = row["nmstruct"].ToString();
-        //         wfStruct.fgstatus = (WFStruct.WFStatus)Convert.ToInt32(row["fgstatus"]);
-                
-        //         wfStruct.dhenabled = Convert.ToDateTime(row["DTENABLED"]);
-        //         wfStruct.dtestimatedfinish = row["DTESTIMATEDFINISH"] != DBNull.Value ? Convert.ToDateTime(row["DTESTIMATEDFINISH"]) : DateTime.MinValue;
-        //         wfStruct.dtexecution = row["DTEXECUTION"] != DBNull.Value ? Convert.ToDateTime(row["DTEXECUTION"]) : DateTime.MinValue;
+        string responseBody = response.Content.ReadAsStringAsync().Result;
+        var list = JsonConvert.DeserializeObject<List<CurrentActivityObject>>(responseBody);
 
-        //         return wfStruct;
-        //     })
-        //     .ToList();
+        if (list == null || list.Count == 0)
+        {
+            throw new SoftExpertException($"Não foi encontrado um workflow com o id '{WorkflowID}'");
+        }
 
+        return list.Select(item => item.ToWFStruct()).ToList();
     }
 
 
@@ -1235,7 +1221,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         //Obs.: reactivateWorkflow original nõa permite reativar instancia cancelada. Então pq existe?
         try
         {
-            var obj = GetIDObjectToManageInstance(workflowID, ActivityID);
+            var obj = GetWorkflowInstanceData(workflowID, ActivityID);
             if(obj == null){
                 throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}' e que possua a atividade '{ActivityID}'");
             }
@@ -1284,33 +1270,38 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     }
 
 
-    private ManageInstanceObject GetIDObjectToManageInstance(string workflowID, string ActivityID)
+    private ManageInstanceObject GetWorkflowInstanceData(string workflowID, string ActivityID = null)
     {
         /*
-            Criar um conjunto de dados com o ID 'queryGetIDObjectToManageInstance' no SE com o SQL abaixo
+            Criar um conjunto de dados com o ID 'queryGetWorkflowInstanceData' no SE com o SQL abaixo
 
-            select p.idprocess, s.IDSTRUCT, s.NMSTRUCT, s.IDOBJECT as s_IDOBJECT, s.DTENABLED, NRORDER, p.IDOBJECT as p_IDOBJECT, P.FGSTATUS
+            select p.idprocess, s.IDSTRUCT, s.NMSTRUCT, s.IDOBJECT as s_IDOBJECT, s.DTENABLED, NRORDER, p.IDOBJECT as p_IDOBJECT, P.FGSTATUS as p_fgstatus
             from softexpert.WFPROCESS p
             LEFT join softexpert.WFSTRUCT s on p.IDOBJECT = s.IDPROCESS
-            where p.IDPROCESS = :workflowID and s.IDSTRUCT = :ActivityID
+            where p.IDPROCESS = :workflowID
+              and (:ActivityID is null or s.IDSTRUCT = :ActivityID)
             and s.DTENABLED is not null
             order by s.DTENABLED DESC, s.TMENABLED DESC
         */
 
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"/apigateway/v1/dataset-integration/querygetidobjecttomanageinstance");
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"/apigateway/v1/dataset-integration/queryGetWorkflowInstanceData");
 
         var payload = new Dictionary<string, string>
         {
-            { "workflowID", workflowID },
-            { "ActivityID", ActivityID }
+            { "workflowID", workflowID }
         };
+        if (!string.IsNullOrWhiteSpace(ActivityID))
+        {
+            payload.Add("ActivityID", ActivityID);
+        }
+
         string jsonBody = JsonConvert.SerializeObject(payload);
         request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
 
         HttpResponseMessage  response = _dataSetClient.SendAsync(request).Result;
         if(!response.IsSuccessStatusCode){
-            throw new SoftExpertException("Houve um problema ao reativar a instancia");
+            throw new SoftExpertException("Houve um problema ao consultar a instancia");
         }
 
         string responseBody = response.Content.ReadAsStringAsync().Result;
@@ -1340,7 +1331,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     {
         try
         {
-            var obj = GetIDObjectToManageInstance(workflowID, ActivityID);
+            var obj = GetWorkflowInstanceData(workflowID, ActivityID);
             if(obj == null){
                 throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}' e que possua a atividade '{ActivityID}'");
             }
@@ -1486,7 +1477,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     {
         try
         {
-            var obj = GetIDObjectToManageInstance(workflowID, ActivityID);
+            var obj = GetWorkflowInstanceData(workflowID, ActivityID);
             if(obj == null){
                 throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}' e que possua a atividade '{ActivityID}'");
             }

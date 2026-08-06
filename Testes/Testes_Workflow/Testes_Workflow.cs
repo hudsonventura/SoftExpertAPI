@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using SoftExpertAPI;
-using Examples;
 using System.Text;
 using Xunit.Abstractions;
 
@@ -33,14 +32,12 @@ public class Testes_Workflow
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
 
-        ExampleOracleImplementation _db = new ExampleOracleImplementation(_appsettings);
 
         SoftExpertAPI.Configurations configs = new Configurations(){
             baseUrl = _appsettings["url"],
             login = _appsettings["user"],
             pass = _appsettings["pass"],
             domain = _appsettings["domain"],
-            db = _db,
             token = _appsettings["token"]
         };
 
@@ -535,6 +532,50 @@ public class Testes_Workflow
         try
         {
             _softExpertApi.delegateWorkflow(workflowID, activityID, explanation, cduser);
+            Assert.Fail("Era esperado Exception para instância inexistente");
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Encerra uma instância de workflow em andamento
+    /// </summary>
+    [Fact]
+    public void WF_17_finishWorkflow_Success()
+    {
+        string workflowID = "SM2026108124";
+        string explanation = "Teste unitário SoftExpertAPI - finishWorkflow";
+        string userID = iduser;
+
+        try
+        {
+            _softExpertApi.finishWorkflow(workflowID, explanation, userID);
+            Assert.True(true);
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Tenta encerrar instância inexistente — espera Exception
+    /// </summary>
+    [Fact]
+    public void WF_17_finishWorkflow_Error()
+    {
+        string workflowID = "INSTANCIA_INEXISTENTE_XYZ";
+        string explanation = "Teste unitário SoftExpertAPI - finishWorkflow";
+        string userID = iduser;
+
+        try
+        {
+            _softExpertApi.finishWorkflow(workflowID, explanation, userID);
             Assert.Fail("Era esperado Exception para instância inexistente");
         }
         catch (Exception error)

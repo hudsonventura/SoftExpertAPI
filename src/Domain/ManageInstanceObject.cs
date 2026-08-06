@@ -26,5 +26,8 @@ public record ManageInstanceObject
     public long dtenabled { get; init; }
 
     [JsonProperty("FGSTATUS")]
-    public int fgstatus { get; init; }
+    public int p_fgstatus { get; init; }
+
+    [JsonIgnore]
+    public WFStatus Status => (WFStatus)p_fgstatus;
 }
