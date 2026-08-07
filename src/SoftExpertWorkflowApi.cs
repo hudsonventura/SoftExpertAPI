@@ -547,24 +547,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
 
-    /// <summary>
-    /// Marca um anexo como sicronizado, para trabalhos de envio de anexos a outros sistemas
-    /// </summary>
-    /// <param name="anexo"></param>
-    /// <returns></returns>
-    public int SetAttachmentSynced(int cdAttachment)
-    {
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
-
-        // string sql = $@"UPDATE {_db_name}.ADATTACHMENT SET NMUSERUPD = substr(NMUSERUPD, 0, 240)||'-synced' WHERE CDATTACHMENT = :cdAttachment";
-
-        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        // parametros.Add(":cdAttachment", cdAttachment);
-
-        // return _db.Execute(sql, parametros);
-    }
-
-
 
 
 
