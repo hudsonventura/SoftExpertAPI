@@ -405,14 +405,20 @@ public class Testes_Workflow
 
 
     /// <summary>
-    /// Edita registro da tabela principal da instância via editTableRecord
+    /// Edita registro de tabela via SOAP editTableRecord
     /// </summary>
     [Fact]
     public void WF_14_editTableRecord_Success()
     {
+        Dictionary<string, string> fields = new Dictionary<string, string>()
+        {
+            { "responsavelnome", "Teste unitário SoftExpertAPI - editTableRecord" },
+        };
+        string tableFieldOID = "79c34d0ec771902834cc271ee08c01d";
+
         try
         {
-            _softExpertApi.editTableRecord(WorkflowID, EntityID);
+            _softExpertApi.editTableRecord(iduser, "SOLPROCESSO", tableFieldOID, fields);
             Assert.True(true);
         }
         catch (Exception error)
@@ -423,14 +429,19 @@ public class Testes_Workflow
     }
 
     /// <summary>
-    /// editTableRecord com instância inexistente — espera SoftExpertException
+    /// editTableRecord com OID inexistente — espera SoftExpertException
     /// </summary>
     [Fact]
     public void WF_14_editTableRecord_Error()
     {
+        Dictionary<string, string> fields = new Dictionary<string, string>()
+        {
+            { "observacoes", "Teste unitário SoftExpertAPI - editTableRecord" },
+        };
+
         try
         {
-            _softExpertApi.editTableRecord("INSTANCIA_INEXISTENTE_XYZ", EntityID);
+            _softExpertApi.editTableRecord(iduser, EntityID, "OID_INEXISTENTE", fields);
             Assert.Fail("Era esperado SoftExpertException");
         }
         catch (SoftExpertException error)

@@ -1596,13 +1596,118 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
     /// <summary>
-    /// Edita um registro de uma tabela qualquer do SE desde que se tenha o OID do registro
+    /// Edita um registro de uma tabela do SoftExpert Form via SOAP editTableRecord
     /// </summary>
-    /// <param name="WorkflowID">IDPROCESS da instância do processo</param>
-    /// <param name="EntityID">ID da tabela principal da instância</param>
-    public void editTableRecord(string WorkflowID, string EntityID)
+    /// <param name="UserID">Matrícula do usuário</param>
+    /// <param name="TableID">ID da tabela (entidade)</param>
+    /// <param name="TableFieldOID">OID do registro a ser editado</param>
+    /// <param name="TableFieldList">Campos da tabela no formato chave - valor</param>
+    /// <param name="RelationshipList">Relacionamentos (selectbox) opcionais</param>
+    /// <param name="TableFieldFileList">Arquivos opcionais para campos da tabela</param>
+    public void editTableRecord(
+        string UserID,
+        string TableID,
+        string TableFieldOID,
+        Dictionary<string, string> TableFieldList = null,
+        Dictionary<string, Dictionary<string, string>> RelationshipList = null,
+        Dictionary<string, Anexo> TableFieldFileList = null)
     {
-        throw new NotImplementedException("Este método ainda não foi implementado");
+        string camposForm = Gerar_TableFieldList(TableFieldList);
+        string camposRelacionamento = Gerar_TableRelationshipList(RelationshipList);
+        string anexos = Gerar_TableFieldFileList(TableFieldFileList);
+
+        string body = $@"
+                <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:form'>
+                   <soapenv:Header/>
+                   <soapenv:Body>
+                      <urn:editTableRecord>
+                         <urn:UserID>{UserID}</urn:UserID>
+                         <urn:TableID>{TableID}</urn:TableID>
+                         <urn:TableFieldOID>{TableFieldOID}</urn:TableFieldOID>
+
+                         <urn:TableFieldList>
+                            {camposForm}
+                         </urn:TableFieldList>
+
+                         <urn:RelationshipList>
+                            {camposRelacionamento}
+                         </urn:RelationshipList>
+
+                         <urn:TableFieldFileList>
+                            {anexos}
+                         </urn:TableFieldFileList>
+                      </urn:editTableRecord>
+                   </soapenv:Body>
+                </soapenv:Envelope>";
+
+        SendRequestSOAP("editTableRecord", body, "/apigateway/se/ws/fm_ws.php", soapUrn: "form");
+    }
+
+    private string Gerar_TableFieldList(Dictionary<string, string> TableFieldList)
+    {
+        string campos = string.Empty;
+        if (TableFieldList is not null)
+        {
+            foreach (KeyValuePair<string, string> field in TableFieldList)
+            {
+                campos += $@"
+                            <urn:TableField>
+                               <urn:TableFieldID>{field.Key}</urn:TableFieldID>
+                               <urn:TableFieldValue>{field.Value}</urn:TableFieldValue>
+                            </urn:TableField>";
+            }
+        }
+        return campos;
+    }
+
+    private string Gerar_TableRelationshipList(Dictionary<string, Dictionary<string, string>> RelationshipList)
+    {
+        string camposRelacionamento = string.Empty;
+        if (RelationshipList is not null)
+        {
+            foreach (KeyValuePair<string, Dictionary<string, string>> relationship in RelationshipList)
+            {
+                camposRelacionamento += $@"
+                             <urn:Relationship>
+                                     <urn:RelationshipID>{relationship.Key}</urn:RelationshipID>
+                            ";
+
+                foreach (KeyValuePair<string, string> attribute in relationship.Value)
+                {
+                    camposRelacionamento += $@"
+                                     <urn:RelationshipField>
+                                             <urn:RelationshipFieldID>{attribute.Key}</urn:RelationshipFieldID>
+                                             <urn:RelationshipFieldValue>{attribute.Value}</urn:RelationshipFieldValue>
+                                     </urn:RelationshipField>
+                            ";
+                }
+
+                camposRelacionamento += @"
+                             </urn:Relationship>
+                            ";
+            }
+        }
+        return camposRelacionamento;
+    }
+
+    private string Gerar_TableFieldFileList(Dictionary<string, Anexo> TableFieldFileList)
+    {
+        string anexos = string.Empty;
+        if (TableFieldFileList is not null)
+        {
+            foreach (var arquivo in TableFieldFileList)
+            {
+                string base64 = Convert.ToBase64String(arquivo.Value.Content);
+                anexos += $@"
+                            <urn:TableFieldFile>
+                               <urn:TableFieldID>{arquivo.Key}</urn:TableFieldID>
+                               <urn:FileName>{arquivo.Value.FileName}</urn:FileName>
+                               <urn:FileContent>{base64}</urn:FileContent>
+                            </urn:TableFieldFile>
+                    ";
+            }
+        }
+        return anexos;
     }
 }
 
