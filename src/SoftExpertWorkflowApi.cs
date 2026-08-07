@@ -510,29 +510,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
 
-    private DataTable getFileFromFormField_DetermineOrigin(string WorkflowID, string MainEntityID, string FormField){
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
-
-        // string sql = $@"SELECT EFFILE.cdfile, SEBLOB.*
-        //                     FROM softexpert.wfprocess p
-        //                     JOIN softexpert.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
-        //                     JOIN softexpert.dyn{MainEntityID} formulario on formulario.oid = GNF.OIDENTITYREG
-        //                     JOIN softexpert.SEBLOB ON SEBLOB.OID = formulario.oid{FormField}
-        //                     JOIN softexpert.EFFILE ON SEBLOB.CDEFFILE = EFFILE.CDEFFILE
-        //                     --
-        //                     WHERE p.idprocess = :WorkflowID";
-
-        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        // parametros.Add(":WorkflowID", WorkflowID);
-
-
-        
-        // DataTable list = _db.Query(sql, parametros);
-        // if (list == null || list.Rows.Count == 0){
-        //     throw new SoftExpertException($"Não foi encontrado na tabela 'SEBLOB' um OID do campo '{FormField}' da tabela '{MainEntityID}' ou o arquivo não foi anexado na instancia '{WorkflowID}'");
-        // }
-        // return list;
-    }
 
     private void requireInterfaceImplementation(string type, dynamic obj)
     {
@@ -623,85 +600,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             : _downloader.DownloadFileAttach(storedName);
 
         return anexo;
-    }
-
-
-    /// <summary>
-    /// Busca um arquivo a partir de um campo de um formlário do SE
-    /// </summary>
-    /// <param name="WorkflowID"></param>
-    /// <param name="MainEntityID"></param>
-    /// <param name="FormField"></param>
-    /// <returns></returns>
-    public Anexo GetFileFromFormField(string WorkflowID, string MainEntityID, string FormField)
-    {
-        DataTable list = getFileFromFormField_DetermineOrigin(WorkflowID, MainEntityID, FormField);
-
-        try
-        {
-            return list.AsEnumerable()
-            .Select(row =>
-            {
-                Anexo anexo = new Anexo();
-                
-                // Mapeamento dos campos para as propriedades da classe Anexo
-                anexo.FileName = row["NMNAME"].ToString();
-                anexo.Content = (byte[])row["FLDATA"];
-                anexo.extension = row["IDEXTENSION"].ToString();
-                return anexo;
-            })
-            .FirstOrDefault();
-        }
-        catch (System.Exception error)
-        {
-            try
-            {
-                return getFileFromFormFieldDirectory(WorkflowID, MainEntityID, FormField);
-            }
-            catch (System.Exception erro)
-            {
-                string msg = (erro.InnerException == null) ? error.Message : erro.InnerException.Message;
-                throw new SoftExpertException($"Houve um erro no download do arquivo {msg}");
-            }
-        }
-        
-    }
-
-    private Anexo getFileFromFormFieldDirectory(string WorkflowID, string MainEntityID, string FormField)
-    {
-        requireInterfaceImplementation("IFileDownloader", _downloader);
-
-        DataTable list = getFileFromFormField_DetermineOrigin(WorkflowID, MainEntityID, FormField);
-
-        Anexo anexo = new Anexo();
-        try
-        {
-            anexo = list.AsEnumerable()
-            .Select(row =>
-            {
-                anexo.FileName = row["NMNAME"].ToString();
-                anexo.cdfile = Int64.Parse(row["CDFILE"].ToString());
-                anexo.extension = row["IDEXTENSION"].ToString();
-                return anexo;
-            })
-            .FirstOrDefault();
-        }
-        catch (System.Exception error)
-        {
-            throw new Exception("O campo CDEFFILE da tabela SEBLOB está vazio. O armazenamento de arquivos deve ser corrigido para banco de dados");
-        }
-
-        try
-        {
-            anexo.Content = _downloader.DownloadFileForm($"{anexo.cdfile.ToString($"D{8}")}.{anexo.extension}");
-            return anexo;
-        }
-        catch (System.Exception)
-        {
-            throw;
-        }
-
-        throw new Exception($"Algo deu errado e não foi possível obter o anexo corretamente. Reporte este bug");
     }
 
 
