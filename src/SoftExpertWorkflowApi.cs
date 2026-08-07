@@ -1247,6 +1247,21 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             select p.idprocess
             , p.IDOBJECT
             , P.FGSTATUS
+            , p.cduserstart
+            , p.nmprocess
+            , p.cdprocessmodel
+            , p.idprocessmodel
+            , p.nmprocessmodel
+            , p.idrevision
+            --
+            , p.dtstart
+            , p.tmstart
+            , dhstart
+            --
+            , p.dtfinish
+            , p.tmfinish
+            , dhfinish
+            --
             , gnf.OIDENTITYREG
             from softexpert.WFPROCESS p
             JOIN softexpert.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
@@ -1300,6 +1315,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             if(obj == null){
                 throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}'");
             }
+
+            Console.WriteLine(JsonConvert.SerializeObject(obj.dhstart));
 
             var activities = GetCurrentActivities(workflowID);
             var activity = activities.FirstOrDefault(a => a.idstruct == ActivityID) ?? activities.FirstOrDefault();

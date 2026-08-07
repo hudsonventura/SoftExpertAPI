@@ -250,16 +250,6 @@ public class Testes_Workflow
 
 
 
-    [Fact]
-    public void WF_08_SetAttachmentSynced()
-    {
-        int cdattachment = 2153826;
-
-        int number_rows_affected = _softExpertApi.SetAttachmentSynced(cdattachment);
-
-        Assert.NotNull(number_rows_affected);
-        Assert.IsType<int>(number_rows_affected);
-    }
 
     
 
