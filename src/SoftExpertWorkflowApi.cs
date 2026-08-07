@@ -801,7 +801,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="explanation">Justificativa</param>
     /// <param name="iduser">Matricula do usuario </param>
     public void addHistoryComment(string workflowID, string comment, int iduser, string idactivity, bool is_private = false){
-        addHistoryComment(workflowID, comment, iduser, idactivity, is_private);
+        addHistoryComment(workflowID, comment, iduser.ToString(), idactivity, is_private);
     }
 
     /// <summary>

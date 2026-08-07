@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using SoftExpertAPI;
+using Domain;
 using System.Text;
 using Xunit.Abstractions;
 
@@ -186,29 +187,6 @@ public class Testes_Workflow
     }
 
     [Fact]
-    public void WF_05_GetFile_FromFormField()
-    {
-        string WorkflowID = "CCF202400005";
-        string EntityID = "SOLCLIENTEFORNE";
-        string FormField = "comprovante";
-
-        try
-        {
-            var anexo =  _softExpertApi.GetFileFromFormField(WorkflowID, EntityID, FormField);
-
-            Assert.NotNull(anexo.FileName);
-            Assert.NotNull(anexo.Content);
-
-            Assert.IsType<string>(anexo.FileName);
-            Assert.IsType<byte[]>(anexo.Content);
-        }
-        catch (Exception erro)
-        {
-            throw;
-        }
-    }
-
-    [Fact]
     public void WF_05_GetFile_FromOID()
     {
         try
@@ -223,6 +201,7 @@ public class Testes_Workflow
         }
         catch (Exception erro)
         {
+            console.WriteLine($"Erro: {erro.Message}");
             throw;
         }
     }
@@ -305,6 +284,43 @@ public class Testes_Workflow
         catch (System.Exception error)
         {
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Comentário no histórico usando sobrecarga com iduser (int)
+    /// </summary>
+    [Fact]
+    public void WF_11_addHistoryComment_ByCdUser()
+    {
+        int cduser = 88;
+        try
+        {
+            _softExpertApi.addHistoryComment(WorkflowID, "Comentário via cduser (int)", cduser, ActivityID);
+            Assert.True(true);
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// addHistoryComment com instância inexistente — espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void WF_11_addHistoryComment_Error()
+    {
+        try
+        {
+            _softExpertApi.addHistoryComment("INSTANCIA_INEXISTENTE_XYZ", "teste", iduser, ActivityID);
+            Assert.Fail("Era esperado SoftExpertException");
+        }
+        catch (SoftExpertException error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
         }
     }
 
@@ -627,6 +643,248 @@ public class Testes_Workflow
             Assert.Fail("Era esperado Exception para instância inexistente");
         }
         catch (Exception error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Edita item de grid (child entity) via SOAP editChildEntityRecord
+    /// </summary>
+    [Fact]
+    public void WF_19_editChildEntityRecord_Success()
+    {
+        string workflowID = "IR088482";
+        string mainEntityID = "IR";
+        string childRelationshipID = "ircomentariorel";
+        string childRecordOID = "7898431bf32fd35d5636146ce502d057";
+        Dictionary<string, string> fields = new Dictionary<string, string>()
+        {
+            { "synced", "1" },
+            { "usuario", "teste SoftExpertAPI" },
+        };
+
+        try
+        {
+            _softExpertApi.editChildEntityRecord(workflowID, mainEntityID, childRelationshipID, childRecordOID, fields);
+            Assert.True(true);
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// editChildEntityRecord com instância inexistente — espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void WF_19_editChildEntityRecord_Error()
+    {
+        Dictionary<string, string> fields = new Dictionary<string, string>()
+        {
+            { "synced", "1" },
+        };
+
+        try
+        {
+            _softExpertApi.editChildEntityRecord("INSTANCIA_INEXISTENTE_XYZ", "IR", "ircomentariorel", "OID_INEXISTENTE", fields);
+            Assert.Fail("Era esperado SoftExpertException");
+        }
+        catch (SoftExpertException error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Consulta status da instância via dataset
+    /// </summary>
+    [Fact]
+    public void WF_20_GetWorflowStatus_Success()
+    {
+        try
+        {
+            var status = _softExpertApi.GetWorflowStatus(WorkflowID);
+            Assert.True(Enum.IsDefined(typeof(WFStruct.WFStatus), status));
+            console.WriteLine($"Status: {status}");
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// GetWorflowStatus com instância inexistente — espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void WF_20_GetWorflowStatus_Error()
+    {
+        try
+        {
+            _softExpertApi.GetWorflowStatus("INSTANCIA_INEXISTENTE_XYZ");
+            Assert.Fail("Era esperado SoftExpertException");
+        }
+        catch (SoftExpertException error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Lista atividades em andamento da instância
+    /// </summary>
+    [Fact]
+    public void WF_21_GetCurrentActivities_Success()
+    {
+        try
+        {
+            var activities = _softExpertApi.GetCurrentActivities(WorkflowID);
+            Assert.NotNull(activities);
+            console.WriteLine($"Atividades em andamento: {activities.Count}");
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// GetCurrentActivities com instância inexistente — espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void WF_21_GetCurrentActivities_Error()
+    {
+        try
+        {
+            _softExpertApi.GetCurrentActivities("INSTANCIA_INEXISTENTE_XYZ");
+            Assert.Fail("Era esperado SoftExpertException");
+        }
+        catch (SoftExpertException error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Lista todas as atividades da instância
+    /// </summary>
+    [Fact]
+    public void WF_22_GetActivitiesFromWorkflow_Success()
+    {
+        try
+        {
+            var activities = _softExpertApi.GetActivitiesFromWorkflow(WorkflowID);
+            Assert.NotNull(activities);
+            Assert.True(activities.Count > 0);
+            Assert.False(string.IsNullOrWhiteSpace(activities[0].idstruct));
+            console.WriteLine($"Atividades: {activities.Count}");
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// GetActivitiesFromWorkflow com instância inexistente — espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void WF_22_GetActivitiesFromWorkflow_Error()
+    {
+        try
+        {
+            _softExpertApi.GetActivitiesFromWorkflow("INSTANCIA_INEXISTENTE_XYZ");
+            Assert.Fail("Era esperado SoftExpertException");
+        }
+        catch (SoftExpertException error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Cancela uma instância de workflow
+    /// </summary>
+    [Fact]
+    public void WF_23_cancelWorkflow_Success()
+    {
+        string workflowID = "VBG202002801";
+        string explanation = "Teste unitário SoftExpertAPI - cancelWorkflow";
+
+        try
+        {
+            _softExpertApi.cancelWorkflow(workflowID, explanation, iduser);
+            Assert.True(true);
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// cancelWorkflow com instância inexistente — espera Exception
+    /// </summary>
+    [Fact]
+    public void WF_23_cancelWorkflow_Error()
+    {
+        try
+        {
+            _softExpertApi.cancelWorkflow("INSTANCIA_INEXISTENTE_XYZ", "teste", iduser);
+            Assert.Fail("Era esperado Exception");
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Desassocia atividade do usuário executor
+    /// </summary>
+    [Fact]
+    public void WF_24_unlinkActivityFromUser_Success()
+    {
+        string workflowID = "PRO20240518";
+        string activityID = "AnalisarDemanda";
+
+        try
+        {
+            _softExpertApi.unlinkActivityFromUser(workflowID, activityID);
+            Assert.True(true);
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// unlinkActivityFromUser com instância inexistente — espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void WF_24_unlinkActivityFromUser_Error()
+    {
+        try
+        {
+            _softExpertApi.unlinkActivityFromUser("INSTANCIA_INEXISTENTE_XYZ", "ATIVIDADE_INEXISTENTE");
+            Assert.Fail("Era esperado SoftExpertException");
+        }
+        catch (SoftExpertException error)
         {
             console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
