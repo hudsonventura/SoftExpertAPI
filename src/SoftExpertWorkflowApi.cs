@@ -412,83 +412,27 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns>Lista de objetos da classe Anexo, contendo nome do arquivo, cdfile e conteúdo em byte[]</returns>
     /// <exception cref="SoftExpertException"></exception>
     /// <exception cref="Exception"></exception>
-    public List<Anexo> ListAttachmentFromInstance(string WorkflowID, string ActivityID = "") {
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
+    public List<Anexo> ListAttachmentFromInstance(string WorkflowID, string ActivityID = "")
+    {
+        requireInterfaceImplementation("IFileDownloader", _downloader);
 
-        //BUG: ao passa uma atividade para a função listAttachmentFromInstance, o SQL não traz resultados. Usar sem informar a atividade.
+        var files = QueryAttachmentFiles(workflowID: WorkflowID);
+        if (files == null || files.Count == 0)
+        {
+            return new List<Anexo>();
+        }
 
-        // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-        // if (ActivityID != "") {
-        //     parametros.Add(":ActivityID", ActivityID);
-        //     ActivityID = "and a.idstruct = :ActivityID";
-        // }
+        if (!string.IsNullOrWhiteSpace(ActivityID))
+        {
+            files = files.Where(f => f.idstruct == ActivityID).ToList();
+        }
 
-        // string sql = @$"SELECT g.NMFILE, g.CDFILE, ANEXO.CDATTACHMENT, anexo.NMUSERUPD,
-		// 		        substr(g.NMFILE, 0, INSTR(g.NMFILE, '.', -1)-1) AS NOME,
-		// 		        substr(g.NMFILE, INSTR(g.NMFILE, '.', -1)+1) AS EXT,
-		// 		        g.NRSIZE, g.FLFILE
-        //                 --
-        //                 from {_db_name}.wfprocess p
-        //                 JOIN {_db_name}.WFSTRUCT A ON A.IDPROCESS = P.IDOBJECT
-        //                 JOIN {_db_name}.WFPROCATTACHMENT ATAASSOC ON A.IDOBJECT = ATAASSOC.IDSTRUCT
-        //                 JOIN {_db_name}.ADATTACHMENT ANEXO ON ATAASSOC.CDATTACHMENT = ANEXO.CDATTACHMENT
-        //                 join {_db_name}.ADATTACHFILE a on ANEXO.CDATTACHMENT = a.CDATTACHMENT
-        //                 join {_db_name}.GNCOMPFILECONTCOPY c on a.CDCOMPLEXFILECONT = c.CDCOMPLEXFILECONT
-        //                 join {_db_name}.gnfile g on c.CDCOMPLEXFILECONT = g.CDCOMPLEXFILECONT
-        //                 --
-        //                 where ANEXO.CDATTACHMENT IS NOT NULL AND p.idprocess = :WorkflowID {ActivityID}
-        //                 order by P.idprocess DESC";
-
-        // parametros.Add(":WorkflowID", WorkflowID);
-
-        // DataTable list = null;
-        // try
-        // {
-        //     list = _db.Query(sql, parametros);
-        // }
-        // catch (Exception erro)
-        // {
-        //     throw new Exception($"Falha ao buscar os arquivo no bando de dados. Erro: {erro.Message}");
-        // }
-        
-
-        // List<Anexo> retorno = new List<Anexo>();
-        // foreach (DataRow arquivo in list.Rows) {
-        //     Int64 cdfile = Int64.Parse(arquivo["CDFILE"].ToString());
-        //     Anexo anexo = new Anexo();
-
-        //     try
-        //     {
-                
-        //         var stream = arquivo["FLFILE"];
-                
-        //         anexo.FileName = arquivo["NMFILE"].ToString();
-        //         anexo.cdfile = Int64.Parse(arquivo["CDFILE"].ToString());
-        //         anexo.cdattachment = Int64.Parse(arquivo["CDATTACHMENT"].ToString());
-        //         anexo.nmuserupd = arquivo["NMUSERUPD"].ToString();
-
-        //         anexo.extension = arquivo["EXT"].ToString();
-        //         var contentZip = (byte[])stream;
-        //         var content = Utils.Zip.UnzipFile(contentZip);
-        //         anexo.Content = content;
-        //         retorno.Add(anexo);
-        //     }
-        //     catch (Exception erro1)
-        //     {
-        //         try
-        //         {
-        //             anexo.Content = _downloader.DownloadFileAttach($"{anexo.cdfile.ToString($"D{8}")}.{arquivo["EXT"].ToString()}");;
-        //             retorno.Add(anexo);
-        //         }
-        //         catch (System.Exception erro2)
-        //         {
-        //             throw new Exception($"Falha ao descompactar o arquivo '{anexo.FileName}'. Erro1: {erro1.Message}. Erro2: {erro2.Message}. Arquivo: {JsonConvert.SerializeObject(arquivo)}");
-        //         }
-                
-        //     }
-            
-        // }
-        // return retorno;
+        var retorno = new List<Anexo>();
+        foreach (var file in files)
+        {
+            retorno.Add(DownloadAttachment(file));
+        }
+        return retorno;
     }
 
 
@@ -508,11 +452,11 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
         // string sql = $@"SELECT grid.*
-        //                 FROM {_db_name}.wfprocess p
+        //                 FROM softexpert.wfprocess p
         //                 --
-        //                 JOIN {_db_name}.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
-        //                 JOIN {_db_name}.DYN{MainEntityID} formulario on formulario.oid = GNF.OIDENTITYREG
-        //                 JOIN {_db_name}.DYN{ChildEntityID} grid ON grid.{ChildOID} = formulario.oid
+        //                 JOIN softexpert.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
+        //                 JOIN softexpert.DYN{MainEntityID} formulario on formulario.oid = GNF.OIDENTITYREG
+        //                 JOIN softexpert.DYN{ChildEntityID} grid ON grid.{ChildOID} = formulario.oid
         //                 --
         //                 WHERE p.idprocess = :WorkflowID";
 
@@ -564,7 +508,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
         // string sql = $@"SELECT p.*
-        //                 FROM {_db_name}.wfprocess p
+        //                 FROM softexpert.wfprocess p
         //                 WHERE p.idprocess = :WorkflowID";
 
         // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
@@ -614,10 +558,10 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
         // string sql = $@"SELECT formulario.*
-        //                 FROM {_db_name}.wfprocess p
+        //                 FROM softexpert.wfprocess p
         //                 --
-        //                 JOIN {_db_name}.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
-        //                 JOIN {_db_name}.DYN{EntityID} formulario on formulario.oid = GNF.OIDENTITYREG
+        //                 JOIN softexpert.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
+        //                 JOIN softexpert.DYN{EntityID} formulario on formulario.oid = GNF.OIDENTITYREG
         //                 WHERE p.idprocess = :WorkflowID";
 
         // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
@@ -658,7 +602,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     {
         throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
-        // string sql = $@"SELECT * FROM {_db_name}.DYN{EntityID} WHERE FGENABLED = 1 AND oid = :oid";
+        // string sql = $@"SELECT * FROM softexpert.DYN{EntityID} WHERE FGENABLED = 1 AND oid = :oid";
 
         // Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
         // parametros.Add(":oid", oid);
@@ -690,68 +634,18 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <param name="oid"></param>
     /// <returns></returns>
     /// <exception cref="SoftExpertException"></exception>
-    public Anexo GetFileFromOID(string oid){
-        throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
+    public Anexo GetFileFromOID(string oid)
+    {
+        requireInterfaceImplementation("IFileDownloader", _downloader);
 
-    //     string sql = $@"select EFFILE.CDFILE, seblob.FLDATA, --possui o blod
-    //                         seblob.NMNAME, --nome e extensão do arquivo
-    //                         seblob.IDEXTENSION, --somente a extensão
-    //                         seblob.NRSIZE -- tamanho do arquivo em bytes
-    //                         from {_db_name}.seblob
-    //                         LEFT JOIN {_db_name}.EFFILE ON SEBLOB.CDEFFILE = EFFILE.CDEFFILE
-    //                         where oid = :OID";
+        var files = QueryAttachmentFiles(oid: oid);
+        var file = files?.FirstOrDefault();
+        if (file == null || file.cdfile is null)
+        {
+            throw new SoftExpertException($"O oid '{oid}' não foi encontrado");
+        }
 
-    //     Dictionary<string, dynamic> parametros = new Dictionary<string, dynamic>();
-    //     parametros.Add(":OID", oid);
-
-
-        
-    //     DataTable list = _db.Query(sql, parametros);
-    //     if (list == null || list.Rows.Count == 0){
-    //         throw new SoftExpertException($"O oid '{oid}' não foi encontrado na tabela 'SEBLOB'");
-    //     }
-
-    //     try
-    //     {// metodo de armazenamento em banco de dados
-    //     return list.AsEnumerable()
-    //         .Select(row =>
-    //         {
-    //             Anexo anexo = new Anexo();
-    //             anexo.cdfile = int.TryParse(row["CDFILE"].ToString(), out var tempValue) ? tempValue : 0;
-    //             anexo.FileName = row["NMNAME"].ToString();
-    //             anexo.extension = row["IDEXTENSION"].ToString();
-
-    //             anexo.Content = (byte[])row["FLDATA"];
-    //             return anexo;
-    //         })
-    //         .FirstOrDefault();
-    // }
-    //     catch (System.Exception)
-    //     {
-    //         //metodo de armazenamento em diretorio controlado
-    //         try
-    //         {
-    //             return list.AsEnumerable()
-    //         .Select(row =>
-    //         {
-    //             Anexo anexo = new Anexo();
-    //             anexo.cdfile = int.Parse(row["CDFILE"].ToString());
-    //             anexo.FileName = row["NMNAME"].ToString();
-    //             anexo.extension = row["IDEXTENSION"].ToString();
-                
-    //             anexo.Content = _downloader.DownloadFileForm($"{anexo.cdfile.ToString($"D{8}")}.{anexo.extension}");
-    //             return anexo;
-    //         })
-    //         .FirstOrDefault();
-    //         }
-    //         catch (System.Exception)
-    //         {
-    //             throw;
-    //         }
-    //     }
-
-        
-        
+        return DownloadAttachment(file);
     }
 
 
@@ -805,11 +699,11 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         throw new NotImplementedException("Este método ainda não foi implementado pela remoção da classe que implementa a interface IDatabase");
 
         // string sql = $@"SELECT EFFILE.cdfile, SEBLOB.*
-        //                     FROM {_db_name}.wfprocess p
-        //                     JOIN {_db_name}.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
-        //                     JOIN {_db_name}.dyn{MainEntityID} formulario on formulario.oid = GNF.OIDENTITYREG
-        //                     JOIN {_db_name}.SEBLOB ON SEBLOB.OID = formulario.oid{FormField}
-        //                     JOIN {_db_name}.EFFILE ON SEBLOB.CDEFFILE = EFFILE.CDEFFILE
+        //                     FROM softexpert.wfprocess p
+        //                     JOIN softexpert.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
+        //                     JOIN softexpert.dyn{MainEntityID} formulario on formulario.oid = GNF.OIDENTITYREG
+        //                     JOIN softexpert.SEBLOB ON SEBLOB.OID = formulario.oid{FormField}
+        //                     JOIN softexpert.EFFILE ON SEBLOB.CDEFFILE = EFFILE.CDEFFILE
         //                     --
         //                     WHERE p.idprocess = :WorkflowID";
 
@@ -830,6 +724,90 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         if(obj == null){
             throw new SoftExpertException($"Objeto do tipo {type} é nulo ou ausente, não foi implementado ou nao foi iniciado corretamente. Veja a documentação.");
         }
+    }
+
+    /*
+        Criar um conjunto de dados com o ID 'queryGetAttachmentFile' no SE com o SQL abaixo
+
+        select 1 AS TYPE --1 FORM, 2 ANEXO DE INSTANCIA
+        , NULL AS IDSTRUCT
+        , seblob.NMNAME AS NMFILE
+        , EFFILE.CDFILE
+        , NULL AS CDATTACHMENT
+        , oid
+        from softexpert.seblob
+        LEFT JOIN softexpert.EFFILE ON SEBLOB.CDEFFILE = EFFILE.CDEFFILE
+        where 1=1
+        AND (:OID is null or oid = :OID)
+        AND (:CDFILE is null or effile.cdfile = :CDFILE)
+        AND (:WorkflowID is null)
+               --
+               UNION
+               --                    
+        select 2 AS TYPE --1 FORM, 2 ANEXO DE INSTANCIA
+        , a.idstruct
+        , g.NMFILE
+        , g.CDFILE
+        , ANEXO.CDATTACHMENT
+        , NULL AS oid
+        --
+        from softexpert.wfprocess p
+        JOIN softexpert.WFSTRUCT A ON A.IDPROCESS = P.IDOBJECT
+        JOIN softexpert.WFPROCATTACHMENT ATAASSOC ON A.IDOBJECT = ATAASSOC.IDSTRUCT
+        JOIN softexpert.ADATTACHMENT ANEXO ON ATAASSOC.CDATTACHMENT = ANEXO.CDATTACHMENT
+        join softexpert.ADATTACHFILE attach on ANEXO.CDATTACHMENT = attach.CDATTACHMENT
+        join softexpert.GNCOMPFILECONTCOPY c on attach.CDCOMPLEXFILECONT = c.CDCOMPLEXFILECONT
+        join softexpert.gnfile g on c.CDCOMPLEXFILECONT = g.CDCOMPLEXFILECONT
+        --
+        where ANEXO.CDATTACHMENT IS NOT NULL 
+        AND (:WorkflowID is null or p.idprocess = :WorkflowID)
+        AND (:CDFILE is null or g.cdfile = :CDFILE)
+    */
+    private List<AttachmentFileObject> QueryAttachmentFiles(string workflowID = null, string oid = null, long? cdfile = null)
+    {
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/apigateway/v1/dataset-integration/queryGetAttachmentFile");
+
+        var payload = new Dictionary<string, string>
+        {
+            { "WorkflowID", workflowID ?? string.Empty },
+            { "OID", oid ?? string.Empty },
+            { "CDFILE", cdfile?.ToString() ?? string.Empty },
+        };
+
+        string jsonBody = JsonConvert.SerializeObject(payload);
+        request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+
+        HttpResponseMessage response = _dataSetClient.SendAsync(request).Result;
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new SoftExpertException("Houve um problema ao consultar os arquivos no SoftExpert");
+        }
+
+        string responseBody = response.Content.ReadAsStringAsync().Result;
+        return JsonConvert.DeserializeObject<List<AttachmentFileObject>>(responseBody) ?? new List<AttachmentFileObject>();
+    }
+
+    private Anexo DownloadAttachment(AttachmentFileObject file)
+    {
+        if (file.cdfile is null)
+        {
+            throw new SoftExpertException($"Arquivo '{file.nmfile}' sem CDFILE");
+        }
+
+        var anexo = new Anexo
+        {
+            FileName = file.nmfile,
+            cdfile = file.cdfile.Value,
+            cdattachment = file.cdattachment ?? 0,
+            extension = file.Extension,
+        };
+
+        string storedName = $"{anexo.cdfile.ToString($"D{8}")}.{anexo.extension}";
+        anexo.Content = file.IsFormFile
+            ? _downloader.DownloadFileForm(storedName)
+            : _downloader.DownloadFileAttach(storedName);
+
+        return anexo;
     }
 
 
@@ -1316,7 +1294,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}'");
             }
 
-            Console.WriteLine(JsonConvert.SerializeObject(obj.dhstart));
 
             var activities = GetCurrentActivities(workflowID);
             var activity = activities.FirstOrDefault(a => a.idstruct == ActivityID) ?? activities.FirstOrDefault();

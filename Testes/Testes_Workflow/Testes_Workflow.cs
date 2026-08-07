@@ -24,7 +24,7 @@ public class Testes_Workflow
 
     string iduser = "sistema.teste";
 
-    string oidFile = "ca0d26bcb6d294c48933e719f1959b86";
+    string oidFile = "0e6fbe048a635aaf00deea99b9f3bbc3";
 
     public Testes_Workflow(ITestOutputHelper output){
         _appsettings = new ConfigurationBuilder()
@@ -38,7 +38,8 @@ public class Testes_Workflow
             login = _appsettings["user"],
             pass = _appsettings["pass"],
             domain = _appsettings["domain"],
-            token = _appsettings["token"]
+            token = _appsettings["token"],
+            downloader = new MockFileDownload(),
         };
 
         if (!string.IsNullOrWhiteSpace(_appsettings["authorization"]))
