@@ -9,6 +9,9 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
 
+    # Deve bater com o Environment da policy no nuget.org
+    environment: production
+
     # Obrigatório para Trusted Publishing (OIDC → chave temporária no nuget.org)
     permissions:
       contents: read
