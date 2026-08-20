@@ -47,10 +47,7 @@ SoftExpertAPI.Configurations configs = new Configurations()
     token = "SEU_TOKEN",
     // downloader = minhaImplementacaoIFileDownload, // opcional: anexos em diretório controlado
 };
-
 SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(configs);
-SoftExpertAdminApi adAPI = new SoftExpertAdminApi(configs);
-SoftExpertGenericApi genAPI = new SoftExpertGenericApi(configs);
 ```
 
 ### Exemplo rápido
@@ -79,7 +76,10 @@ Cada função pública possui um arquivo próprio com explicação, parâmetros,
 **[docs/README.md](docs/README.md)**
 
 ### Workflow (`SoftExpertWorkflowApi`)
-
+Para as funções abaixo, considerar o instanciamento do objeto abaixo:
+``` C#
+SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(configs);
+```
 | Função | Diretório controlado | Objetivo |
 | --- | :---: | --- |
 | [newWorkflow](docs/workflow/newWorkflow.md) | | Criar instância de processo |
@@ -104,14 +104,20 @@ Cada função pública possui um arquivo próprio com explicação, parâmetros,
 | [GetActivitiesFromWorkflow](docs/workflow/GetActivitiesFromWorkflow.md) | | Listar atividades da instância |
 
 ### Administração (`SoftExpertAdminApi`)
-
+Para as funções abaixo, considerar o instanciamento do objeto abaixo:
+``` C#
+SoftExpertAdminApi adAPI = new SoftExpertAdminApi(configs);
+```
 | Função | Objetivo |
 | --- | --- |
 | [enableUser](docs/admin/enableUser.md) | Habilitar usuário |
 | [disableUser](docs/admin/disableUser.md) | Desabilitar usuário |
 
 ### Genérico (`SoftExpertGenericApi`)
-
+Para as funções abaixo, considerar o instanciamento do objeto abaixo:
+``` C#
+SoftExpertGenericApi genAPI = new SoftExpertGenericApi(configs);
+```
 | Função | Objetivo |
 | --- | --- |
 | [addUserToTeam](docs/generic/addUserToTeam.md) | Adicionar usuário a uma equipe |

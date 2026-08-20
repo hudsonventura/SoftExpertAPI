@@ -22,7 +22,6 @@ public class Testes_Administracao
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
 
-        ExampleOracleImplementation _db = new ExampleOracleImplementation(_appsettings);
 
         Configurations configs = new Configurations()
         {
@@ -30,7 +29,6 @@ public class Testes_Administracao
             login = _appsettings["user"],
             pass = _appsettings["pass"],
             domain = _appsettings["domain"],
-            db = _db,
         };
 
         if (!string.IsNullOrWhiteSpace(_appsettings["authorization"]))
