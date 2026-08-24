@@ -10,7 +10,7 @@ public class WFStruct
     public string idstruct { get; set; } = string.Empty;
     public string nmstruct { get; set; } = string.Empty;
 
-    public WFStatus fgstatus { get; set; } = 0;
+    public STStatus fgstatus { get; set; } = 0;
     public DateTime dhenabled { get; set; } = DateTime.MinValue; //TODO: needs implementation
     public DateTime dtestimatedfinish { 
         get{ return _dtestimatedfinish;}
@@ -59,6 +59,18 @@ public class WFStruct
         Cancelado = 3,
         Encerrado = 4,
         Suspenso = 2
+    }
+
+    public enum STStatus
+    {
+        A_Iniciar = 1,
+        Em_Andamento = 2,
+        Cancelada = 5,
+        Executada = 3,
+        Postergada = 4,
+        Rejeitada = 6,
+        Aprovacao_Retornada = 7
+        
     }
 
 

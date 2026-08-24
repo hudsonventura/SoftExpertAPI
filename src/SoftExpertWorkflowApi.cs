@@ -643,7 +643,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns>Lista de WFStruct das atividades atuais</returns>
     public List<WFStruct> GetCurrentActivities(string WorkflowID)
     {
-        return GetActivitiesFromWorkflow(WorkflowID).Where(item => item.fgstatus == WFStruct.WFStatus.Em_Andamento).ToList();
+        return GetActivitiesFromWorkflow(WorkflowID).Where(item => item.fgstatus == WFStruct.STStatus.Em_Andamento).ToList();
     }
 
 
@@ -655,40 +655,26 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns>Lista de WFStruct das atividades atuais</returns>
     public List<WFStruct> GetActivitiesFromWorkflow(string WorkflowID)
     {
-        /*
-            Criar um conjunto de dados com o ID 'queryGetCurrentActivities' no SE com o SQL abaixo
+        /* Criar um conjunto de dados com o ID 'queryGetCurrentActivities' no SE com o SQL abaixo */
 
-            SELECT a.idprocess, a.idobject, a.idstruct, a.nmstruct, a.fgstatus
+        string sql = @"SELECT a.idprocess, a.idobject, a.idstruct, a.nmstruct, a.fgstatus
                     , A.DHENABLED AS DTENABLED
                     , a.DTESTIMATEDFINISH + ( A.NRTIMEESTFINISH/24/60) AS DTESTIMATEDFINISH
                     , TO_DATE(to_char(a.DTEXECUTION, 'dd/mm/yyyy') || a.TMEXECUTION, 'dd/mm/yyyyHH24:MI:SS') AS DTEXECUTION
                 FROM softexpert.wfprocess p
                 JOIN softexpert.wfstruct a on a.idprocess = p.idobject AND A.FGSTATUS = 2
-                WHERE p.idprocess = :WorkflowID
-        */
+                WHERE p.idprocess = :WorkflowID";
 
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/apigateway/v1/dataset-integration/queryGetCurrentActivities");
 
         var payload = new Dictionary<string, string>
         {
             { "WorkflowID", WorkflowID }
         };
-        string jsonBody = JsonConvert.SerializeObject(payload);
-        request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
-
-        HttpResponseMessage response = _dataSetClient.SendAsync(request).Result;
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new SoftExpertException($"Houve um problema ao consultar as atividades da instância '{WorkflowID}'");
-        }
-
-        string responseBody = response.Content.ReadAsStringAsync().Result;
-        var list = JsonConvert.DeserializeObject<List<CurrentActivityObject>>(responseBody);
-
-        if (list == null || list.Count == 0)
-        {
+        
+        List<CurrentActivityObject> list = SendRequestRest_DataSet<CurrentActivityObject>("queryGetCurrentActivities", sql, payload);
+        if (list.Count == 0)
             throw new SoftExpertException($"Não foi encontrado um workflow com o id '{WorkflowID}'");
-        }
+        
 
         return list.Select(item => item.ToWFStruct()).ToList();
     }
@@ -932,10 +918,9 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
     private ManageInstanceObject GetWorkflowInstanceData(string workflowID)
     {
-        /*
-            Criar um conjunto de dados com o ID 'queryGetWorkflowInstanceData' no SE com o SQL abaixo
+        /* Criar um conjunto de dados com o ID 'queryGetWorkflowInstanceData' no SE com o SQL abaixo */
 
-            select p.idprocess
+        string sql = @"select p.idprocess
             , p.IDOBJECT
             , P.FGSTATUS
             , p.cduserstart
@@ -956,33 +941,17 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             , gnf.OIDENTITYREG
             from softexpert.WFPROCESS p
             JOIN softexpert.GNASSOCFORMREG GNF on p.cdassocreg = GNF.cdassoc
-            where p.IDPROCESS = :workflowID
-        */
-
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"/apigateway/v1/dataset-integration/queryGetWorkflowInstanceData");
+            where p.IDPROCESS = :workflowID";
 
         var payload = new Dictionary<string, string>
         {
             { "workflowID", workflowID }
         };
 
-        string jsonBody = JsonConvert.SerializeObject(payload);
-        request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
-
-
-        HttpResponseMessage  response = _dataSetClient.SendAsync(request).Result;
-        if(!response.IsSuccessStatusCode){
-            throw new SoftExpertException("Houve um problema ao consultar a instancia");
-        }
-
-        string responseBody = response.Content.ReadAsStringAsync().Result;
-        var list = JsonConvert.DeserializeObject<List<ManageInstanceObject>>(responseBody);
-
-        if (list == null || list.Count == 0)
-        {
-            return null;
-        }
-
+        List<ManageInstanceObject> list = SendRequestRest_DataSet<ManageInstanceObject>("queryGetWorkflowInstanceData", sql, payload);
+        if (list.Count == 0)
+            throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}'");
+        
         return list[0];
     }   
 

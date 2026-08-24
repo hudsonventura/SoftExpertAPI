@@ -200,48 +200,21 @@ public abstract class SoftExpertBaseAPI
     }
 
 
-    protected void SendRequestRest(HttpRequestMessage request)
+    protected List<T> SendRequestRest_DataSet<T>(string idDataSet, string sql, Dictionary<string, string> parameters)
     {
-        HttpResponseMessage response = _restClient.SendAsync(request).Result;
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/apigateway/v1/dataset-integration/"+idDataSet);
 
-        string json_response = null;
+        string jsonBody = JsonConvert.SerializeObject(parameters);
+        request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
-        try
-        {
-            var bodyResponse = response.Content.ReadAsStringAsync().Result;
-            using (JsonDocument document = JsonDocument.Parse(bodyResponse))
-            {
-                JsonElement root = document.RootElement;
-                if (root.TryGetProperty("response", out JsonElement responseElement))
-                {
-                    json_response = responseElement.GetString();
-                }
-            }
-        }
-        catch (System.Exception erro)
-        {
-
-        }
-
-        if (response.IsSuccessStatusCode)
-        {
-            return; //Success!
-        }
-
-        if (!response.IsSuccessStatusCode && json_response is not null)
-        {
-            throw new Exception($"SoftExpert error: {json_response}");
-        }
-
-
+        HttpResponseMessage response = _dataSetClient.SendAsync(request).Result;
         if (!response.IsSuccessStatusCode)
         {
-            throw new Exception($"Falha ao conectar ao servidor {_restClient.BaseAddress.AbsoluteUri}. {response.StatusCode} -> {response.Content.ReadAsStringAsync().Result}");
+            throw new SoftExpertException($"Houve um problema ao consultar o conjunto de dados '{idDataSet}'. Certifique-se de que o conjunto de dados existe e está configurado corretamente e possui o SQL a seguir: {sql}");
         }
 
-
-
-        return;
+        string responseBody = response.Content.ReadAsStringAsync().Result;
+        return JsonConvert.DeserializeObject<List<T>>(responseBody);
     }
 
 

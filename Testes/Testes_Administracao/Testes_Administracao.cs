@@ -1,6 +1,5 @@
 using Xunit.Abstractions;
 using Microsoft.Extensions.Configuration;
-using Examples;
 using SoftExpertAPI;
 
 namespace Testes_Administracao;

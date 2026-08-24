@@ -37,7 +37,7 @@ public record CurrentActivityObject
             idobject = idobject,
             idstruct = idstruct,
             nmstruct = nmstruct,
-            fgstatus = (WFStruct.WFStatus)fgstatus,
+            fgstatus = (WFStruct.STStatus)fgstatus,
             dhenabled = FromEpoch(dtenabled),
             dtestimatedfinish = FromEpoch(dtestimatedfinish),
             dtexecution = FromEpoch(dtexecution),
