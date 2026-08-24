@@ -643,7 +643,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <returns>Lista de WFStruct das atividades atuais</returns>
     public List<WFStruct> GetCurrentActivities(string WorkflowID)
     {
-        return GetActivitiesFromWorkflow(WorkflowID).Where(item => item.fgstatus == WFStruct.STStatus.Em_Andamento).ToList();
+        return GetActivitiesFromInstance(WorkflowID).Where(item => item.fgstatus == WFStruct.STStatus.Em_Andamento).ToList();
     }
 
 
@@ -653,7 +653,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// </summary>
     /// <param name="WorkflowID">IDPROCESS da instância</param>
     /// <returns>Lista de WFStruct das atividades atuais</returns>
-    public List<WFStruct> GetActivitiesFromWorkflow(string WorkflowID)
+    public List<WFStruct> GetActivitiesFromInstance(string WorkflowID)
     {
         /* Criar um conjunto de dados com o ID 'queryGetCurrentActivities' no SE com o SQL abaixo */
 
@@ -662,7 +662,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                     , a.DTESTIMATEDFINISH + ( A.NRTIMEESTFINISH/24/60) AS DTESTIMATEDFINISH
                     , TO_DATE(to_char(a.DTEXECUTION, 'dd/mm/yyyy') || a.TMEXECUTION, 'dd/mm/yyyyHH24:MI:SS') AS DTEXECUTION
                 FROM softexpert.wfprocess p
-                JOIN softexpert.wfstruct a on a.idprocess = p.idobject AND A.FGSTATUS = 2
+                JOIN softexpert.wfstruct a on a.idprocess = p.idobject
                 WHERE p.idprocess = :WorkflowID";
 
 
@@ -671,7 +671,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             { "WorkflowID", WorkflowID }
         };
         
-        List<CurrentActivityObject> list = SendRequestRest_DataSet<CurrentActivityObject>("queryGetCurrentActivities", sql, payload);
+        List<CurrentActivityObject> list = SendRequestRest_DataSet<CurrentActivityObject>("queryGetActivitiesFromInstance", sql, payload);
         if (list.Count == 0)
             throw new SoftExpertException($"Não foi encontrado um workflow com o id '{WorkflowID}'");
         
@@ -864,7 +864,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}'");
             }
 
-            var activities = GetActivitiesFromWorkflow(workflowID);
+            var activities = GetActivitiesFromInstance(workflowID);
             var activity = activities.FirstOrDefault(a => a.idstruct == ActivityID) ?? activities.FirstOrDefault();
             if(activity == null){
                 throw new Exception($"Não foi encontrada nenhuma atividade na instância '{workflowID}'");

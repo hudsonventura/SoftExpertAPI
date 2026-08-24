@@ -803,7 +803,7 @@ public class Testes_Workflow
     {
         try
         {
-            _softExpertApi.GetActivitiesFromWorkflow("INSTANCIA_INEXISTENTE_XYZ");
+            _softExpertApi.GetActivitiesFromInstance("INSTANCIA_INEXISTENTE_XYZ");
             Assert.Fail("Era esperado SoftExpertException");
         }
         catch (SoftExpertException error)
