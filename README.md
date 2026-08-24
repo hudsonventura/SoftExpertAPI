@@ -120,6 +120,7 @@ SoftExpertGenericApi genAPI = new SoftExpertGenericApi(configs);
 ```
 | Função | Objetivo |
 | --- | --- |
+| [newTeam](docs/generic/newTeam.md) | Criar nova equipe |
 | [addUserToTeam](docs/generic/addUserToTeam.md) | Adicionar usuário a uma equipe |
 | [removeUserFromTeam](docs/generic/removeUserFromTeam.md) | Remover usuário de uma equipe |
 
