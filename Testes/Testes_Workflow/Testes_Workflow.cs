@@ -473,8 +473,8 @@ public class Testes_Workflow
     [Fact]
     public void WF_15_reactivateWorkflow_Success()
     {
-        string workflowID = "SA202514268";
-        string activityID = "ATIV-SOLACESSO";
+        string workflowID = "SJS202400400";
+        string activityID = "ATV-VALID";
         string explanation = "Teste unitário SoftExpertAPI - reactivateWorkflow";
         string userID = iduser;
 
@@ -519,8 +519,8 @@ public class Testes_Workflow
     [Fact]
     public void WF_16_delegateWorkflow_Success()
     {
-        string workflowID = "SM2026108124";
-        string activityID = "atvsolicitarmiro";
+        string workflowID = "IR312288";
+        string activityID = "RegistrarIncidente";
         string explanation = "Teste unitário SoftExpertAPI - delegateWorkflow";
         int cduser = 9;
 
@@ -782,7 +782,7 @@ public class Testes_Workflow
     {
         try
         {
-            var activities = _softExpertApi.GetActivitiesFromWorkflow(WorkflowID);
+            var activities = _softExpertApi.GetActivitiesFromInstance(WorkflowID);
             Assert.NotNull(activities);
             Assert.True(activities.Count > 0);
             Assert.False(string.IsNullOrWhiteSpace(activities[0].idstruct));
