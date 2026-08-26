@@ -4,9 +4,11 @@ Retorna as atividades em andamento de uma instância.
 
 > Instanciação: [Instanciacao.md](../Instanciacao.md)
 
-## Pré-requisito (dataset)
+## Conjunto de dados (SoftExpert)
 
-Utiliza o dataset `queryGetCurrentActivities` (via `GetActivitiesFromWorkflow`).
+Utiliza internamente `GetActivitiesFromInstance`.
+
+- [queryGetActivitiesFromInstance](../ConjuntosDeDados.md#querygetactivitiesfrominstance)
 
 ## Parâmetros de entrada
 

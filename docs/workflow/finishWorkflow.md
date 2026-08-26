@@ -4,10 +4,11 @@ Encerra uma instância de processo mesmo sem chegar ao final do fluxo (endpoint 
 
 > Instanciação: [Instanciacao.md](../Instanciacao.md)
 
-## Pré-requisitos
+## Conjunto de dados (SoftExpert)
 
-- Dataset `queryGetCurrentActivities`
-- `token` válido na configuração
+Consulta o dataset via `GetCurrentActivities`. Também requer `token` válido na configuração.
+
+- [queryGetActivitiesFromInstance](../ConjuntosDeDados.md#querygetactivitiesfrominstance)
 
 ## Parâmetros de entrada
 

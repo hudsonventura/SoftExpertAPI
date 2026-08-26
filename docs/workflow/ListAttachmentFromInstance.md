@@ -6,9 +6,9 @@ Requer implementação de `IFileDownload` na configuração (`configs.downloader
 
 > Instanciação: [Instanciacao.md](../Instanciacao.md)
 
-## Pré-requisito (dataset)
+## Conjunto de dados (SoftExpert)
 
-É necessário existir no SoftExpert o conjunto de dados `queryGetAttachmentFile` (veja o SQL comentado no código-fonte de `SoftExpertWorkflowApi`).
+- [queryGetAttachmentFile](../ConjuntosDeDados.md#querygetattachmentfile)
 
 ## Parâmetros de entrada
 

@@ -1,12 +1,12 @@
-# GetActivitiesFromWorkflow
+# GetActivitiesFromInstance
 
 Retorna a lista de atividades de uma instância (conforme o dataset configurado no SoftExpert).
 
 > Instanciação: [Instanciacao.md](../Instanciacao.md)
 
-## Pré-requisito (dataset)
+## Conjunto de dados (SoftExpert)
 
-É necessário existir no SoftExpert o conjunto de dados `queryGetCurrentActivities`.
+- [queryGetActivitiesFromInstance](../ConjuntosDeDados.md#querygetactivitiesfrominstance)
 
 ## Parâmetros de entrada
 
@@ -25,7 +25,7 @@ Se nenhuma atividade/instância for encontrada, lança `SoftExpertException`.
 ## Exemplo
 
 ```csharp
-List<WFStruct> atividades = wfAPI.GetActivitiesFromWorkflow("CCF202614358");
+List<WFStruct> atividades = wfAPI.GetActivitiesFromInstance("CCF202614358");
 
 foreach (var atividade in atividades)
 {

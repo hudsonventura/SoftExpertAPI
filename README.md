@@ -75,33 +75,35 @@ Cada função pública possui um arquivo próprio com explicação, parâmetros,
 
 **[docs/README.md](docs/README.md)**
 
+Conjuntos de dados necessários no SoftExpert: **[docs/ConjuntosDeDados.md](docs/ConjuntosDeDados.md)**
+
 ### Workflow (`SoftExpertWorkflowApi`)
 Para as funções abaixo, considerar o instanciamento do objeto abaixo:
 ``` C#
 SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(configs);
 ```
-| Função | Diretório controlado | Objetivo |
-| --- | :---: | --- |
-| [newWorkflow](docs/workflow/newWorkflow.md) | | Criar instância de processo |
-| [cancelWorkflow](docs/workflow/cancelWorkflow.md) | | Cancelar instância |
-| [executeActivity](docs/workflow/executeActivity.md) | | Executar atividade |
-| [newAttachment](docs/workflow/newAttachment.md) | | Anexar arquivo no menu de anexos |
-| [ListAttachmentFromInstance](docs/workflow/ListAttachmentFromInstance.md) | ✔ | Listar anexos da instância |
-| [GetFileFromOID](docs/workflow/GetFileFromOID.md) | ✔ | Obter arquivo a partir do OID |
-| [editEntityRecord](docs/workflow/editEntityRecord.md) | | Editar campos do formulário |
-| [newChildEntityRecord](docs/workflow/newChildEntityRecord.md) | | Criar registro em grid |
-| [editChildEntityRecord](docs/workflow/editChildEntityRecord.md) | | Editar registro em grid |
-| [editTableRecord](docs/workflow/editTableRecord.md) | | Editar registro de tabela (Form) |
-| [addHistoryComment](docs/workflow/addHistoryComment.md) | | Adicionar comentário no histórico |
-| [unlinkActivityFromUser](docs/workflow/unlinkActivityFromUser.md) | | Desassociar atividade do usuário |
-| [reactivateWorkflow](docs/workflow/reactivateWorkflow.md) | | Reativar instância |
-| [returnWorkflow](docs/workflow/returnWorkflow.md) | | Retornar para uma atividade |
-| [finishWorkflow](docs/workflow/finishWorkflow.md) | | Encerrar instância |
-| [delegateWorkflow](docs/workflow/delegateWorkflow.md) | | Delegar atividade |
-| [AlterUserStart](docs/workflow/AlterUserStart.md) | | Alterar usuário iniciador |
-| [GetWorflowStatus](docs/workflow/GetWorflowStatus.md) | | Consultar status da instância |
-| [GetCurrentActivities](docs/workflow/GetCurrentActivities.md) | | Listar atividades em andamento |
-| [GetActivitiesFromWorkflow](docs/workflow/GetActivitiesFromWorkflow.md) | | Listar atividades da instância |
+| Função | Diretório controlado | Conjunto de dados | Objetivo |
+| --- | :---: | :---: | --- |
+| [newWorkflow](docs/workflow/newWorkflow.md) | | | Criar instância de processo |
+| [cancelWorkflow](docs/workflow/cancelWorkflow.md) | | | Cancelar instância |
+| [executeActivity](docs/workflow/executeActivity.md) | | | Executar atividade |
+| [newAttachment](docs/workflow/newAttachment.md) | | | Anexar arquivo no menu de anexos |
+| [ListAttachmentFromInstance](docs/workflow/ListAttachmentFromInstance.md) | ✔ | ✔ | Listar anexos da instância |
+| [GetFileFromOID](docs/workflow/GetFileFromOID.md) | ✔ | ✔ | Obter arquivo a partir do OID |
+| [editEntityRecord](docs/workflow/editEntityRecord.md) | | | Editar campos do formulário |
+| [newChildEntityRecord](docs/workflow/newChildEntityRecord.md) | | | Criar registro em grid |
+| [editChildEntityRecord](docs/workflow/editChildEntityRecord.md) | | | Editar registro em grid |
+| [editTableRecord](docs/workflow/editTableRecord.md) | | | Editar registro de tabela (Form) |
+| [addHistoryComment](docs/workflow/addHistoryComment.md) | | | Adicionar comentário no histórico |
+| [unlinkActivityFromUser](docs/workflow/unlinkActivityFromUser.md) | | | Desassociar atividade do usuário |
+| [reactivateWorkflow](docs/workflow/reactivateWorkflow.md) | | ✔ | Reativar instância |
+| [returnWorkflow](docs/workflow/returnWorkflow.md) | | ✔ | Retornar para uma atividade |
+| [finishWorkflow](docs/workflow/finishWorkflow.md) | | ✔ | Encerrar instância |
+| [delegateWorkflow](docs/workflow/delegateWorkflow.md) | | ✔ | Delegar atividade |
+| [AlterUserStart](docs/workflow/AlterUserStart.md) | | | Alterar usuário iniciador |
+| [GetWorflowStatus](docs/workflow/GetWorflowStatus.md) | | ✔ | Consultar status da instância |
+| [GetCurrentActivities](docs/workflow/GetCurrentActivities.md) | | ✔ | Listar atividades em andamento |
+| [GetActivitiesFromInstance](docs/workflow/GetActivitiesFromInstance.md) | | ✔ | Listar atividades da instância |
 
 ### Administração (`SoftExpertAdminApi`)
 Para as funções abaixo, considerar o instanciamento do objeto abaixo:
@@ -129,4 +131,4 @@ SoftExpertGenericApi genAPI = new SoftExpertGenericApi(configs);
 - Funções iniciadas com letra minúscula (`newWorkflow`) espelham APIs originais do SoftExpert.
 - Funções iniciadas com letra maiúscula (`AlterUserStart`) possuem implementação própria e/ou usam endpoints/datasets do SoftExpert.
 - ✔ **Diretório controlado**: requer implementação de `IFileDownload` em `configs.downloader`.
-- Consultas via dataset (`GetWorflowStatus`, anexos, atividades etc.) exigem os conjuntos de dados correspondentes criados no SoftExpert — detalhes em cada página da documentação.
+- ✔ **Conjunto de dados**: requer criação do conjunto de dados correspondente no SoftExpert — ver [docs/ConjuntosDeDados.md](docs/ConjuntosDeDados.md).

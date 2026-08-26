@@ -4,11 +4,12 @@ Reativa uma instância de processo (endpoint de gestão do SoftExpert).
 
 > Instanciação: [Instanciacao.md](../Instanciacao.md)
 
-## Pré-requisitos
+## Conjunto de dados (SoftExpert)
 
-- Dataset `queryGetWorkflowInstanceData`
-- Dataset `queryGetCurrentActivities`
-- `token` válido na configuração (autenticação via cookie de gestão)
+Também requer `token` válido na configuração (autenticação via cookie de gestão).
+
+- [queryGetWorkflowInstanceData](../ConjuntosDeDados.md#querygetworkflowinstancedata)
+- [queryGetActivitiesFromInstance](../ConjuntosDeDados.md#querygetactivitiesfrominstance)
 
 ## Parâmetros de entrada
 

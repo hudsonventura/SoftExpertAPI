@@ -4,11 +4,12 @@ Delega a execução de uma atividade para outro usuário (endpoint de gestão do
 
 > Instanciação: [Instanciacao.md](../Instanciacao.md)
 
-## Pré-requisitos
+## Conjunto de dados (SoftExpert)
 
-- Dataset `queryGetWorkflowInstanceData`
-- Dataset `queryGetCurrentActivities`
-- `token` válido na configuração
+Também requer `token` válido na configuração.
+
+- [queryGetWorkflowInstanceData](../ConjuntosDeDados.md#querygetworkflowinstancedata)
+- [queryGetActivitiesFromInstance](../ConjuntosDeDados.md#querygetactivitiesfrominstance)
 
 ## Parâmetros de entrada
 

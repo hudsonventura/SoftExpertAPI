@@ -4,9 +4,9 @@ Consulta o status de uma instância de Workflow via dataset SoftExpert.
 
 > Instanciação: [Instanciacao.md](../Instanciacao.md)
 
-## Pré-requisito (dataset)
+## Conjunto de dados (SoftExpert)
 
-É necessário existir no SoftExpert o conjunto de dados `queryGetWorkflowInstanceData`.
+- [queryGetWorkflowInstanceData](../ConjuntosDeDados.md#querygetworkflowinstancedata)
 
 ## Parâmetros de entrada
 
