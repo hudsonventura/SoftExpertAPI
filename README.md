@@ -120,11 +120,12 @@ Para as funções abaixo, considerar o instanciamento do objeto abaixo:
 ``` C#
 SoftExpertGenericApi genAPI = new SoftExpertGenericApi(configs);
 ```
-| Função | Objetivo |
-| --- | --- |
-| [newTeam](docs/generic/newTeam.md) | Criar nova equipe |
-| [addUserToTeam](docs/generic/addUserToTeam.md) | Adicionar usuário a uma equipe |
-| [removeUserFromTeam](docs/generic/removeUserFromTeam.md) | Remover usuário de uma equipe |
+| Função | Licença de gestão | Objetivo |
+| --- | :---: | --- |
+| [newTeam](docs/generic/newTeam.md) | | Criar nova equipe |
+| [addUserToTeam](docs/generic/addUserToTeam.md) | | Adicionar usuário a uma equipe |
+| [removeUserFromTeam](docs/generic/removeUserFromTeam.md) | | Remover usuário de uma equipe |
+| [setTeamPermissions](docs/generic/setTeamPermissions.md) | ✔ | Definir permissões de segurança da equipe |
 
 ## Observações
 
@@ -132,3 +133,4 @@ SoftExpertGenericApi genAPI = new SoftExpertGenericApi(configs);
 - Funções iniciadas com letra maiúscula (`AlterUserStart`) possuem implementação própria e/ou usam endpoints/datasets do SoftExpert.
 - ✔ **Diretório controlado**: requer implementação de `IFileDownload` em `configs.downloader`.
 - ✔ **Conjunto de dados**: requer criação do conjunto de dados correspondente no SoftExpert — ver [docs/ConjuntosDeDados.md](docs/ConjuntosDeDados.md).
+- ✔ **Licença de gestão**: requer licença de gestão e uma sessão de gestão disponível no SoftExpert.

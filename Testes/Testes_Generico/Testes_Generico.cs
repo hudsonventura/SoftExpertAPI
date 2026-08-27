@@ -12,6 +12,12 @@ public class Testes_Generico
     // Componentes do SoftExpert (códigos separados por vírgula)
     string Component = "109";
 
+    // Equipe existente no ambiente para teste de permissões (ajustar conforme necessário)
+    int CdTeam = 67062;
+    string IdTeam = "fecontabil000-0001";
+    string NmTeam = "teste";
+    string CdTeamEditor = "8";
+
     public Testes_Generico(ITestOutputHelper output)
     {
         console = output;
@@ -96,6 +102,57 @@ public class Testes_Generico
 
             api.newTeam(idteam, nmteam, Component);
             Assert.Fail("Era esperado SoftExpertException para equipe duplicada");
+        }
+        catch (SoftExpertException error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Define permissões de segurança de uma equipe existente via REST
+    /// </summary>
+    [Fact]
+    public void GN_02_setTeamPermissions_Success()
+    {
+        try
+        {
+            api.setTeamPermissions(
+                cdteam: CdTeam,
+                idteam: IdTeam,
+                nmteam: NmTeam,
+                public_read: true,
+                idteam_editor: CdTeamEditor
+            );
+
+            Assert.True(true);
+            console.WriteLine($"Permissões definidas para equipe {IdTeam} (cdteam={CdTeam})");
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// setTeamPermissions com equipe inexistente — espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void GN_02_setTeamPermissions_Error()
+    {
+        try
+        {
+            api.setTeamPermissions(
+                cdteam: 999999999,
+                idteam: "EQUIPE_INEXISTENTE_XYZ",
+                nmteam: "Equipe inválida",
+                public_read: true,
+                idteam_editor: CdTeamEditor
+            );
+
+            Assert.Fail("Era esperado SoftExpertException para equipe inexistente");
         }
         catch (SoftExpertException error)
         {
