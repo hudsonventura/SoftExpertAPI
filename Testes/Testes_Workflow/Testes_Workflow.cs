@@ -473,8 +473,8 @@ public class Testes_Workflow
     [Fact]
     public void WF_15_reactivateWorkflow_Success()
     {
-        string workflowID = "SJS202400400";
-        string activityID = "ATV-VALID";
+        string workflowID = "SA202629456";
+        string activityID = "ATIV-SOLACESSO";
         string explanation = "Teste unitário SoftExpertAPI - reactivateWorkflow";
         string userID = iduser;
 
@@ -519,10 +519,10 @@ public class Testes_Workflow
     [Fact]
     public void WF_16_delegateWorkflow_Success()
     {
-        string workflowID = "IR312288";
-        string activityID = "RegistrarIncidente";
+        string workflowID = "SA202629456";
+        string activityID = "ATIV-SOLACESSO";
         string explanation = "Teste unitário SoftExpertAPI - delegateWorkflow";
-        int cduser = 9;
+        int cduser = 10;
 
         try
         {
@@ -565,7 +565,7 @@ public class Testes_Workflow
     [Fact]
     public void WF_17_finishWorkflow_Success()
     {
-        string workflowID = "SM2026108124";
+        string workflowID = "SA202629456";
         string explanation = "Teste unitário SoftExpertAPI - finishWorkflow";
         string userID = iduser;
 
@@ -609,8 +609,8 @@ public class Testes_Workflow
     [Fact]
     public void WF_18_returnWorkflow_Success()
     {
-        string workflowID = "PRO20240564";
-        string activityID = "CriarSolicitacao";
+        string workflowID = "SA202629456";
+        string activityID = "ATIV-SOLACESSO";
         string explanation = "Teste unitário SoftExpertAPI - returnWorkflow";
         string userID = iduser;
 
@@ -819,7 +819,7 @@ public class Testes_Workflow
     [Fact]
     public void WF_23_cancelWorkflow_Success()
     {
-        string workflowID = "VBG202002801";
+        string workflowID = "SA202629456";
         string explanation = "Teste unitário SoftExpertAPI - cancelWorkflow";
 
         try

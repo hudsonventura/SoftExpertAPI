@@ -520,8 +520,10 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
     /*
         Criar um conjunto de dados com o ID 'queryGetAttachmentFile' no SE com o SQL abaixo
-
-        select 1 AS TYPE --1 FORM, 2 ANEXO DE INSTANCIA
+    */
+    private List<AttachmentFileObject> QueryAttachmentFiles(string workflowID = null, string oid = null, long? cdfile = null)
+    {
+        string sql = @"select 1 AS TYPE --1 FORM, 2 ANEXO DE INSTANCIA
         , NULL AS IDSTRUCT
         , seblob.NMNAME AS NMFILE
         , EFFILE.CDFILE
@@ -553,11 +555,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         --
         where ANEXO.CDATTACHMENT IS NOT NULL 
         AND (:WorkflowID is null or p.idprocess = :WorkflowID)
-        AND (:CDFILE is null or g.cdfile = :CDFILE)
-    */
-    private List<AttachmentFileObject> QueryAttachmentFiles(string workflowID = null, string oid = null, long? cdfile = null)
-    {
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/apigateway/v1/dataset-integration/queryGetAttachmentFile");
+        AND (:CDFILE is null or g.cdfile = :CDFILE)";
 
         var payload = new Dictionary<string, string>
         {
@@ -566,17 +564,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             { "CDFILE", cdfile?.ToString() ?? string.Empty },
         };
 
-        string jsonBody = JsonConvert.SerializeObject(payload);
-        request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
-
-        HttpResponseMessage response = _dataSetClient.SendAsync(request).Result;
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new SoftExpertException("Houve um problema ao consultar os arquivos no SoftExpert");
-        }
-
-        string responseBody = response.Content.ReadAsStringAsync().Result;
-        return JsonConvert.DeserializeObject<List<AttachmentFileObject>>(responseBody) ?? new List<AttachmentFileObject>();
+        return SendRequestRest_DataSet<AttachmentFileObject>("queryGetAttachmentFile", sql, payload)
+            ?? new List<AttachmentFileObject>();
     }
 
     private Anexo DownloadAttachment(AttachmentFileObject file)
@@ -668,7 +657,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
         var payload = new Dictionary<string, string>
         {
-            { "WorkflowID", WorkflowID }
+            { "WorkflowID", WorkflowID.Trim() }
         };
         
         List<CurrentActivityObject> list = SendRequestRest_DataSet<CurrentActivityObject>("queryGetActivitiesFromInstance", sql, payload);
@@ -732,7 +721,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                    <soapenv:Header/>
                    <soapenv:Body>
                       <urn:cancelWorkflow>
-                         <urn:WorkflowID>{workflowID}</urn:WorkflowID>
+                         <urn:WorkflowID>{workflowID.Trim()}</urn:WorkflowID>
                          <urn:Explanation>{explanation}</urn:Explanation>
                          <urn:UserID>{userID}</urn:UserID>
                       </urn:cancelWorkflow>
@@ -896,12 +885,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             //request.Headers.Add("Content-Type", "text/xml; charset=iso-8859-1");
 
 
-            HttpResponseMessage  response = _restClient.SendAsync(request).Result;
-            if(!response.IsSuccessStatusCode){
-                throw new Exception("Houve um problema ao reativar a instancia");
-            }
-
-            string responseBody = response.Content.ReadAsStringAsync().Result;
+            string responseBody = SendRequestHttp(request, "Houve um problema ao reativar a instancia");
             if(responseBody.Contains("softexpert/login")){
                 throw new Exception("Houve um problema ao reativar a instancia");
             }
@@ -945,7 +929,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
         var payload = new Dictionary<string, string>
         {
-            { "workflowID", workflowID }
+            { "workflowID", workflowID.Trim() }
         };
 
         List<ManageInstanceObject> list = SendRequestRest_DataSet<ManageInstanceObject>("queryGetWorkflowInstanceData", sql, payload);
@@ -1002,12 +986,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             request.Content = new FormUrlEncodedContent(payload);
 
 
-            HttpResponseMessage  response = _restClient.SendAsync(request).Result;
-            if(!response.IsSuccessStatusCode){
-                throw new SoftExpertException("Houve um problema ao reativar a instancia");
-            }
-
-            string responseBody = response.Content.ReadAsStringAsync().Result;
+            string responseBody = SendRequestHttp(request, "Houve um problema ao retornar a instancia");
             if(responseBody.Contains("softexpert/login")){
                 throw new SoftExpertException("Houve um problema ao retornar a instancia");
             }
@@ -1086,18 +1065,13 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
 
 
-            HttpResponseMessage  response = _restClient.SendAsync(request).Result;
-            if(!response.IsSuccessStatusCode){
-                throw new SoftExpertException("Houve um problema ao reativar a instancia");
-            }
-
-            string responseBody = response.Content.ReadAsStringAsync().Result;
+            string responseBody = SendRequestHttp(request, "Houve um problema ao encerrar a instancia");
             if(responseBody.Contains("softexpert/login")){
-                throw new SoftExpertException("Houve um problema ao retornar a instancia");
+                throw new SoftExpertException("Houve um problema ao encerrar a instancia");
             }
 
             if(responseBody.Contains("Ocorreu um erro ao tentar processar informações")){
-                throw new SoftExpertException("Houve um problema ao retornar a instancia");
+                throw new SoftExpertException("Houve um problema ao encerrar a instancia");
             }
 
             return;
@@ -1160,14 +1134,9 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             request.Content = new FormUrlEncodedContent(payload);
 
 
-            HttpResponseMessage  response = _restClient.SendAsync(request).Result;
-            if(!response.IsSuccessStatusCode){
-                throw new Exception("Houve um problema ao reativar a instancia");
-            }
-
-            string responseBody = response.Content.ReadAsStringAsync().Result;
+            string responseBody = SendRequestHttp(request, "Houve um problema ao delegar a atividade");
             if(responseBody.Contains("softexpert/login")){
-                var error = new SoftExpertException("Houve um problema ao retornar a instancia");
+                var error = new SoftExpertException("Houve um problema ao delegar a atividade");
                 error.setRequestSent(jsonBody);
                 error.setResponseReceived(responseBody);
                 throw error;
