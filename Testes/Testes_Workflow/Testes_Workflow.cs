@@ -8,7 +8,6 @@ namespace Testes_Worflow;
 
 public class Testes_Workflow
 {
-    ITestOutputHelper console;
     IConfiguration _appsettings;
     SoftExpertAPI.SoftExpertWorkflowApi _softExpertApi;
 
@@ -27,7 +26,7 @@ public class Testes_Workflow
 
     string oidFile = "0e6fbe048a635aaf00deea99b9f3bbc3";
 
-    public Testes_Workflow(ITestOutputHelper output){
+    public Testes_Workflow(){
         _appsettings = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -49,7 +48,6 @@ public class Testes_Workflow
         }
 
         _softExpertApi = new SoftExpertAPI.SoftExpertWorkflowApi(configs);
-        console = output;
     }
 
     /// <summary>
@@ -100,7 +98,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -122,7 +120,7 @@ public class Testes_Workflow
         }
         catch (SoftExpertException error)
         {
-            console.WriteLine($"Erro esperado: {error.Message}");
+            Console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
         }
     }
@@ -159,7 +157,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -181,7 +179,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -201,7 +199,7 @@ public class Testes_Workflow
         }
         catch (Exception erro)
         {
-            console.WriteLine($"Erro: {erro.Message}");
+            Console.WriteLine($"Erro: {erro.Message}");
             throw;
         }
     }
@@ -301,7 +299,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -319,7 +317,7 @@ public class Testes_Workflow
         }
         catch (SoftExpertException error)
         {
-            console.WriteLine($"Erro esperado: {error.Message}");
+            Console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
         }
     }
@@ -371,7 +369,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -392,7 +390,7 @@ public class Testes_Workflow
         }
         catch (SoftExpertException error)
         {
-            console.WriteLine($"Erro esperado: {error.Message}");
+            Console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
         }
     }
@@ -413,7 +411,7 @@ public class Testes_Workflow
         }
         catch (SoftExpertException error)
         {
-            console.WriteLine($"Erro esperado: {error.Message}");
+            Console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
         }
     }
@@ -439,7 +437,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -462,7 +460,7 @@ public class Testes_Workflow
         }
         catch (SoftExpertException error)
         {
-            console.WriteLine($"Erro esperado: {error.Message}");
+            Console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
         }
     }
@@ -485,7 +483,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -508,7 +506,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro esperado: {error.Message}");
+            Console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
         }
     }
@@ -531,7 +529,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -554,7 +552,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro esperado: {error.Message}");
+            Console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
         }
     }
@@ -576,7 +574,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -598,7 +596,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro esperado: {error.Message}");
+            Console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
         }
     }
@@ -621,7 +619,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -644,7 +642,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro esperado: {error.Message}");
+            Console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
         }
     }
@@ -672,7 +670,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -695,7 +693,7 @@ public class Testes_Workflow
         }
         catch (SoftExpertException error)
         {
-            console.WriteLine($"Erro esperado: {error.Message}");
+            Console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
         }
     }
@@ -710,11 +708,11 @@ public class Testes_Workflow
         {
             var status = _softExpertApi.GetWorflowStatus(WorkflowID);
             Assert.True(Enum.IsDefined(typeof(WFStruct.WFStatus), status));
-            console.WriteLine($"Status: {status}");
+            Console.WriteLine($"Status: {status}");
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -732,7 +730,7 @@ public class Testes_Workflow
         }
         catch (SoftExpertException error)
         {
-            console.WriteLine($"Erro esperado: {error.Message}");
+            Console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
         }
     }
@@ -747,11 +745,11 @@ public class Testes_Workflow
         {
             var activities = _softExpertApi.GetCurrentActivities(WorkflowID);
             Assert.NotNull(activities);
-            console.WriteLine($"Atividades em andamento: {activities.Count}");
+            Console.WriteLine($"Atividades em andamento: {activities.Count}");
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -769,7 +767,7 @@ public class Testes_Workflow
         }
         catch (SoftExpertException error)
         {
-            console.WriteLine($"Erro esperado: {error.Message}");
+            Console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
         }
     }
@@ -786,11 +784,11 @@ public class Testes_Workflow
             Assert.NotNull(activities);
             Assert.True(activities.Count > 0);
             Assert.False(string.IsNullOrWhiteSpace(activities[0].idstruct));
-            console.WriteLine($"Atividades: {activities.Count}");
+            Console.WriteLine($"Atividades: {activities.Count}");
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -808,7 +806,7 @@ public class Testes_Workflow
         }
         catch (SoftExpertException error)
         {
-            console.WriteLine($"Erro esperado: {error.Message}");
+            Console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
         }
     }
@@ -829,7 +827,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -847,7 +845,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro esperado: {error.Message}");
+            Console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
         }
     }
@@ -868,7 +866,7 @@ public class Testes_Workflow
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -886,7 +884,127 @@ public class Testes_Workflow
         }
         catch (SoftExpertException error)
         {
-            console.WriteLine($"Erro esperado: {error.Message}");
+            Console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Cadastra registro de tabela via SOAP newTableRecord
+    /// </summary>
+    [Fact]
+    public void WF_25_newTableRecord_Success()
+    {
+        string tableID = "lideresinternac";
+        Dictionary<string, string> fields = new Dictionary<string, string>()
+        {
+            { "cargo", "apenas um teste" },
+        };
+
+        try
+        {
+            string recordID = _softExpertApi.newTableRecord(iduser, tableID, fields);
+            Assert.False(string.IsNullOrWhiteSpace(recordID));
+            Console.WriteLine($"Registro criado: {recordID}");
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Cadastra registro em tabela grid vinculado ao registro da tabela principal
+    /// </summary>
+    [Fact]
+    public void WF_25_newTableRecord_Grid_Success()
+    {
+        string tableID = "SOLPROCESSOGRID";
+        string relatedRelationshipID = "solprocessorel";
+        string relatedRelationshipValue = "3f2b8c1a94d74e2fb6a05c7d81e93a40";
+        Dictionary<string, string> fields = new Dictionary<string, string>()
+        {
+            { "observacoes", "Teste unitário SoftExpertAPI - newTableRecord grid" },
+        };
+
+        try
+        {
+            string recordID = _softExpertApi.newTableRecord(
+                UserID: iduser,
+                TableID: tableID,
+                TableFieldList: fields,
+                RelatedRelationshipID: relatedRelationshipID,
+                RelatedRelationshipValue: relatedRelationshipValue);
+
+            Assert.False(string.IsNullOrWhiteSpace(recordID));
+            Console.WriteLine($"Registro criado na grid: {recordID}");
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// newTableRecord com tabela inexistente — espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void WF_25_newTableRecord_Error()
+    {
+        Dictionary<string, string> fields = new Dictionary<string, string>()
+        {
+            { "observacoes", "Teste unitário SoftExpertAPI - newTableRecord" },
+        };
+
+        try
+        {
+            _softExpertApi.newTableRecord(iduser, "TABELA_INEXISTENTE_XYZ", fields);
+            Assert.Fail("Era esperado SoftExpertException");
+        }
+        catch (SoftExpertException error)
+        {
+            Console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Exclui registro de tabela via SOAP deleteTableRecord
+    /// </summary>
+    [Fact]
+    public void WF_26_deleteTableRecord_Success()
+    {
+        string tableID = "lideresinternac";
+        string tableFieldOID = "940cbe38c97f479e8ff55d838eb672cf";
+
+        try
+        {
+            _softExpertApi.deleteTableRecord(tableID, tableFieldOID);
+            Assert.True(true);
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// deleteTableRecord com OID inexistente — espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void WF_26_deleteTableRecord_Error()
+    {
+        try
+        {
+            _softExpertApi.deleteTableRecord("lideresinternac", "OID_INEXISTENTE");
+            Assert.Fail("Era esperado SoftExpertException");
+        }
+        catch (SoftExpertException error)
+        {
+            Console.WriteLine($"Erro esperado: {error.Message}");
             Assert.True(true);
         }
     }

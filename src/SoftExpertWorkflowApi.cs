@@ -1295,6 +1295,101 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         SendRequestSOAP("editTableRecord", body, "/apigateway/se/ws/fm_ws.php", soapUrn: "form");
     }
 
+
+
+
+    /// <summary>
+    /// Cadastra um registro em uma tabela do SoftExpert Form via SOAP newTableRecord
+    /// </summary>
+    /// <param name="UserID">Matrícula do usuário</param>
+    /// <param name="TableID">ID da tabela (entidade)</param>
+    /// <param name="TableFieldList">Campos da tabela no formato chave - valor</param>
+    /// <param name="RelationshipList">Relacionamentos (selectbox) opcionais</param>
+    /// <param name="TableFieldFileList">Arquivos opcionais para campos da tabela</param>
+    /// <param name="RelatedRelationshipID">ID do relacionamento com a tabela principal. Utilizado quando o registro é de uma tabela grid</param>
+    /// <param name="RelatedRelationshipValue">OID do registro da tabela principal a ser relacionado</param>
+    /// <returns>RecordID do registro criado</returns>
+    public string newTableRecord(
+        string UserID,
+        string TableID,
+        Dictionary<string, string> TableFieldList = null,
+        Dictionary<string, Dictionary<string, string>> RelationshipList = null,
+        Dictionary<string, Anexo> TableFieldFileList = null,
+        string RelatedRelationshipID = null,
+        string RelatedRelationshipValue = null)
+    {
+        string camposForm = Gerar_TableFieldList(TableFieldList);
+        string camposRelacionamento = Gerar_TableRelationshipList(RelationshipList);
+        string anexos = Gerar_TableFieldFileList(TableFieldFileList);
+        string relatedTo = Gerar_RelatedTo(RelatedRelationshipID, RelatedRelationshipValue);
+
+        string body = $@"
+                <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:form'>
+                   <soapenv:Header/>
+                   <soapenv:Body>
+                      <urn:newTableRecord>
+                         <urn:UserID>{UserID}</urn:UserID>
+                         <urn:TableID>{TableID}</urn:TableID>
+
+                         <urn:TableFieldList>
+                            {camposForm}
+                         </urn:TableFieldList>
+
+                         <urn:RelationshipList>
+                            {camposRelacionamento}
+                         </urn:RelationshipList>
+
+                         <urn:TableFieldFileList>
+                            {anexos}
+                         </urn:TableFieldFileList>
+
+                         {relatedTo}
+                      </urn:newTableRecord>
+                   </soapenv:Body>
+                </soapenv:Envelope>";
+
+        var se_response = SendRequestSOAP("newTableRecord", body, "/apigateway/se/ws/fm_ws.php", soapUrn: "form");
+        return se_response.SelectToken("RecordKey").ToString();
+    }
+
+
+
+
+    /// <summary>
+    /// Exclui um registro de uma tabela do SoftExpert Form via SOAP deleteTableRecord
+    /// </summary>
+    /// <param name="TableID">ID da tabela (entidade)</param>
+    /// <param name="TableFieldOID">OID do registro a ser excluído</param>
+    public void deleteTableRecord(string TableID, string TableFieldOID)
+    {
+        string body = $@"
+                <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:form'>
+                   <soapenv:Header/>
+                   <soapenv:Body>
+                      <urn:deleteTableRecord>
+                         <urn:TableID>{TableID}</urn:TableID>
+                         <urn:TableFieldOID>{TableFieldOID}</urn:TableFieldOID>
+                      </urn:deleteTableRecord>
+                   </soapenv:Body>
+                </soapenv:Envelope>";
+
+        SendRequestSOAP("deleteTableRecord", body, "/apigateway/se/ws/fm_ws.php", soapUrn: "form");
+    }
+
+    private string Gerar_RelatedTo(string RelatedRelationshipID, string RelatedRelationshipValue)
+    {
+        if (string.IsNullOrWhiteSpace(RelatedRelationshipID))
+        {
+            return string.Empty;
+        }
+
+        return $@"
+                         <urn:RelatedTo>
+                            <urn:RelatedRelationshipID>{RelatedRelationshipID}</urn:RelatedRelationshipID>
+                            <urn:RelatedRelationshipValue>{RelatedRelationshipValue}</urn:RelatedRelationshipValue>
+                         </urn:RelatedTo>";
+    }
+
     private string Gerar_TableFieldList(Dictionary<string, string> TableFieldList)
     {
         string campos = string.Empty;

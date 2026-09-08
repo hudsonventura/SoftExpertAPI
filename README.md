@@ -93,7 +93,9 @@ SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(configs);
 | [editEntityRecord](docs/workflow/editEntityRecord.md) | | | Editar campos do formulário |
 | [newChildEntityRecord](docs/workflow/newChildEntityRecord.md) | | | Criar registro em grid |
 | [editChildEntityRecord](docs/workflow/editChildEntityRecord.md) | | | Editar registro em grid |
+| [newTableRecord](docs/workflow/newTableRecord.md) | | | Criar registro de tabela (Form) |
 | [editTableRecord](docs/workflow/editTableRecord.md) | | | Editar registro de tabela (Form) |
+| [deleteTableRecord](docs/workflow/deleteTableRecord.md) | | | Excluir registro de tabela (Form) |
 | [addHistoryComment](docs/workflow/addHistoryComment.md) | | | Adicionar comentário no histórico |
 | [unlinkActivityFromUser](docs/workflow/unlinkActivityFromUser.md) | | | Desassociar atividade do usuário |
 | [reactivateWorkflow](docs/workflow/reactivateWorkflow.md) | | ✔ | Reativar instância |
