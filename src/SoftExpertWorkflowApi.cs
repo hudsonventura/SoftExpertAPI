@@ -961,8 +961,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             }
 
 
-            var activities = GetCurrentActivities(workflowID);
-            var activity = activities.FirstOrDefault(a => a.idstruct == ActivityID) ?? activities.FirstOrDefault();
+            var activities = GetActivitiesFromInstance(workflowID);
+            var activity = activities.FirstOrDefault(a => a.idstruct == ActivityID) ;
             if(activity == null){
                 throw new Exception($"Não foi encontrada nenhuma atividade na instância '{workflowID}'");
             }
@@ -994,6 +994,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             if(responseBody.Contains("Ocorreu um erro ao tentar processar informações")){
                 throw new SoftExpertException("Houve um problema ao retornar a instancia");
             }
+
 
             return;
         }
