@@ -129,6 +129,16 @@ SoftExpertGenericApi genAPI = new SoftExpertGenericApi(configs);
 | [removeUserFromTeam](docs/generic/removeUserFromTeam.md) | | Remover usuário de uma equipe |
 | [setTeamPermissions](docs/generic/setTeamPermissions.md) | ✔ | Definir permissões de segurança da equipe |
 
+### Conjunto de dados (`SoftExpertDataSetApi`)
+Para as funções abaixo, considerar o instanciamento do objeto abaixo.
+As configs deve ter sido configurada a props `url` e `token`.
+``` C#
+SoftExpertDataSetApi dsAPI = new SoftExpertDataSetApi(configs);
+```
+| Função | Objetivo |
+| --- | --- |
+| [Query](docs/dataset/Query.md) | Consultar um conjunto de dados via REST |
+
 ## Observações
 
 - Funções iniciadas com letra minúscula (`newWorkflow`) espelham APIs originais do SoftExpert.

@@ -564,7 +564,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             { "CDFILE", cdfile?.ToString() ?? string.Empty },
         };
 
-        return SendRequestRest_DataSet<AttachmentFileObject>("queryGetAttachmentFile", sql, payload)
+        return SendRequestRest_DataSet<AttachmentFileObject>("queryGetAttachmentFile", payload, sql)
             ?? new List<AttachmentFileObject>();
     }
 
@@ -660,7 +660,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             { "WorkflowID", WorkflowID.Trim() }
         };
         
-        List<CurrentActivityObject> list = SendRequestRest_DataSet<CurrentActivityObject>("queryGetActivitiesFromInstance", sql, payload);
+        List<CurrentActivityObject> list = SendRequestRest_DataSet<CurrentActivityObject>("queryGetActivitiesFromInstance", payload, sql);
         if (list.Count == 0)
             throw new SoftExpertException($"Não foi encontrado um workflow com o id '{WorkflowID}'");
         
@@ -932,7 +932,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             { "workflowID", workflowID.Trim() }
         };
 
-        List<ManageInstanceObject> list = SendRequestRest_DataSet<ManageInstanceObject>("queryGetWorkflowInstanceData", sql, payload);
+        List<ManageInstanceObject> list = SendRequestRest_DataSet<ManageInstanceObject>("queryGetWorkflowInstanceData", payload, sql);
         if (list.Count == 0)
             throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}'");
         

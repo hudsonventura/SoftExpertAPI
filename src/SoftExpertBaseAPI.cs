@@ -227,12 +227,16 @@ public abstract class SoftExpertBaseAPI
     }
 
 
-    protected List<T> SendRequestRest_DataSet<T>(string idDataSet, string sql, Dictionary<string, string> parameters)
+    protected List<T> SendRequestRest_DataSet<T>(string idDataSet, Dictionary<string, string> parameters = null, string query = null)
     {
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/apigateway/v1/dataset-integration/"+idDataSet);
 
         string jsonBody = JsonConvert.SerializeObject(parameters);
         request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+
+        string stringQuery = string.Empty;
+        if(query != null)
+            stringQuery = $"O conjunto de dados '{idDataSet}' deve possuir a query a seguir: {query}";
 
         HttpResponseMessage response = _dataSetClient.SendAsync(request).Result;
         if (!response.IsSuccessStatusCode)
@@ -240,27 +244,27 @@ public abstract class SoftExpertBaseAPI
             switch (response.StatusCode)
             {
                 case System.Net.HttpStatusCode.NotFound:
-                    throw new Exception($"O conjunto de dados '{idDataSet}' não foi encontrado. Certifique-se de que o conjunto de dados existe e está configurado corretamente.");
+                    throw new Exception($"O conjunto de dados '{idDataSet}' não foi encontrado. Certifique-se de que o conjunto de dados existe e está configurado corretamente. {stringQuery}");
 
                 case System.Net.HttpStatusCode.Forbidden:
-                    throw new Exception($"O conjunto de dados '{idDataSet}' não foi encontrado. Certifique-se de que o conjunto de dados existe e está configurado corretamente.");
+                    throw new Exception($"O conjunto de dados '{idDataSet}' não está acessível. Cheque a segurança do conjunto de dados e certifique-se de que o token de autenticação está correto");
             
                 case System.Net.HttpStatusCode.Unauthorized:
-                    throw new Exception($"O conjunto de dados '{idDataSet}' respondeu com status 401 Unauthorized. Certifique-se de que o token de autenticação está correto.");
+                    throw new Exception($"O conjunto de dados '{idDataSet}' não está acessível. Cheque a segurança do conjunto de dados e certifique-se de que o token de autenticação está correto.");
 
                 case System.Net.HttpStatusCode.BadRequest:
-                    throw new Exception($"O conjunto de dados '{idDataSet}' respondeu com status 400 Bad Request. Certifique-se de que o SQL está correto.");
+                    throw new Exception($"O conjunto de dados '{idDataSet}'. Certifique-se de que o SQL está correto e se todos os parametros exigidos foram passados corretamente.");
 
                 case System.Net.HttpStatusCode.InternalServerError:
-                    throw new Exception($"O conjunto de dados '{idDataSet}' respondeu com status 500 Internal Server Error. Certifique-se de que o conjunto de dados existe e está configurado corretamente.");
+                    throw new Exception($"O conjunto de dados '{idDataSet}' respondeu com status 500 Internal Server Error.");
 
                 case System.Net.HttpStatusCode.ServiceUnavailable:
-                    throw new Exception($"O conjunto de dados '{idDataSet}' respondeu com status 503 Service Unavailable. Certifique-se de que o conjunto de dados existe e está configurado corretamente.");
+                    throw new Exception($"O conjunto de dados '{idDataSet}' respondeu com status 503 Service Unavailable.");
 
                 default:
-                    throw new SoftExpertException($"Houve um problema ao consultar o conjunto de dados '{idDataSet}'. Certifique-se de que o conjunto de dados existe e está configurado corretamente e possui o SQL a seguir: {sql}");
+                    throw new SoftExpertException($"Houve um problema ao consultar o conjunto de dados '{idDataSet}'. Certifique-se de que o conjunto de dados existe e está configurado corretamente. {stringQuery}");
             }
-            throw new SoftExpertException($"Houve um problema ao consultar o conjunto de dados '{idDataSet}'. Certifique-se de que o conjunto de dados existe e está configurado corretamente e possui o SQL a seguir: {sql}");
+            throw new SoftExpertException($"Houve um problema ao consultar o conjunto de dados '{idDataSet}'. Certifique-se de que o conjunto de dados existe e está configurado corretamente. {stringQuery}");
         }
 
         string responseBody = response.Content.ReadAsStringAsync().Result;

@@ -58,6 +58,9 @@ SoftExpertAdminApi adAPI = new SoftExpertAdminApi(configs);
 
 // Genérico
 SoftExpertGenericApi genAPI = new SoftExpertGenericApi(configs);
+
+// Conjunto de dados
+SoftExpertDataSetApi dsAPI = new SoftExpertDataSetApi(configs);
 ```
 
 ## Tratamento de erros (padrão)
