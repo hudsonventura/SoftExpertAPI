@@ -13,9 +13,9 @@ public class Testes_Workflow
 
     //parametros ficticios utilizados apenas para os testes
     string ProcessID = "CCF";
-    string WorkflowID = "CCF202614358";
+    string WorkflowID = "CCF202621311";
     string EntityID = "SOLCLIENTEFORNE";
-    string ActivityID = "ATIV-centralCadastro";
+    string ActivityID = "ATIV-SOLCCF";
 
     string ChieldEntityID = "invoices";
 
@@ -1000,6 +1000,98 @@ public class Testes_Workflow
         try
         {
             _softExpertApi.deleteTableRecord("lideresinternac", "OID_INEXISTENTE");
+            Assert.Fail("Era esperado SoftExpertException");
+        }
+        catch (SoftExpertException error)
+        {
+            Console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Exclui item de grid (child entity) via SOAP deleteChildEntityRecord
+    /// </summary>
+    [Fact]
+    public void WF_27_deleteChildEntityRecord_Success()
+    {
+        Dictionary<string, string> entityAttributeList = new Dictionary<string, string>()
+        {
+            { "pais", "DeleteTest" },
+            { "chavedobanco", Guid.NewGuid().ToString("N") },
+            { "contabancaria", "10203040506070" },
+            { "iban", "4654897892510321654897897451004510780417891561984" },
+        };
+
+        try
+        {
+            string childRecordOID = _softExpertApi.newChildEntityRecord(WorkflowID, EntityID, ChieldEntityID, entityAttributeList, null);
+            Assert.False(string.IsNullOrWhiteSpace(childRecordOID), "RecordKey do registro criado não foi retornado");
+
+            _softExpertApi.deleteChildEntityRecord(WorkflowID, EntityID, ChieldEntityID, childRecordOID);
+            Assert.True(true);
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// deleteChildEntityRecord com instância inexistente — espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void WF_27_deleteChildEntityRecord_Error()
+    {
+        try
+        {
+            _softExpertApi.deleteChildEntityRecord("INSTANCIA_INEXISTENTE_XYZ", EntityID, ChieldEntityID, "OID_INEXISTENTE");
+            Assert.Fail("Era esperado SoftExpertException");
+        }
+        catch (SoftExpertException error)
+        {
+            Console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Limpa itens de grid (child entity) via SOAP clearChildEntityRecord
+    /// </summary>
+    [Fact]
+    public void WF_28_clearChildEntityRecord_Success()
+    {
+        Dictionary<string, string> entityAttributeList = new Dictionary<string, string>()
+        {
+            { "pais", "ClearTest" },
+            { "chavedobanco", Guid.NewGuid().ToString("N") },
+            { "contabancaria", "10203040506070" },
+            { "iban", "4654897892510321654897897451004510780417891561984" },
+        };
+
+        try
+        {
+            _softExpertApi.newChildEntityRecord(WorkflowID, EntityID, ChieldEntityID, entityAttributeList, null);
+            _softExpertApi.clearChildEntityRecord(WorkflowID, EntityID, ChieldEntityID);
+            Assert.True(true);
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// clearChildEntityRecord com instância inexistente — espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void WF_28_clearChildEntityRecord_Error()
+    {
+        try
+        {
+            _softExpertApi.clearChildEntityRecord("INSTANCIA_INEXISTENTE_XYZ", EntityID, ChieldEntityID);
             Assert.Fail("Era esperado SoftExpertException");
         }
         catch (SoftExpertException error)

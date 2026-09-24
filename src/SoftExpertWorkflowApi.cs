@@ -361,12 +361,15 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
     /// <summary>
     /// Este método permite você criar itens de uma grid de um formulário principal
     /// </summary>
-    /// <param name="ProcessID">ID do processo</param>
-    /// <param name="WorkflowTitle">Titulo da instância</param>
-    /// <param name="UserID">Matrícula do usuário iniciador da instância</param>
-    /// <returns>newWorkflowResponse, objeto com os campos Status, Code, Detail, RecordKey e RecordID. Se Code = 1 entao RecordID conterá o ID da intância gerada. Se Code != 1, uma SoftExpertException é gerada</returns>
+    /// <param name="WorkflowID">ID da instância</param>
+    /// <param name="MainEntityID">ID da entidade principal</param>
+    /// <param name="ChildRelationshipID">ID do relacionamento/grid</param>
+    /// <param name="EntityAttributeList">Campos do item da grid</param>
+    /// <param name="RelationshipList">Relacionamentos do item</param>
+    /// <param name="EntityAttributeFileList">Arquivos do item</param>
+    /// <returns>RecordKey (OID) do registro criado na grid</returns>
     /// <exception cref="SoftExpertException"></exception>
-    public void newChildEntityRecord(string WorkflowID, string MainEntityID, string ChildRelationshipID, Dictionary<string, string> EntityAttributeList = null, Dictionary<string, Dictionary<string, string>> RelationshipList = null, Dictionary<string, Anexo> EntityAttributeFileList = null)
+    public string newChildEntityRecord(string WorkflowID, string MainEntityID, string ChildRelationshipID, Dictionary<string, string> EntityAttributeList = null, Dictionary<string, Dictionary<string, string>> RelationshipList = null, Dictionary<string, Anexo> EntityAttributeFileList = null)
     {
         string camposForm = Gerar_EntityAttributeList(EntityAttributeList);
         string camposRelacionamento = Gerar_RelationshipList(RelationshipList);
@@ -396,7 +399,8 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                                 </soapenv:Body>
                             </soapenv:Envelope>";
 
-        SendRequestSOAP("newChildEntityRecord", body);
+        var se_response = SendRequestSOAP("newChildEntityRecord", body);
+        return se_response?.SelectToken("RecordKey")?.ToString();
     }
 
 
@@ -506,6 +510,52 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                             </soapenv:Envelope>";
         
         SendRequestSOAP("editChildEntityRecord", body);
+    }
+
+    /// <summary>
+    /// Exclui um item de uma grid (child entity) do formulário principal
+    /// </summary>
+    /// <param name="WorkflowID">ID da instância</param>
+    /// <param name="MainEntityID">ID da entidade principal</param>
+    /// <param name="ChildRelationshipID">ID do relacionamento/grid</param>
+    /// <param name="ChildRecordOID">OID do registro da grid a excluir</param>
+    public void deleteChildEntityRecord(string WorkflowID, string MainEntityID, string ChildRelationshipID, string ChildRecordOID)
+    {
+        string body = $@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:urn=""urn:workflow"">
+                                <soapenv:Header/>
+                                <soapenv:Body>
+                                    <urn:deleteChildEntityRecord>
+                                        <urn:WorkflowID>{WorkflowID}</urn:WorkflowID>
+                                        <urn:MainEntityID>{MainEntityID}</urn:MainEntityID>
+                                        <urn:ChildRelationshipID>{ChildRelationshipID}</urn:ChildRelationshipID>
+                                        <urn:ChildRecordOID>{ChildRecordOID}</urn:ChildRecordOID>
+                                    </urn:deleteChildEntityRecord>
+                                </soapenv:Body>
+                            </soapenv:Envelope>";
+
+        SendRequestSOAP("deleteChildEntityRecord", body);
+    }
+
+    /// <summary>
+    /// Remove todos os itens de uma grid (child entity) do formulário principal
+    /// </summary>
+    /// <param name="WorkflowID">ID da instância</param>
+    /// <param name="MainEntityID">ID da entidade principal</param>
+    /// <param name="ChildRelationshipID">ID do relacionamento/grid</param>
+    public void clearChildEntityRecord(string WorkflowID, string MainEntityID, string ChildRelationshipID)
+    {
+        string body = $@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:urn=""urn:workflow"">
+                                <soapenv:Header/>
+                                <soapenv:Body>
+                                    <urn:clearChildEntityRecord>
+                                        <urn:WorkflowID>{WorkflowID}</urn:WorkflowID>
+                                        <urn:MainEntityID>{MainEntityID}</urn:MainEntityID>
+                                        <urn:ChildRelationshipID>{ChildRelationshipID}</urn:ChildRelationshipID>
+                                    </urn:clearChildEntityRecord>
+                                </soapenv:Body>
+                            </soapenv:Envelope>";
+
+        SendRequestSOAP("clearChildEntityRecord", body);
     }
 
 

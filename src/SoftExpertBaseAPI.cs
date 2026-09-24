@@ -231,7 +231,11 @@ public abstract class SoftExpertBaseAPI
     {
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/apigateway/v1/dataset-integration/"+idDataSet);
 
-        string jsonBody = JsonConvert.SerializeObject(parameters);
+        string jsonBody = string.Empty;
+        if(parameters != null)
+        {
+            jsonBody = JsonConvert.SerializeObject(parameters);
+        }
         request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
         string stringQuery = string.Empty;
