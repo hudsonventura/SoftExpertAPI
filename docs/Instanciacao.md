@@ -61,6 +61,10 @@ SoftExpertGenericApi genAPI = new SoftExpertGenericApi(configs);
 
 // Conjunto de dados
 SoftExpertDataSetApi dsAPI = new SoftExpertDataSetApi(configs);
+
+
+//Adicione na injeção de dependências
+builder.Services.Add(new ServiceDescriptor(typeof(SoftExpertWorkflowApi), wfAPI));
 ```
 
 ## Tratamento de erros (padrão)

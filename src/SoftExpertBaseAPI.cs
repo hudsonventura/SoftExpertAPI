@@ -265,8 +265,11 @@ public abstract class SoftExpertBaseAPI
                 case System.Net.HttpStatusCode.ServiceUnavailable:
                     throw new Exception($"O conjunto de dados '{idDataSet}' respondeu com status 503 Service Unavailable.");
 
+                case System.Net.HttpStatusCode.TooManyRequests:
+                    throw new Exception($"O conjunto de dados '{idDataSet}' respondeu com status 429 TooManyRequests. Tente novamente daqqui alguns instantes.");
+
                 default:
-                    throw new SoftExpertException($"Houve um problema ao consultar o conjunto de dados '{idDataSet}'. Certifique-se de que o conjunto de dados existe e está configurado corretamente. {stringQuery}");
+                    throw new SoftExpertException($"Houve um problema ao consultar o conjunto de dados '{idDataSet}'. API do SE respondeu com status {(int)response.StatusCode} {response.StatusCode}. Certifique-se de que o conjunto de dados existe e está configurado corretamente. {stringQuery}");
             }
             throw new SoftExpertException($"Houve um problema ao consultar o conjunto de dados '{idDataSet}'. Certifique-se de que o conjunto de dados existe e está configurado corretamente. {stringQuery}");
         }
