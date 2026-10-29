@@ -15,7 +15,7 @@ Documentação original (nova versão): https://developer.softexpert.com/docs/da
 
 Contato: `hudsonventura@outlook.com`
 
-### Obs.: Testado no SoftExpert 2.1.4.x
+### Obs.: Testado no SoftExpert 2.2.4.x
 
 ## Get Started
 

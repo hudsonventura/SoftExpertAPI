@@ -26,7 +26,7 @@ Em caso de falha HTTP, lança `SoftExpertException` (ou `Exception`, se `query` 
 
 ## HTTP 429 e re-tentativas
 
-Respostas **429 Too Many Requests** disparam re-tentativas automáticas apenas neste fluxo (`SendRequestRest_DataSet` / `SoftExpertDataSetApi.Query` e consultas internas de workflow que usam dataset).
+Respostas **429 Too Many Requests** disparam re-tentativas automáticas neste fluxo (`SendRequestRest_DataSet` / `SoftExpertDataSetApi.Query` e consultas internas de workflow que usam dataset). O mesmo comportamento vale para **SOAP** via `SendRequestSOAP` (workflow, form, admin, generic).
 
 | Comportamento | Detalhe |
 | --- | --- |

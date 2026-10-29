@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
@@ -118,47 +119,51 @@ public abstract class SoftExpertBaseAPI
         return JsonNode.Parse(json);
     }
 
-
-    protected JsonNode SendRequestSOAP(string function, string xmlbody, string urimodule = null, string soapUrn = "workflow")
+    private void WaitBeforeHttpRetry(int attempt)
     {
+        if (attempt > 0)
+        {
+            Thread.Sleep(Random.Shared.Next(1000, 10001));
+        }
+    }
+
+    private bool ShouldRetryHttp429(System.Net.HttpStatusCode statusCode, int attempt)
+    {
+        return statusCode == System.Net.HttpStatusCode.TooManyRequests && attempt < _retryCount;
+    }
+
+    private JsonNode ParseSoapResponseBody(string body_response, string function)
+    {
+        if (body_response == null || body_response == "")
+        {
+            throw new SoftExpertException("Resposta vazia do servidor");
+        }
+
+        var json = Parse(body_response);
+
+        var se_response = json.SelectToken("SOAP-ENV:Envelope")
+                            .SelectToken("SOAP-ENV:Body")
+                            .SelectToken($"{function}Response");
         try
         {
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, (urimodule is null) ? _uriModule : urimodule);
-            request.Headers.Add("SOAPAction", $"urn:{soapUrn}#{function}");
-            request.Content = new StringContent(xmlbody.Trim(), Encoding.UTF8, "text/xml");
-
-            HttpResponseMessage response = _restClient.SendAsync(request).Result;
-            if (!response.IsSuccessStatusCode)
+            var status = se_response.SelectToken("Status").GetScalarString();
+            var code = se_response.SelectToken("Code").GetScalarString();
+            if (status == "FAILURE")
             {
-                if (response.ReasonPhrase != "")
-                {
-                    throw new Exception(response.ReasonPhrase);
-                }
-                if (response.StatusCode != 0)
-                {
-                    throw new SoftExpertException($"{_restClient.BaseAddress.AbsoluteUri} respondeu {response.StatusCode}");
-                }
-                throw new Exception($"Falha ao conectar ao servidor {_restClient.BaseAddress.AbsoluteUri}");
-            }
-            var body_response = response.Content.ReadAsStringAsync().Result;
-            if (body_response == null || body_response == "")
-            {
-                var error = new SoftExpertException("Resposta vazia do servidor");
+                var error = new SoftExpertException(se_response.SelectToken("Detail").GetScalarString(), int.Parse(code));
+                error.setResponseReceived(body_response);
                 throw error;
             }
-
-            var json = Parse(body_response);
-
-            var se_response = json.SelectToken("SOAP-ENV:Envelope")
-                                .SelectToken("SOAP-ENV:Body")
-                                .SelectToken($"{function}Response");
+            return se_response;
+        }
+        catch (System.Exception)
+        {
             try
             {
-                var status = se_response.SelectToken("Status").GetScalarString();
-                var code = se_response.SelectToken("Code").GetScalarString();
-                if (status == "FAILURE")
+                var returno = se_response.SelectToken("return").GetScalarString();
+                if (returno != "1")
                 {
-                    var error = new SoftExpertException(se_response.SelectToken("Detail").GetScalarString(), int.Parse(code));
+                    var error = new SoftExpertException(returno);
                     error.setResponseReceived(body_response);
                     throw error;
                 }
@@ -166,26 +171,67 @@ public abstract class SoftExpertBaseAPI
             }
             catch (System.Exception)
             {
-                try
-                {
-                    var returno = se_response.SelectToken("return").GetScalarString();
-                    if (returno != "1")
-                    {
-                        var error = new SoftExpertException(returno);
-                        error.setResponseReceived(body_response);
-                        throw error;
-                    }
-                    return se_response;
-                }
-                catch (System.Exception)
-                {
-                    var returno = se_response.SelectToken("Detail").GetScalarString();
-                    var error = new SoftExpertException(returno);
-                    error.setResponseReceived(body_response);
-                    throw error;
-                }
+                var returno = se_response.SelectToken("Detail").GetScalarString();
+                var error = new SoftExpertException(returno);
+                error.setResponseReceived(body_response);
+                throw error;
             }
+        }
+    }
 
+    [DoesNotReturn]
+    private void ThrowSoapHttpError(HttpResponseMessage response)
+    {
+        if (response.ReasonPhrase != "")
+        {
+            throw new Exception(response.ReasonPhrase);
+        }
+        if (response.StatusCode != 0)
+        {
+            throw new SoftExpertException($"{_restClient.BaseAddress.AbsoluteUri} respondeu {response.StatusCode}");
+        }
+        throw new Exception($"Falha ao conectar ao servidor {_restClient.BaseAddress.AbsoluteUri}");
+    }
+
+
+    protected JsonNode SendRequestSOAP(string function, string xmlbody, string urimodule = null, string soapUrn = "workflow")
+    {
+        try
+        {
+            string uri = urimodule is null ? _uriModule : urimodule;
+            string trimmedBody = xmlbody.Trim();
+            HttpResponseMessage response = null;
+            try
+            {
+                for (int attempt = 0; attempt <= _retryCount; attempt++)
+                {
+                    WaitBeforeHttpRetry(attempt);
+
+                    using var request = new HttpRequestMessage(HttpMethod.Post, uri);
+                    request.Headers.Add("SOAPAction", $"urn:{soapUrn}#{function}");
+                    request.Content = new StringContent(trimmedBody, Encoding.UTF8, "text/xml");
+
+                    response?.Dispose();
+                    response = _restClient.SendAsync(request).Result;
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string body_response = response.Content.ReadAsStringAsync().Result;
+                        return ParseSoapResponseBody(body_response, function);
+                    }
+
+                    if (!ShouldRetryHttp429(response.StatusCode, attempt))
+                    {
+                        break;
+                    }
+                }
+
+                ThrowSoapHttpError(response);
+            }
+            finally
+            {
+                response?.Dispose();
+            }
         }
         catch (SoftExpertException error)
         {
@@ -197,6 +243,7 @@ public abstract class SoftExpertBaseAPI
             throw;
         }
 
+        throw new InvalidOperationException("Unreachable SOAP response path.");
     }
 
 
@@ -246,10 +293,7 @@ public abstract class SoftExpertBaseAPI
         {
             for (int attempt = 0; attempt <= _retryCount; attempt++)
             {
-                if (attempt > 0)
-                {
-                    Thread.Sleep(Random.Shared.Next(1000, 10001));
-                }
+                WaitBeforeHttpRetry(attempt);
 
                 using var request = new HttpRequestMessage(HttpMethod.Post, "/apigateway/v1/dataset-integration/" + idDataSet);
                 request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
@@ -263,7 +307,7 @@ public abstract class SoftExpertBaseAPI
                     return JsonSerializer.Deserialize<List<T>>(responseBody, SoftExpertJsonOptions.DataSet) ?? new List<T>();
                 }
 
-                if (response.StatusCode != System.Net.HttpStatusCode.TooManyRequests || attempt >= _retryCount)
+                if (!ShouldRetryHttp429(response.StatusCode, attempt))
                 {
                     break;
                 }

@@ -19,7 +19,7 @@ using SoftExpertAPI;
 | `domain` | `string` | Não | Domínio (padrão: `"SE Suite"`). Usado na autenticação Basic `dominio\login:senha` |
 | `downloader` | `IFileDownload` | Condicional | Necessário para `ListAttachmentFromInstance` e `GetFileFromOID` quando os arquivos estão em diretório controlado |
 | `headers` | `Dictionary<string, string>` | Não | Headers HTTP adicionais |
-| `retryCount` | `int` | Não | Re-tentativas em HTTP **429** (Too Many Requests) nas chamadas `dataset-integration`. Padrão: **3**. Valores negativos são tratados como **0** (sem retry) |
+| `retryCount` | `int` | Não | Re-tentativas em HTTP **429** (Too Many Requests) nas chamadas **SOAP** e `dataset-integration`. Padrão: **3**. Valores negativos são tratados como **0** (sem retry) |
 | `db` | `IDataBase` | Não | Legado. As funções públicas atuais não dependem mais de acesso direto ao banco |
 
 \* O token é obrigatório para as integrações via dataset e para várias operações de gestão.
@@ -37,7 +37,7 @@ SoftExpertAPI.Configurations configs = new Configurations()
     pass = "senha",
     domain = "SE Suite",
     token = "SEU_TOKEN_GERADO_NO_PERFIL",
-    retryCount = 3, // Opcional: re-tentativas em 429 no dataset-integration (padrão 3)
+    retryCount = 3, // Opcional: re-tentativas em 429 (SOAP e dataset; padrão 3)
     downloader = downloader, // Opcional
 };
 ```

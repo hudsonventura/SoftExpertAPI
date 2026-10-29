@@ -10,7 +10,7 @@ Requer `token` válido em `Configurations.token`.
 
 ### HTTP 429 (Too Many Requests)
 
-Quando o SoftExpert responde **429**, a biblioteca reexecuta a mesma chamada até **`retryCount`** vezes (padrão **3**), configurável em [Instanciacao.md](Instanciacao.md). Entre cada re-tentativa há uma espera **aleatória de 1 a 10 segundos**. Outros códigos HTTP **não** disparam retry.
+Quando o SoftExpert responde **429**, a biblioteca reexecuta a mesma chamada até **`retryCount`** vezes (padrão **3**), configurável em [Instanciacao.md](Instanciacao.md). Aplica-se a **dataset-integration** e às chamadas **SOAP** (`SendRequestSOAP`). Entre cada re-tentativa há uma espera **aleatória de 1 a 10 segundos**. Outros códigos HTTP **não** disparam retry.
 
 Se, após esgotar as re-tentativas, a resposta continuar 429, o erro é lançado normalmente (mensagem indicando status 429).
 
