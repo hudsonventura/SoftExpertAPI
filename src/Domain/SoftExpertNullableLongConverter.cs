@@ -1,5 +1,6 @@
 using System;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Domain;
 
@@ -8,20 +9,23 @@ namespace Domain;
 /// </summary>
 public class SoftExpertNullableLongConverter : JsonConverter<long?>
 {
-    public override long? ReadJson(JsonReader reader, Type objectType, long? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override long? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         switch (reader.TokenType)
         {
-            case JsonToken.Null:
+            case JsonTokenType.Null:
                 return null;
 
-            case JsonToken.Integer:
-            case JsonToken.Float:
-                return Convert.ToInt64(reader.Value);
-
-            case JsonToken.String:
+            case JsonTokenType.Number:
+                if (reader.TryGetInt64(out long number))
                 {
-                    string value = reader.Value?.ToString();
+                    return number;
+                }
+                return Convert.ToInt64(reader.GetDouble());
+
+            case JsonTokenType.String:
+                {
+                    string value = reader.GetString();
                     if (string.IsNullOrWhiteSpace(value))
                     {
                         return null;
@@ -34,13 +38,14 @@ public class SoftExpertNullableLongConverter : JsonConverter<long?>
         }
     }
 
-    public override void WriteJson(JsonWriter writer, long? value, JsonSerializer serializer)
+    public override void Write(Utf8JsonWriter writer, long? value, JsonSerializerOptions options)
     {
         if (value is null)
         {
-            writer.WriteNull();
+            writer.WriteNullValue();
             return;
         }
-        writer.WriteValue(value.Value);
+
+        writer.WriteNumberValue(value.Value);
     }
 }

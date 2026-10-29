@@ -24,6 +24,19 @@ Conjuntos já usados pela biblioteca: [ConjuntosDeDados.md](../ConjuntosDeDados.
 
 Em caso de falha HTTP, lança `SoftExpertException` (ou `Exception`, se `query` não for informada) descrevendo o status e, quando `query` foi passada, o SQL que deve ser cadastrado no SoftExpert.
 
+## HTTP 429 e re-tentativas
+
+Respostas **429 Too Many Requests** disparam re-tentativas automáticas apenas neste fluxo (`SendRequestRest_DataSet` / `SoftExpertDataSetApi.Query` e consultas internas de workflow que usam dataset).
+
+| Comportamento | Detalhe |
+| --- | --- |
+| Configuração | `Configurations.retryCount` (padrão **3**) |
+| Tentativas | Até **1 chamada inicial + `retryCount` re-tentativas** |
+| Intervalo | Espera aleatória entre **1 e 10 segundos** antes de cada re-tentativa |
+| Após esgotar | Mesmo tratamento de erro já documentado (ex.: `Exception` com texto de 429) |
+
+Outros status HTTP (401, 403, 500, etc.) **não** são reexecutados.
+
 ## Exemplo
 
 ```csharp

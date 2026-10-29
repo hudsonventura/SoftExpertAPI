@@ -1,60 +1,60 @@
 using System;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Domain;
 
 public record ManageInstanceObject
 {
-    [JsonProperty("IDPROCESS")]
+    [JsonPropertyName("IDPROCESS")]
     public string idprocess { get; init; } = string.Empty;
 
-    [JsonProperty("IDOBJECT")]
+    [JsonPropertyName("IDOBJECT")]
     public string p_idobject { get; init; } = string.Empty;
 
-    [JsonProperty("FGSTATUS")]
+    [JsonPropertyName("FGSTATUS")]
     public int p_fgstatus { get; init; }
 
-    [JsonProperty("CDUSERSTART")]
+    [JsonPropertyName("CDUSERSTART")]
     public int cduserstart { get; init; }
 
-    [JsonProperty("NMPROCESS")]
+    [JsonPropertyName("NMPROCESS")]
     public string nmprocess { get; init; } = string.Empty;
 
-    [JsonProperty("CDPROCESSMODEL")]
+    [JsonPropertyName("CDPROCESSMODEL")]
     public int? cdprocessmodel { get; init; }
 
-    [JsonProperty("IDPROCESSMODEL")]
+    [JsonPropertyName("IDPROCESSMODEL")]
     public string idprocessmodel { get; init; } = string.Empty;
 
-    [JsonProperty("NMPROCESSMODEL")]
+    [JsonPropertyName("NMPROCESSMODEL")]
     public string nmprocessmodel { get; init; } = string.Empty;
 
-    [JsonProperty("IDREVISION")]
+    [JsonPropertyName("IDREVISION")]
     public string idrevision { get; init; } = string.Empty;
 
-    [JsonProperty("DTSTART")]
+    [JsonPropertyName("DTSTART")]
     [JsonConverter(typeof(SoftExpertEpochDateTimeConverter))]
     public DateTime? dtstart { get; init; }
 
-    [JsonProperty("TMSTART")]
+    [JsonPropertyName("TMSTART")]
     public string tmstart { get; init; } = string.Empty;
 
-    [JsonProperty("DHSTART")]
+    [JsonPropertyName("DHSTART")]
     [JsonConverter(typeof(SoftExpertEpochDateTimeConverter))]
     public DateTime? dhstart { get; init; }
 
-    [JsonProperty("DTFINISH")]
+    [JsonPropertyName("DTFINISH")]
     [JsonConverter(typeof(SoftExpertEpochDateTimeConverter))]
     public DateTime? dtfinish { get; init; }
 
-    [JsonProperty("TMFINISH")]
+    [JsonPropertyName("TMFINISH")]
     public string tmfinish { get; init; } = string.Empty;
 
-    [JsonProperty("DHFINISH")]
+    [JsonPropertyName("DHFINISH")]
     [JsonConverter(typeof(SoftExpertEpochDateTimeConverter))]
     public DateTime? dhfinish { get; init; }
 
-    [JsonProperty("OIDENTITYREG")]
+    [JsonPropertyName("OIDENTITYREG")]
     public string oidentityreg { get; init; } = string.Empty;
 
     [JsonIgnore]

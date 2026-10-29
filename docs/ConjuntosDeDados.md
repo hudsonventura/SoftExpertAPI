@@ -8,6 +8,12 @@ O body da requisição é um JSON com os parâmetros documentados em cada conjun
 
 Requer `token` válido em `Configurations.token`.
 
+### HTTP 429 (Too Many Requests)
+
+Quando o SoftExpert responde **429**, a biblioteca reexecuta a mesma chamada até **`retryCount`** vezes (padrão **3**), configurável em [Instanciacao.md](Instanciacao.md). Entre cada re-tentativa há uma espera **aleatória de 1 a 10 segundos**. Outros códigos HTTP **não** disparam retry.
+
+Se, após esgotar as re-tentativas, a resposta continuar 429, o erro é lançado normalmente (mensagem indicando status 429).
+
 ---
 
 ## queryGetAttachmentFile

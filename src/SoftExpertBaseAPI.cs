@@ -5,11 +5,11 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Threading;
 using System.Xml;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace SoftExpertAPI;
 
@@ -20,6 +20,8 @@ public abstract class SoftExpertBaseAPI
     protected readonly HttpClient _dataSetClient;
 
     protected IFileDownload _downloader = null;
+
+    private readonly int _retryCount;
 
 
 
@@ -84,6 +86,7 @@ public abstract class SoftExpertBaseAPI
         _login = configs.login;
         _pass = configs.pass;
         _domain = configs.domain;
+        _retryCount = configs.retryCount < 0 ? 0 : configs.retryCount;
         SetUriModule();
 
 
@@ -107,19 +110,16 @@ public abstract class SoftExpertBaseAPI
 
 
 
-    protected JToken Parse(string xml)
+    protected JsonNode Parse(string xml)
     {
-
-        // em caso de ter retornado um XML
         XmlDocument doc = new XmlDocument();
         doc.LoadXml(xml);
-        string json = JsonConvert.SerializeXmlNode(doc);
-
-        return JsonConvert.DeserializeObject<dynamic>(json);
+        string json = XmlToJsonConverter.Serialize(doc);
+        return JsonNode.Parse(json);
     }
 
 
-    protected JToken SendRequestSOAP(string function, string xmlbody, string urimodule = null, string soapUrn = "workflow")
+    protected JsonNode SendRequestSOAP(string function, string xmlbody, string urimodule = null, string soapUrn = "workflow")
     {
         try
         {
@@ -154,11 +154,11 @@ public abstract class SoftExpertBaseAPI
                                 .SelectToken($"{function}Response");
             try
             {
-                var status = se_response.SelectToken("Status").ToString();
-                var code = se_response.SelectToken("Code").ToString();
+                var status = se_response.SelectToken("Status").GetScalarString();
+                var code = se_response.SelectToken("Code").GetScalarString();
                 if (status == "FAILURE")
                 {
-                    var error = new SoftExpertException(se_response.SelectToken("Detail").ToString(), int.Parse(code));
+                    var error = new SoftExpertException(se_response.SelectToken("Detail").GetScalarString(), int.Parse(code));
                     error.setResponseReceived(body_response);
                     throw error;
                 }
@@ -168,7 +168,7 @@ public abstract class SoftExpertBaseAPI
             {
                 try
                 {
-                    var returno = se_response.SelectToken("return").ToString();
+                    var returno = se_response.SelectToken("return").GetScalarString();
                     if (returno != "1")
                     {
                         var error = new SoftExpertException(returno);
@@ -179,7 +179,7 @@ public abstract class SoftExpertBaseAPI
                 }
                 catch (System.Exception)
                 {
-                    var returno = se_response.SelectToken("Detail").ToString();
+                    var returno = se_response.SelectToken("Detail").GetScalarString();
                     var error = new SoftExpertException(returno);
                     error.setResponseReceived(body_response);
                     throw error;
@@ -229,53 +229,82 @@ public abstract class SoftExpertBaseAPI
 
     protected List<T> SendRequestRest_DataSet<T>(string idDataSet, Dictionary<string, string> parameters = null, string query = null)
     {
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/apigateway/v1/dataset-integration/"+idDataSet);
-
         string jsonBody = string.Empty;
-        if(parameters != null)
+        if (parameters != null)
         {
-            jsonBody = JsonConvert.SerializeObject(parameters);
+            jsonBody = JsonSerializer.Serialize(parameters, SoftExpertJsonOptions.Default);
         }
-        request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
         string stringQuery = string.Empty;
-        if(query != null)
-            stringQuery = $"O conjunto de dados '{idDataSet}' deve possuir a query a seguir: {query}";
-
-        HttpResponseMessage response = _dataSetClient.SendAsync(request).Result;
-        if (!response.IsSuccessStatusCode)
+        if (query != null)
         {
-            switch (response.StatusCode)
-            {
-                case System.Net.HttpStatusCode.NotFound:
-                    throw new Exception($"O conjunto de dados '{idDataSet}' não foi encontrado. Certifique-se de que o conjunto de dados existe e está configurado corretamente. {stringQuery}");
-
-                case System.Net.HttpStatusCode.Forbidden:
-                    throw new Exception($"O conjunto de dados '{idDataSet}' não está acessível. Cheque a segurança do conjunto de dados e certifique-se de que o token de autenticação está correto");
-            
-                case System.Net.HttpStatusCode.Unauthorized:
-                    throw new Exception($"O conjunto de dados '{idDataSet}' não está acessível. Cheque a segurança do conjunto de dados e certifique-se de que o token de autenticação está correto.");
-
-                case System.Net.HttpStatusCode.BadRequest:
-                    throw new Exception($"O conjunto de dados '{idDataSet}'. Certifique-se de que o SQL está correto e se todos os parametros exigidos foram passados corretamente.");
-
-                case System.Net.HttpStatusCode.InternalServerError:
-                    throw new Exception($"O conjunto de dados '{idDataSet}' respondeu com status 500 Internal Server Error.");
-
-                case System.Net.HttpStatusCode.ServiceUnavailable:
-                    throw new Exception($"O conjunto de dados '{idDataSet}' respondeu com status 503 Service Unavailable.");
-
-                case System.Net.HttpStatusCode.TooManyRequests:
-                    throw new Exception($"O conjunto de dados '{idDataSet}' respondeu com status 429 TooManyRequests. Tente novamente daqqui alguns instantes.");
-
-                default:
-                    throw new SoftExpertException($"Houve um problema ao consultar o conjunto de dados '{idDataSet}'. API do SE respondeu com status {(int)response.StatusCode} {response.StatusCode}. Certifique-se de que o conjunto de dados existe e está configurado corretamente. {stringQuery}");
-            }
-            throw new SoftExpertException($"Houve um problema ao consultar o conjunto de dados '{idDataSet}'. Certifique-se de que o conjunto de dados existe e está configurado corretamente. {stringQuery}");
+            stringQuery = $"O conjunto de dados '{idDataSet}' deve possuir a query a seguir: {query}";
         }
 
-        string responseBody = response.Content.ReadAsStringAsync().Result;
-        return JsonConvert.DeserializeObject<List<T>>(responseBody);
+        HttpResponseMessage response = null;
+        try
+        {
+            for (int attempt = 0; attempt <= _retryCount; attempt++)
+            {
+                if (attempt > 0)
+                {
+                    Thread.Sleep(Random.Shared.Next(1000, 10001));
+                }
+
+                using var request = new HttpRequestMessage(HttpMethod.Post, "/apigateway/v1/dataset-integration/" + idDataSet);
+                request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+
+                response?.Dispose();
+                response = _dataSetClient.SendAsync(request).Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string responseBody = response.Content.ReadAsStringAsync().Result;
+                    return JsonSerializer.Deserialize<List<T>>(responseBody, SoftExpertJsonOptions.DataSet) ?? new List<T>();
+                }
+
+                if (response.StatusCode != System.Net.HttpStatusCode.TooManyRequests || attempt >= _retryCount)
+                {
+                    break;
+                }
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                switch (response.StatusCode)
+                {
+                    case System.Net.HttpStatusCode.NotFound:
+                        throw new Exception($"O conjunto de dados '{idDataSet}' não foi encontrado. Certifique-se de que o conjunto de dados existe e está configurado corretamente. {stringQuery}");
+
+                    case System.Net.HttpStatusCode.Forbidden:
+                        throw new Exception($"O conjunto de dados '{idDataSet}' está acessível apenas para usuários internos (erro 403 Forbidden). Cheque a segurança do conjunto de dados e certifique-se de que o token de autenticação está correto");
+
+                    case System.Net.HttpStatusCode.Unauthorized:
+                        throw new Exception($"O conjunto de dados '{idDataSet}' não está acessível (erro 401 Unauthorized). Cheque a segurança do conjunto de dados e certifique-se de que o token de autenticação está correto.");
+
+                    case System.Net.HttpStatusCode.BadRequest:
+                        throw new Exception($"O conjunto de dados '{idDataSet}'. Certifique-se de que o SQL está correto e se todos os parametros exigidos foram passados corretamente.");
+
+                    case System.Net.HttpStatusCode.InternalServerError:
+                        throw new Exception($"O conjunto de dados '{idDataSet}' respondeu com status 500 Internal Server Error.");
+
+                    case System.Net.HttpStatusCode.ServiceUnavailable:
+                        throw new Exception($"O conjunto de dados '{idDataSet}' respondeu com status 503 Service Unavailable.");
+
+                    case System.Net.HttpStatusCode.TooManyRequests:
+                        throw new Exception($"O conjunto de dados '{idDataSet}' respondeu com status 429 TooManyRequests. Tente novamente daqqui alguns instantes.");
+
+                    default:
+                        throw new SoftExpertException($"Houve um problema ao consultar o conjunto de dados '{idDataSet}'. API do SE respondeu com status {(int)response.StatusCode} {response.StatusCode}. Certifique-se de que o conjunto de dados existe e está configurado corretamente. {stringQuery}");
+                }
+            }
+
+            throw new SoftExpertException($"Houve um problema ao consultar o conjunto de dados '{idDataSet}'. Certifique-se de que o conjunto de dados existe e está configurado corretamente. {stringQuery}");
+        }
+        finally
+        {
+            response?.Dispose();
+        }
     }
 
 
@@ -333,7 +362,7 @@ public abstract class SoftExpertBaseAPI
             request.Headers.TryAddWithoutValidation(header.Key, header.Value);
         }
 
-        string jsonBody = JsonConvert.SerializeObject(new
+        string jsonBody = JsonSerializer.Serialize(new
         {
             AuthenticationParameter = new
             {
@@ -346,8 +375,7 @@ public abstract class SoftExpertBaseAPI
                 externalUser = false,
                 logout = false
             }
-        }
-        );
+        }, SoftExpertJsonOptions.Default);
         string urlEncodedBody = $"json={HttpUtility.UrlEncode(jsonBody)}";
         request.Content = new StringContent(urlEncodedBody, Encoding.UTF8, "application/x-www-form-urlencoded");
 

@@ -19,5 +19,10 @@ public class Configurations
 
     public Dictionary<string, string> headers { get; set; } = new Dictionary<string, string>();
 
+    /// <summary>
+    /// Quantidade de re-tentativas em respostas HTTP 429 (Too Many Requests) nas chamadas de dataset-integration.
+    /// </summary>
+    public int retryCount { get; set; } = 3;
+
 
 }

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Linq;
 using System.Net.Http;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace SoftExpertAPI;
 public class SoftExpertGenericApi : SoftExpertBaseAPI
@@ -70,7 +70,7 @@ public class SoftExpertGenericApi : SoftExpertBaseAPI
                         </soapenv:Envelope>";
 
         var se_response = SendRequestSOAP("newTeam", body, soapUrn: "generic");
-        return se_response.SelectToken("RecordID").ToString();
+        return se_response.SelectToken("RecordID").GetScalarString();
     }
 
 
@@ -165,7 +165,7 @@ public class SoftExpertGenericApi : SoftExpertBaseAPI
             { "nmteam", nmteam },
             { "cdprod", cdprod.ToString() },
             { "modulecodes", string.Join(",", modules) },
-            { "permission", JsonConvert.SerializeObject(permission) },
+            { "permission", JsonSerializer.Serialize(permission, SoftExpertJsonOptions.Default) },
             { "fgcptpair", "0" },
         };
         request.Content = new FormUrlEncodedContent(payload);

@@ -1,5 +1,6 @@
 using System;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Domain;
 
@@ -8,17 +9,16 @@ namespace Domain;
 /// </summary>
 public class SoftExpertEpochDateTimeConverter : JsonConverter<DateTime?>
 {
-    public override DateTime? ReadJson(JsonReader reader, Type objectType, DateTime? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         switch (reader.TokenType)
         {
-            case JsonToken.Null:
+            case JsonTokenType.Null:
                 return null;
 
-            case JsonToken.Integer:
-            case JsonToken.Float:
+            case JsonTokenType.Number:
                 {
-                    long epochMs = Convert.ToInt64(reader.Value);
+                    long epochMs = reader.TryGetInt64(out long l) ? l : Convert.ToInt64(reader.GetDouble());
                     if (epochMs <= 0)
                     {
                         return null;
@@ -26,9 +26,9 @@ public class SoftExpertEpochDateTimeConverter : JsonConverter<DateTime?>
                     return DateTimeOffset.FromUnixTimeMilliseconds(epochMs).LocalDateTime;
                 }
 
-            case JsonToken.String:
+            case JsonTokenType.String:
                 {
-                    string value = reader.Value?.ToString();
+                    string value = reader.GetString();
                     if (string.IsNullOrWhiteSpace(value))
                     {
                         return null;
@@ -52,15 +52,15 @@ public class SoftExpertEpochDateTimeConverter : JsonConverter<DateTime?>
         }
     }
 
-    public override void WriteJson(JsonWriter writer, DateTime? value, JsonSerializer serializer)
+    public override void Write(Utf8JsonWriter writer, DateTime? value, JsonSerializerOptions options)
     {
         if (value is null)
         {
-            writer.WriteNull();
+            writer.WriteNullValue();
             return;
         }
 
         long epochMs = new DateTimeOffset(value.Value).ToUnixTimeMilliseconds();
-        writer.WriteValue(epochMs);
+        writer.WriteNumberValue(epochMs);
     }
 }

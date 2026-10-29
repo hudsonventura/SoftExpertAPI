@@ -1,7 +1,5 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Linq;
+﻿using System;
+using System.Text.Json.Nodes;
 using System.Xml;
 
 namespace SoftExpertAPI;
@@ -26,36 +24,41 @@ public abstract class SoftExpertResponse
     }
 
 
-    protected JToken PreParse(string xmljson)
+    protected JsonNode PreParse(string xmljson)
     {
-        if (xmljson.Substring(0, 5) == "<?xml")
+        JsonNode root;
+        if (xmljson.StartsWith("<?xml", StringComparison.Ordinal))
         {
-            // em caso de ter retornado um XML
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(xmljson);
-            xmljson = JsonConvert.SerializeXmlNode(doc);
+            root = JsonNode.Parse(XmlToJsonConverter.Serialize(doc));
         }
+        else
+        {
+            root = JsonNode.Parse(xmljson);
+        }
+
         var type = this.GetType().Name;
 
-        JToken response = JToken.Parse(xmljson).SelectToken(type);
+        JsonNode response = root.SelectToken(type);
         if (response == null)
         {
-            response = JToken.Parse(xmljson).SelectToken($"SOAP-ENV:Envelope.SOAP-ENV:Body.{type}");
+            response = root.SelectTokenPath($"SOAP-ENV:Envelope.SOAP-ENV:Body.{type}");
         }
 
         if (response == null)
         {
-            response = JToken.Parse(xmljson).SelectToken("basicErrorResponse");
+            response = root.SelectToken("basicErrorResponse");
         }
 
-        if (response.Count() == 1)
+        if (response is JsonArray array && array.Count == 1)
         {
-            response = response[0];
+            response = array[0];
         }
 
-        Status = (STATUS) Enum.Parse(typeof(STATUS), response.SelectToken("Status").ToString());
-        Code = Int32.Parse(response.SelectToken("Code").ToString());
-        Detail = response.SelectToken("Detail").ToString();
+        Status = (STATUS)Enum.Parse(typeof(STATUS), response.SelectToken("Status").GetScalarString());
+        Code = Int32.Parse(response.SelectToken("Code").GetScalarString());
+        Detail = response.SelectToken("Detail").GetScalarString();
 
         if (Status is not STATUS.SUCCESS)
         {
@@ -65,4 +68,3 @@ public abstract class SoftExpertResponse
         return response;
     }
 }
-

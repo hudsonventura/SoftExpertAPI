@@ -1,32 +1,32 @@
 using System;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Domain;
 
 public record CurrentActivityObject
 {
-    [JsonProperty("IDPROCESS")]
+    [JsonPropertyName("IDPROCESS")]
     public string idprocess { get; init; } = string.Empty;
 
-    [JsonProperty("IDOBJECT")]
+    [JsonPropertyName("IDOBJECT")]
     public string idobject { get; init; } = string.Empty;
 
-    [JsonProperty("IDSTRUCT")]
+    [JsonPropertyName("IDSTRUCT")]
     public string idstruct { get; init; } = string.Empty;
 
-    [JsonProperty("NMSTRUCT")]
+    [JsonPropertyName("NMSTRUCT")]
     public string nmstruct { get; init; } = string.Empty;
 
-    [JsonProperty("FGSTATUS")]
+    [JsonPropertyName("FGSTATUS")]
     public int fgstatus { get; init; }
 
-    [JsonProperty("DTENABLED")]
+    [JsonPropertyName("DTENABLED")]
     public long? dtenabled { get; init; }
 
-    [JsonProperty("DTESTIMATEDFINISH")]
+    [JsonPropertyName("DTESTIMATEDFINISH")]
     public long? dtestimatedfinish { get; init; }
 
-    [JsonProperty("DTEXECUTION")]
+    [JsonPropertyName("DTEXECUTION")]
     public long? dtexecution { get; init; }
 
     public WFStruct ToWFStruct()

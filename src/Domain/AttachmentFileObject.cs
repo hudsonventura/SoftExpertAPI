@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Domain;
 
@@ -8,24 +8,24 @@ namespace Domain;
 /// </summary>
 public record AttachmentFileObject
 {
-    [JsonProperty("TYPE")]
+    [JsonPropertyName("TYPE")]
     public int type { get; init; }
 
-    [JsonProperty("IDSTRUCT")]
+    [JsonPropertyName("IDSTRUCT")]
     public string idstruct { get; init; } = string.Empty;
 
-    [JsonProperty("NMFILE")]
+    [JsonPropertyName("NMFILE")]
     public string nmfile { get; init; } = string.Empty;
 
-    [JsonProperty("CDFILE")]
+    [JsonPropertyName("CDFILE")]
     [JsonConverter(typeof(SoftExpertNullableLongConverter))]
     public long? cdfile { get; init; }
 
-    [JsonProperty("CDATTACHMENT")]
+    [JsonPropertyName("CDATTACHMENT")]
     [JsonConverter(typeof(SoftExpertNullableLongConverter))]
     public long? cdattachment { get; init; }
 
-    [JsonProperty("OID")]
+    [JsonPropertyName("OID")]
     public string oid { get; init; } = string.Empty;
 
     [JsonIgnore]

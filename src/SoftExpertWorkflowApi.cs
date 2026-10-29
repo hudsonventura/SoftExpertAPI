@@ -8,7 +8,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using Domain;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 
 namespace SoftExpertAPI;
@@ -54,7 +54,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         ;
 
         var se_response = SendRequestSOAP("newWorkflow", body);
-        return se_response.SelectToken("RecordID").ToString();
+        return se_response.SelectToken("RecordID").GetScalarString();
     }
 
 
@@ -348,7 +348,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 </soapenv:Envelope>";
 
         var se_response = SendRequestSOAP("newAttachment", body);
-        return Int32.Parse(se_response.SelectToken("RecordKey").ToString());
+        return Int32.Parse(se_response.SelectToken("RecordKey").GetScalarString());
     }
 
 
@@ -400,7 +400,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                             </soapenv:Envelope>";
 
         var se_response = SendRequestSOAP("newChildEntityRecord", body);
-        return se_response?.SelectToken("RecordKey")?.ToString();
+        return se_response?.SelectToken("RecordKey")?.GetScalarString();
     }
 
 
@@ -928,7 +928,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 { "cditemreturn", activity.idobject },
                 { "justify", SanitizeString(explanation) }
             };
-            string jsonBody = JsonConvert.SerializeObject(payload);
 
             request.Content = new FormUrlEncodedContent(payload);
             request.Content.Headers.ContentType.CharSet = "UTF-8";
@@ -1032,7 +1031,6 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
             {
                 { "dscomment", explanation }
             };
-            string jsonBody = JsonConvert.SerializeObject(payload);
             request.Content = new FormUrlEncodedContent(payload);
 
 
@@ -1181,7 +1179,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 { "cduser", cduser.ToString() },
                 { "justifActivityExecutor", explanation }
             };
-            string jsonBody = JsonConvert.SerializeObject(payload);
+            string jsonBody = JsonSerializer.Serialize(payload, SoftExpertJsonOptions.Default);
             request.Content = new FormUrlEncodedContent(payload);
 
 
@@ -1285,7 +1283,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                         </soapenv:Envelope>";
 
         var se_response = SendRequestSOAP("getWorkflow", body);
-        int got_fgstatus = int.Parse(se_response.SelectToken("InstanceStatus").ToString());
+        int got_fgstatus = int.Parse(se_response.SelectToken("InstanceStatus").GetScalarString());
 
         if(got_fgstatus != (int)fgstatus){
              throw new SoftExpertException($"A instância '{workflowID}' foi encontrada mas o status não é {fgstatus}");
@@ -1399,7 +1397,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
                 </soapenv:Envelope>";
 
         var se_response = SendRequestSOAP("newTableRecord", body, "/apigateway/se/ws/fm_ws.php", soapUrn: "form");
-        return se_response.SelectToken("RecordKey").ToString();
+        return se_response.SelectToken("RecordKey").GetScalarString();
     }
 
 
