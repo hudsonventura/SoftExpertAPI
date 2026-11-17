@@ -1,6 +1,7 @@
 using Domain;
 using Microsoft.Extensions.Configuration;
 using SoftExpertAPI;
+using Testes;
 using Xunit.Abstractions;
 
 namespace Testes_DataSet;
@@ -41,19 +42,7 @@ where p.IDPROCESS = :workflowID";
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
 
-        Configurations configs = new Configurations()
-        {
-            baseUrl = _appsettings["url"],
-            login = _appsettings["user"],
-            pass = _appsettings["pass"],
-            domain = _appsettings["domain"],
-            token = _appsettings["token"],
-        };
-
-        if (!string.IsNullOrWhiteSpace(_appsettings["authorization"]))
-        {
-            configs.token = _appsettings["authorization"];
-        }
+        Configurations configs = ConfigurationsFromAppSettings.Create(_appsettings);
 
         api = new SoftExpertDataSetApi(configs);
     }

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using SoftExpertAPI;
+using Testes;
 using Xunit.Abstractions;
 
 namespace Testes_Generico;
@@ -27,19 +28,7 @@ public class Testes_Generico
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
 
-        Configurations configs = new Configurations()
-        {
-            baseUrl = _appsettings["url"],
-            login = _appsettings["user"],
-            pass = _appsettings["pass"],
-            domain = _appsettings["domain"],
-            token = _appsettings["token"],
-        };
-
-        if (!string.IsNullOrWhiteSpace(_appsettings["authorization"]))
-        {
-            configs.token = _appsettings["authorization"];
-        }
+        Configurations configs = ConfigurationsFromAppSettings.Create(_appsettings);
 
         api = new SoftExpertGenericApi(configs);
     }

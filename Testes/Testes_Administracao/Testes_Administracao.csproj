@@ -36,4 +36,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\ConfigurationsFromAppSettings.cs" Link="ConfigurationsFromAppSettings.cs" />
+  </ItemGroup>
+
 </Project>

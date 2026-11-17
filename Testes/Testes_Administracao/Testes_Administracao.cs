@@ -1,6 +1,7 @@
 using Xunit.Abstractions;
 using Microsoft.Extensions.Configuration;
 using SoftExpertAPI;
+using Testes;
 
 namespace Testes_Administracao;
 
@@ -22,18 +23,7 @@ public class Testes_Administracao
             .Build();
 
 
-        Configurations configs = new Configurations()
-        {
-            baseUrl = _appsettings["url"],
-            login = _appsettings["user"],
-            pass = _appsettings["pass"],
-            domain = _appsettings["domain"],
-        };
-
-        if (!string.IsNullOrWhiteSpace(_appsettings["authorization"]))
-        {
-            configs.token = _appsettings["authorization"];
-        }
+        Configurations configs = ConfigurationsFromAppSettings.Create(_appsettings);
 
         api = new SoftExpertAdminApi(configs);
     }

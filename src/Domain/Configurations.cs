@@ -24,5 +24,9 @@ public class Configurations
     /// </summary>
     public int retryCount { get; set; } = 3;
 
+    /// <summary>
+    /// Proxy opcional para chamadas HTTP (SOAP, REST e autenticação). Null ou <see cref="ProxySettings.url"/> vazio = sem proxy.
+    /// </summary>
+    public ProxySettings proxy { get; set; }
 
 }

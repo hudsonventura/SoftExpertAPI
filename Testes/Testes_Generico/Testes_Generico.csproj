@@ -30,6 +30,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\ConfigurationsFromAppSettings.cs" Link="ConfigurationsFromAppSettings.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\appsettings.json" Link="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

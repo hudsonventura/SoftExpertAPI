@@ -19,6 +19,7 @@ public abstract class SoftExpertBaseAPI
     protected string _uriModule = null;
     protected readonly HttpClient _restClient;
     protected readonly HttpClient _dataSetClient;
+    private readonly HttpMessageHandler _httpHandler;
 
     protected IFileDownload _downloader = null;
 
@@ -41,16 +42,13 @@ public abstract class SoftExpertBaseAPI
     /// <param name="db">Classe concreta que implemente a inteface SoftExpertAPI.Interfaces.IDataBase</param>
     public SoftExpertBaseAPI(Configurations configs)
     {
-        var handler = new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback =
-            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-        };
+        _httpHandler = SoftExpertHttpHandlerFactory.Create(configs);
 
-        _restClient = new HttpClient(handler);
+        _restClient = new HttpClient(_httpHandler, disposeHandler: false);
         var uri = new Uri(configs.baseUrl);
         _restClient.BaseAddress = uri;
         _restClient.DefaultRequestHeaders.Add("Host", uri.Host);
+        
 
         //headers e authorization
         if (configs.headers.Count() > 0)
@@ -95,7 +93,7 @@ public abstract class SoftExpertBaseAPI
         {
             throw new Exception("Necessário informar o 'token' para esta API. Gere o token nas configurações do seu usuário no SE");
         }
-        _dataSetClient = new HttpClient(handler);
+        _dataSetClient = new HttpClient(_httpHandler, disposeHandler: false);
         _dataSetClient.BaseAddress = uri;
         _dataSetClient.DefaultRequestHeaders.Add("Authorization", configs.token);
 
@@ -369,7 +367,7 @@ public abstract class SoftExpertBaseAPI
             //Realiza uma validação do token no backend do SE. Se não for válido, entao gera um novo token
             HttpRequestMessage validation = new HttpRequestMessage(HttpMethod.Get, "/katana/chartengine/configuration");
             validation.Headers.Add("Authorization", jwt_token);
-            using (HttpClient client = new HttpClient())
+            using (HttpClient client = new HttpClient(_httpHandler, disposeHandler: false))
             {
                 client.BaseAddress = new Uri(_restClient.BaseAddress.ToString());
                 HttpResponseMessage response = client.SendAsync(validation).Result;
@@ -424,7 +422,7 @@ public abstract class SoftExpertBaseAPI
         request.Content = new StringContent(urlEncodedBody, Encoding.UTF8, "application/x-www-form-urlencoded");
 
 
-        using (HttpClient client = new HttpClient())
+        using (HttpClient client = new HttpClient(_httpHandler, disposeHandler: false))
         {
             client.BaseAddress = new Uri(_restClient.BaseAddress.ToString());
             HttpResponseMessage response = client.SendAsync(request).Result;

@@ -20,7 +20,19 @@ using SoftExpertAPI;
 | `downloader` | `IFileDownload` | Condicional | Necessário para `ListAttachmentFromInstance` e `GetFileFromOID` quando os arquivos estão em diretório controlado |
 | `headers` | `Dictionary<string, string>` | Não | Headers HTTP adicionais |
 | `retryCount` | `int` | Não | Re-tentativas em HTTP **429** (Too Many Requests) nas chamadas **SOAP** e `dataset-integration`. Padrão: **3**. Valores negativos são tratados como **0** (sem retry) |
+| `proxy` | `ProxySettings` | Não | Proxy HTTP/HTTPS/SOCKS para **SOAP**, **REST**, `dataset-integration` e renovação de token (`GetToken`). Omitido ou com `url` vazio = conexão direta (sem proxy) |
 | `db` | `IDataBase` | Não | Legado. As funções públicas atuais não dependem mais de acesso direto ao banco |
+
+### `ProxySettings` (propriedade `proxy`)
+
+| Propriedade | Tipo | Descrição |
+| --- | --- | --- |
+| `url` | `string` | Endereço do proxy: `host:porta` ou URI completa (ex.: `http://proxy.corp:8080`, `socks5://127.0.0.1:1080`) |
+| `type` | `ProxyType` | Usado quando `url` **não** inclui scheme. Padrão: `Http`. Valores: `Http`, `Https`, `Socks4`, `Socks4a`, `Socks5` |
+| `login` | `string` | Usuário do proxy (opcional). Prefira `login`/`pass` em vez de credenciais na URL |
+| `pass` | `string` | Senha do proxy (opcional) |
+
+O .NET **não** aceita o scheme `socks5h` no proxy — use `socks5` (resolução de DNS pelo proxy já é o comportamento padrão). Em **SOCKS4**, a senha é ignorada pelo protocolo.
 
 \* O token é obrigatório para as integrações via dataset e para várias operações de gestão.
 
@@ -39,8 +51,28 @@ SoftExpertAPI.Configurations configs = new Configurations()
     token = "SEU_TOKEN_GERADO_NO_PERFIL",
     retryCount = 3, // Opcional: re-tentativas em 429 (SOAP e dataset; padrão 3)
     downloader = downloader, // Opcional
+    proxy = new ProxySettings
+    {
+        url = "proxy.corp:8080",
+        type = ProxyType.Http,
+        login = "usuario_proxy",
+        pass = "senha_proxy",
+    }, // Opcional: omita ou deixe url vazio para não usar proxy
 };
 ```
+
+Exemplo em `appsettings.json` (seção opcional):
+
+```json
+"proxy": {
+  "url": "proxy.corp:1080",
+  "type": "Socks5",
+  "login": "usuario_proxy",
+  "pass": "senha_proxy"
+}
+```
+
+No código, mapeie `type` com `Enum.TryParse<ProxyType>(valor, ignoreCase: true, out var tipo)`.
 
 ### Autenticação
 

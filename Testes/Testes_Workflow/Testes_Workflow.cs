@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using SoftExpertAPI;
 using Domain;
+using Testes;
 using System.Text;
 using Xunit.Abstractions;
 
@@ -13,7 +14,7 @@ public class Testes_Workflow
 
     //parametros ficticios utilizados apenas para os testes
     string ProcessID = "CCF";
-    string WorkflowID = "CCF202621311";
+    string WorkflowID = "CCF202624115";
     string EntityID = "SOLCLIENTEFORNE";
     string ActivityID = "ATIV-SOLCCF";
 
@@ -33,19 +34,8 @@ public class Testes_Workflow
             .Build();
 
 
-        SoftExpertAPI.Configurations configs = new Configurations(){
-            baseUrl = _appsettings["url"],
-            login = _appsettings["user"],
-            pass = _appsettings["pass"],
-            domain = _appsettings["domain"],
-            token = _appsettings["token"],
-            downloader = new MockFileDownload(),
-        };
-
-        if (!string.IsNullOrWhiteSpace(_appsettings["authorization"]))
-        {
-            configs.token = _appsettings["authorization"];
-        }
+        SoftExpertAPI.Configurations configs = ConfigurationsFromAppSettings.Create(_appsettings);
+        configs.downloader = new MockFileDownload();
 
         _softExpertApi = new SoftExpertAPI.SoftExpertWorkflowApi(configs);
     }
@@ -174,7 +164,7 @@ public class Testes_Workflow
 
         try
         {
-            _softExpertApi.editEntityRecord("CCF202314173", EntityID, EntityAttributeList, null, arquivos);
+            _softExpertApi.editEntityRecord(WorkflowID, EntityID, EntityAttributeList, null, arquivos);
             Assert.True(true);
         }
         catch (Exception error)
