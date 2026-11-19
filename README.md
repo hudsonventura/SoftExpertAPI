@@ -1,8 +1,8 @@
 # SoftExpertAPI
   
 <p align="center">
-	<img src="src/120.png" alt="SoftExpert Logo" width="100px" height="100px">
-	<img src="src/dotnet_logo.png" alt="Dotnet Logo" width="180px" height="100px">
+    <img src="src/dotnet-logo.svg" alt="Dotnet Logo" width="66">
+	<img src="src/se-logo.svg" alt="SoftExpert Logo" width="300">
 </p>
   
 SoftExpertAPI é uma biblioteca em .NET / C# que abstrai a comunicação SOAP e REST com a API do SoftExpert SE Suite.  
@@ -10,12 +10,11 @@ Esta biblioteca não está completa e será desenvolvida conforme necessidades e
 
 Direitos reservados a https://www.softexpert.com/
 
-Documentação original: https://documentation.softexpert.com/en/integration/index.html  
-Documentação original (nova versão): https://developer.softexpert.com/docs/data-integration/getting-started/platform-overview/
+Documentação original: https://developer.softexpert.com/docs/data-integration/getting-started/platform-overview/
 
 Contato: `hudsonventura@outlook.com`
 
-### Obs.: Testado no SoftExpert 2.2.4.x
+### Obs.: Testado no SoftExpert 2, 3.0 e 3.1
 
 ## Get Started
 
@@ -45,7 +44,14 @@ SoftExpertAPI.Configurations configs = new Configurations()
     pass = "senha",
     domain = "SE Suite",
     token = "SEU_TOKEN",
-    // downloader = minhaImplementacaoIFileDownload, // opcional: anexos em diretório controlado
+    downloader = minhaImplementacaoIFileDownload, // opcional: anexos em diretório controlado
+    proxy = new ProxySettings // Opcional: omita ou deixe url vazio para não usar proxy
+    {
+        url = "proxy.corp:8080",
+        type = ProxyType.Http,
+        login = "usuario_proxy",
+        pass = "senha_proxy",
+    }
 };
 SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(configs);
 ```

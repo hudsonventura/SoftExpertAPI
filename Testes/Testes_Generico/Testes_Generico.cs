@@ -15,9 +15,13 @@ public class Testes_Generico
 
     // Equipe existente no ambiente para teste de permissões (ajustar conforme necessário)
     int CdTeam = 67062;
-    string IdTeam = "fecontabil000-0001";
+    string IdTeam = "TST20261117134505";
     string NmTeam = "teste";
     string CdTeamEditor = "8";
+
+    // addUserToTeam / removeUserFromTeam — substituir por equipe e matrícula reais no ambiente
+    string IdTeamForUser = "EQUIPE_FICTICIA_001";
+    string IdUserForTeam = "usuario.ficticio";
 
     public Testes_Generico(ITestOutputHelper output)
     {
@@ -47,11 +51,11 @@ public class Testes_Generico
             string recordId = api.newTeam(idteam, nmteam, Component);
 
             Assert.False(string.IsNullOrWhiteSpace(recordId));
-            console.WriteLine($"Equipe criada: {idteam} | RecordID: {recordId}");
+            Console.WriteLine($"Equipe criada: {idteam} | RecordID: {recordId}");
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -116,11 +120,11 @@ public class Testes_Generico
             );
 
             Assert.True(true);
-            console.WriteLine($"Permissões definidas para equipe {IdTeam} (cdteam={CdTeam})");
+            Console.WriteLine($"Permissões definidas para equipe {IdTeam} (cdteam={CdTeam})");
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }
@@ -142,6 +146,82 @@ public class Testes_Generico
             );
 
             Assert.Fail("Era esperado SoftExpertException para equipe inexistente");
+        }
+        catch (SoftExpertException error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Adiciona usuário à equipe via SOAP addUserToTeam
+    /// </summary>
+    [Fact]
+    public void GN_03_addUserToTeam_Success()
+    {
+        try
+        {
+            api.addUserToTeam(IdTeamForUser, IdUserForTeam);
+
+            Assert.True(true);
+            Console.WriteLine($"Usuário {IdUserForTeam} adicionado à equipe {IdTeamForUser}");
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// addUserToTeam com equipe/usuário inválidos — espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void GN_03_addUserToTeam_Error()
+    {
+        try
+        {
+            api.addUserToTeam("EQUIPE_INEXISTENTE_XYZ", "usuario_inexistente_xyz");
+            Assert.Fail("Era esperado SoftExpertException para equipe ou usuário inválido");
+        }
+        catch (SoftExpertException error)
+        {
+            console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
+    /// Remove usuário da equipe via SOAP removeUserFromTeam
+    /// </summary>
+    [Fact]
+    public void GN_04_removeUserFromTeam_Success()
+    {
+        try
+        {
+            api.removeUserFromTeam(IdTeamForUser, IdUserForTeam);
+
+            Assert.True(true);
+            console.WriteLine($"Usuário {IdUserForTeam} removido da equipe {IdTeamForUser}");
+        }
+        catch (Exception error)
+        {
+            console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// removeUserFromTeam com equipe/usuário inválidos — espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void GN_04_removeUserFromTeam_Error()
+    {
+        try
+        {
+            api.removeUserFromTeam("EQUIPE_INEXISTENTE_XYZ", "usuario_inexistente_xyz");
+            Assert.Fail("Era esperado SoftExpertException para equipe ou usuário inválido");
         }
         catch (SoftExpertException error)
         {

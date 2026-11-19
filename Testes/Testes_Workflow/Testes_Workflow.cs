@@ -14,7 +14,7 @@ public class Testes_Workflow
 
     //parametros ficticios utilizados apenas para os testes
     string ProcessID = "CCF";
-    string WorkflowID = "CCF202624115";
+    string WorkflowID = "CCF202624116";
     string EntityID = "SOLCLIENTEFORNE";
     string ActivityID = "ATIV-SOLCCF";
 
@@ -348,13 +348,12 @@ public class Testes_Workflow
     [Fact]
     public void WF_12_AlterUserStart_Success()
     {
-        string workflowID = "PRO20260407";
-        //string explanation = "Teste unitário SoftExpertAPI - AlterUserStart";
+        string explanation = "Teste unitário SoftExpertAPI - AlterUserStart";
         string userID = "sistema.automatico";
 
         try
         {
-            _softExpertApi.AlterUserStart(workflowID, userID, explanation: null);
+            _softExpertApi.AlterUserStart("IR324012", userID, explanation);
             Assert.True(true);
         }
         catch (Exception error)
@@ -461,14 +460,12 @@ public class Testes_Workflow
     [Fact]
     public void WF_15_reactivateWorkflow_Success()
     {
-        string workflowID = "SA202629456";
-        string activityID = "ATIV-SOLACESSO";
         string explanation = "Teste unitário SoftExpertAPI - reactivateWorkflow";
         string userID = iduser;
 
         try
         {
-            _softExpertApi.reactivateWorkflow(workflowID, activityID, explanation, userID);
+            _softExpertApi.reactivateWorkflow(WorkflowID, ActivityID, explanation, userID);
             Assert.True(true);
         }
         catch (Exception error)
@@ -507,14 +504,12 @@ public class Testes_Workflow
     [Fact]
     public void WF_16_delegateWorkflow_Success()
     {
-        string workflowID = "SA202621905";
-        string activityID = "ATIV-SOLACESSO";
         string explanation = "Teste unitário SoftExpertAPI - delegateWorkflow";
-        int cduser = 10;
+        int cduser = 9;
 
         try
         {
-            _softExpertApi.delegateWorkflow(workflowID, activityID, explanation, cduser);
+            _softExpertApi.delegateWorkflow(WorkflowID, ActivityID, explanation, cduser);
             Assert.True(true);
         }
         catch (Exception error)
@@ -553,13 +548,12 @@ public class Testes_Workflow
     [Fact]
     public void WF_17_finishWorkflow_Success()
     {
-        string workflowID = "SA202629456";
         string explanation = "Teste unitário SoftExpertAPI - finishWorkflow";
         string userID = iduser;
 
         try
         {
-            _softExpertApi.finishWorkflow(workflowID, explanation, userID);
+            _softExpertApi.finishWorkflow(WorkflowID, explanation, userID);
             Assert.True(true);
         }
         catch (Exception error)
@@ -597,14 +591,12 @@ public class Testes_Workflow
     [Fact]
     public void WF_18_returnWorkflow_Success()
     {
-        string workflowID = "SA202629456";
-        string activityID = "ATIV-SOLACESSO";
         string explanation = "Teste unitário SoftExpertAPI - returnWorkflow";
         string userID = iduser;
 
         try
         {
-            _softExpertApi.returnWorkflow(workflowID, activityID, explanation, userID);
+            _softExpertApi.returnWorkflow(WorkflowID, ActivityID, explanation, userID);
             Assert.True(true);
         }
         catch (Exception error)
@@ -643,14 +635,13 @@ public class Testes_Workflow
     [Fact]
     public void WF_19_editChildEntityRecord_Success()
     {
-        string workflowID = "IR088482";
-        string mainEntityID = "IR";
-        string childRelationshipID = "ircomentariorel";
-        string childRecordOID = "7898431bf32fd35d5636146ce502d057";
+        string workflowID = "CCF202122421";
+        string mainEntityID = "SOLCLIENTEFORNE";
+        string childRelationshipID = "invoices";
+        string childRecordOID = "22c3777e458d45cda33f29765bb1d3d9"; //CCF202122421
         Dictionary<string, string> fields = new Dictionary<string, string>()
         {
-            { "synced", "1" },
-            { "usuario", "teste SoftExpertAPI" },
+            { "endereco", "teste SoftExpertAPI" }
         };
 
         try
@@ -807,12 +798,11 @@ public class Testes_Workflow
     [Fact]
     public void WF_23_cancelWorkflow_Success()
     {
-        string workflowID = "SA202629456";
         string explanation = "Teste unitário SoftExpertAPI - cancelWorkflow";
 
         try
         {
-            _softExpertApi.cancelWorkflow(workflowID, explanation, iduser);
+            _softExpertApi.cancelWorkflow(WorkflowID, explanation, iduser);
             Assert.True(true);
         }
         catch (Exception error)
@@ -846,8 +836,8 @@ public class Testes_Workflow
     [Fact]
     public void WF_24_unlinkActivityFromUser_Success()
     {
-        string workflowID = "PRO20240518";
-        string activityID = "AnalisarDemanda";
+        string workflowID = "IR324011";
+        string activityID = "RealizaAtendNivel1";
 
         try
         {
@@ -885,10 +875,10 @@ public class Testes_Workflow
     [Fact]
     public void WF_25_newTableRecord_Success()
     {
-        string tableID = "lideresinternac";
+        string tableID = "SOLPROCESSO";
         Dictionary<string, string> fields = new Dictionary<string, string>()
         {
-            { "cargo", "apenas um teste" },
+            { "descricao", "apenas um teste" },
         };
 
         try
@@ -910,12 +900,12 @@ public class Testes_Workflow
     [Fact]
     public void WF_25_newTableRecord_Grid_Success()
     {
-        string tableID = "SOLPROCESSOGRID";
-        string relatedRelationshipID = "solprocessorel";
-        string relatedRelationshipValue = "3f2b8c1a94d74e2fb6a05c7d81e93a40";
+        string tableID = "gridInvoice";
+        string relatedRelationshipID = "invoices";
+        string relatedRelationshipValue = "98d6e865dbc7fb598387f54132b80bba"; //CCF202122421
         Dictionary<string, string> fields = new Dictionary<string, string>()
         {
-            { "observacoes", "Teste unitário SoftExpertAPI - newTableRecord grid" },
+            { "endereco", "Teste unitário SoftExpertAPI - newTableRecord grid" },
         };
 
         try
@@ -967,7 +957,7 @@ public class Testes_Workflow
     public void WF_26_deleteTableRecord_Success()
     {
         string tableID = "lideresinternac";
-        string tableFieldOID = "940cbe38c97f479e8ff55d838eb672cf";
+        string tableFieldOID = "51757c5f01f649c8a619e84075c77965";
 
         try
         {

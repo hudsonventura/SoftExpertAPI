@@ -4,19 +4,19 @@
     <TargetFramework>net8.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>SoftExpertAPI é uma biblioteca que possui um conjunto de classes para abstrair a comunicação nativa do SoftExpert SESuite, e outras ferramentas que as APIs nativas não permitem.</Description>
-    <AssemblyVersion>1.5.0</AssemblyVersion>
-    <FileVersion>1.5.0</FileVersion>
+    <AssemblyVersion>1.5.1</AssemblyVersion>
+    <FileVersion>1.5.1</FileVersion>
     <PackageProjectUrl>https://github.com/hudsonventura/SoftExpertAPI</PackageProjectUrl>
     <PackageLicense>https://github.com/hudsonventura/SoftExpertAPI/raw/main/LICENSE</PackageLicense>
     <Authors>Hudson Ventura</Authors>
     <Company>Hudson Ventura</Company>
     <PackageId>SoftExpertAPI</PackageId>
     <Product>SoftExpertAPI</Product>
-    <Version>1.5.0</Version>
+    <Version>1.5.1</Version>
     <AssemblyName>SoftExpertAPI</AssemblyName>
     <Language>dotnet</Language>
     <Copyright>Direitos reservados a https://www.softexpert.com/</Copyright>
-    <PackageIcon>120.png</PackageIcon>
+    <PackageIcon>se-logo.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/hudsonventura/SoftExpertAPI</RepositoryUrl>
     <PackageLicenseFile></PackageLicenseFile>
@@ -52,7 +52,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="120.png">
+    <None Update="se-logo.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -21,16 +21,10 @@ public class SoftExpertGenericApi : SoftExpertBaseAPI
     /// <summary>
     /// Adiciona um usuário a uma equipe
     /// </summary>
-    /// <param name="idteam"></param>
-    /// <param name="iduser"></param> <summary>
-    /// 
+    /// <param name="idteam">ID da equipe</param>
+    /// <param name="iduser">Matrícula do usuário</param>
     /// </summary>
-    /// <param name="idteam"></param>
-    /// <param name="iduser"></param> <summary>
-    /// 
-    /// </summary>
-    /// <param name="idteam"></param>
-    /// <param name="iduser"></param>
+
     public void addUserToTeam(string idteam, string iduser){
         string body = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
                             <soapenv:Header/>

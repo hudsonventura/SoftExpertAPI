@@ -142,14 +142,24 @@ public abstract class SoftExpertBaseAPI
         var se_response = json.SelectToken("SOAP-ENV:Envelope")
                             .SelectToken("SOAP-ENV:Body")
                             .SelectToken($"{function}Response");
+        string detail = string.Empty;
         try
         {
             var status = se_response.SelectToken("Status").GetScalarString();
             var code = se_response.SelectToken("Code").GetScalarString();
-            if (status == "FAILURE")
+            var returns = se_response.SelectToken("return").GetScalarString();
+            detail = se_response.SelectToken("Detail").GetScalarString();
+            if (status is not null && status == "FAILURE")
             {
                 var error = new SoftExpertException(se_response.SelectToken("Detail").GetScalarString(), int.Parse(code));
                 error.setResponseReceived(body_response);
+                throw error;
+            }
+            if (returns is not null && returns.Contains("Impossible to find user"))
+            {
+                var error = new SoftExpertException(returns);
+                error.setResponseReceived(body_response);
+                detail = returns; //injeta o erro no detail para ser capturado no exception
                 throw error;
             }
             return se_response;
@@ -170,7 +180,7 @@ public abstract class SoftExpertBaseAPI
             catch (System.Exception)
             {
                 var returno = se_response.SelectToken("Detail").GetScalarString();
-                var error = new SoftExpertException(returno);
+                var error = new SoftExpertException(detail);
                 error.setResponseReceived(body_response);
                 throw error;
             }
@@ -434,14 +444,14 @@ public abstract class SoftExpertBaseAPI
             // Verifique o status da resposta
             if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
             {
-                throw new Exception($"Houve um erro ao tentar realizar login com o usuário externo");
+                throw new Exception($"Houve um erro ao obter o token de acesso no momento de realizar login com o usuário externo. StatusCode: {response.StatusCode}");
             }
 
             // Obtenha os cookies da resposta
             IEnumerable<string> cookies;
             if (response.Headers.TryGetValues("Set-Cookie", out cookies))
             {
-                var plLine = cookies.FirstOrDefault(part => part.Trim().StartsWith("pl="));
+                var plLine = cookies.FirstOrDefault(part => part.Trim().StartsWith("se-authentication-token="));
                 var ktLine = cookies.FirstOrDefault(part => part.Trim().StartsWith("kt="));
 
                 var authToken = plLine.Split(';')

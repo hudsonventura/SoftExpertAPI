@@ -983,7 +983,7 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
 
         List<ManageInstanceObject> list = SendRequestRest_DataSet<ManageInstanceObject>("queryGetWorkflowInstanceData", payload, sql);
         if (list.Count == 0)
-            throw new Exception($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}'");
+            throw new SoftExpertException($"Não foi encontrada nenhuma instância de workflow com o ID '{workflowID}'");
         
         return list[0];
     }   
