@@ -59,7 +59,7 @@ public class Testes_Administracao
         }
         catch (Exception error)
         {
-            console.WriteLine($"Erro: {error.Message}");
+            Console.WriteLine($"Erro: {error.Message}");
             throw;
         }
     }

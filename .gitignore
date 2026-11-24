@@ -23,3 +23,5 @@ Testes/Testes_Generico/bin/*
 Testes/Testes_Generico/obj/*
 Testes/Testes_DataSet/bin/*
 Testes/Testes_DataSet/obj/*
+nupkgs/
+nuget.config

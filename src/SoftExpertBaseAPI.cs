@@ -155,7 +155,7 @@ public abstract class SoftExpertBaseAPI
                 error.setResponseReceived(body_response);
                 throw error;
             }
-            if (returns is not null && returns.Contains("Impossible to find user"))
+            if (returns is not null && (returns.Contains("Impossible to find user") || returns.Contains("Usuário não encontrado")))
             {
                 var error = new SoftExpertException(returns);
                 error.setResponseReceived(body_response);
@@ -451,7 +451,7 @@ public abstract class SoftExpertBaseAPI
             IEnumerable<string> cookies;
             if (response.Headers.TryGetValues("Set-Cookie", out cookies))
             {
-                var plLine = cookies.FirstOrDefault(part => part.Trim().StartsWith("se-authentication-token="));
+                var plLine = cookies.FirstOrDefault(part => part.Trim().StartsWith("se-authentication-token=") || part.Trim().StartsWith("pl="));
                 var ktLine = cookies.FirstOrDefault(part => part.Trim().StartsWith("kt="));
 
                 var authToken = plLine.Split(';')
