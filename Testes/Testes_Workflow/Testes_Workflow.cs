@@ -57,6 +57,51 @@ public class Testes_Workflow
     }
 
     /// <summary>
+    /// Associa outra instância ao workflow de teste (integração SOAP newAssocWorkflow).
+    /// </summary>
+    [Fact]
+    public void WF_01b_newAssocWorkflow_Success()
+    {
+        string childWorkflowId = _softExpertApi.newWorkflow(ProcessID, $"Assoc teste {Guid.NewGuid():N}");
+
+        try
+        {
+            _softExpertApi.newAssocWorkflow(
+                WorkflowID,
+                childWorkflowId
+                //assocWorkflowType: AssocWorkflowType.Bloqueante,
+                //ActivityID: ActivityID,
+                //ActivityOrder: 1
+            );
+
+            Assert.True(true);
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine($"Erro: {error.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// newAssocWorkflow com instância inexistente — espera SoftExpertException
+    /// </summary>
+    [Fact]
+    public void WF_01b_newAssocWorkflow_Error()
+    {
+        try
+        {
+            _softExpertApi.newAssocWorkflow("INSTANCIA_INEXISTENTE_XYZ", "OUTRA_INEXISTENTE_XYZ");
+            Assert.Fail("Era esperado SoftExpertException");
+        }
+        catch (SoftExpertException error)
+        {
+            Console.WriteLine($"Erro esperado: {error.Message}");
+            Assert.True(true);
+        }
+    }
+
+    /// <summary>
     /// Criar uma instancia de um processo inexistente
     /// </summary>
     [Fact]

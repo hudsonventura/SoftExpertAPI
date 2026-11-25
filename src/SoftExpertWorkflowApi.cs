@@ -57,6 +57,62 @@ public class SoftExpertWorkflowApi : SoftExpertBaseAPI
         return se_response.SelectToken("RecordID").GetScalarString();
     }
 
+    /// <summary>
+    /// Associa uma instância de workflow a outra (ex.: SA e LA).
+    /// </summary>
+    /// <param name="WorkflowID">Instância pai</param>
+    /// <param name="AssocWorkflowID">Instância a associar</param>
+    /// <param name="assocWorkflowType">Opcional; omitido assume não bloqueante no serviço</param>
+    /// <param name="ActivityID">ID da atividade (opcional)</param>
+    /// <param name="ActivityOrder">Ordem da atividade (opcional)</param>
+    public void newAssocWorkflow(
+        string WorkflowID,
+        string AssocWorkflowID,
+        AssocWorkflowType? assocWorkflowType = null,
+        string? ActivityID = null,
+        int? ActivityOrder = null)
+    {
+        string body = BuildNewAssocWorkflowSoapBody(WorkflowID, AssocWorkflowID, assocWorkflowType, ActivityID, ActivityOrder);
+        SendRequestSOAP("newAssocWorkflow", body);
+    }
+
+    internal static string BuildNewAssocWorkflowSoapBody(
+        string workflowId,
+        string assocWorkflowId,
+        AssocWorkflowType? assocWorkflowType = null,
+        string? activityId = null,
+        int? activityOrder = null)
+    {
+        string assocWorkflowTypeXml = assocWorkflowType.HasValue
+            ? $"<urn:AssocWorkflowType>{(int)assocWorkflowType.Value}</urn:AssocWorkflowType>"
+            : "";
+
+        string activityIdXml = !string.IsNullOrWhiteSpace(activityId)
+            ? $"<urn:ActivityID>{activityId}</urn:ActivityID>"
+            : "";
+
+        string activityOrderXml = activityOrder.HasValue
+            ? $"<urn:ActivityOrder>{activityOrder.Value}</urn:ActivityOrder>"
+            : "";
+
+        return $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:urn='urn:workflow'>
+                            <soapenv:Header/>
+                            <soapenv:Body>
+                                <urn:newAssocWorkflow>
+                                    <urn:WorkflowID>{workflowId}</urn:WorkflowID>
+                                    <urn:AssocWorkflowList>
+                                        <urn:AssocWorkflow>
+                                            <urn:AssocWorkflowID>{assocWorkflowId}</urn:AssocWorkflowID>
+                                            {assocWorkflowTypeXml}
+                                        </urn:AssocWorkflow>
+                                    </urn:AssocWorkflowList>
+                                    {activityIdXml}
+                                    {activityOrderXml}
+                                </urn:newAssocWorkflow>
+                            </soapenv:Body>
+                        </soapenv:Envelope>";
+    }
+
 
 
 
