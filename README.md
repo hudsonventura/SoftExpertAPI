@@ -91,6 +91,7 @@ SoftExpertWorkflowApi wfAPI = new SoftExpertWorkflowApi(configs);
 | Função | Diretório controlado | Conjunto de dados | Objetivo |
 | --- | :---: | :---: | --- |
 | [newWorkflow](docs/workflow/newWorkflow.md) | | | Criar instância de processo |
+| [newAssocWorkflow](docs/workflow/newAssocWorkflow.md) | | | Associar instância de workflow a outra |
 | [cancelWorkflow](docs/workflow/cancelWorkflow.md) | | | Cancelar instância |
 | [executeActivity](docs/workflow/executeActivity.md) | | | Executar atividade |
 | [newAttachment](docs/workflow/newAttachment.md) | | | Anexar arquivo no menu de anexos |
